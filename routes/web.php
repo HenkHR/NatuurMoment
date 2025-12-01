@@ -21,4 +21,12 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+//game info route
+
+use App\Http\Controllers\GameInfoController;
+
+Route::get('/games/natuur-avontuur', [GameInfoController::class, 'show'])
+    ->name('games.natuur-avontuur');
+
 require __DIR__.'/auth.php';
+

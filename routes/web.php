@@ -7,6 +7,12 @@ Route::get('/spel', function () {
     return view('bingo');
 });
 
+Route::get('/bingo', function () {
+    return view('bingo');
+});
+
+
+
 Route::get('/speluitleg', function () {
     return view('speluitleg');
 });

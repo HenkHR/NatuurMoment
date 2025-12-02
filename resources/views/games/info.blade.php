@@ -1,12 +1,10 @@
-@extends('layouts.app')
+@extends('layouts.game')
 
 @section('title', $game['title'] ?? 'Game info')
 
 @section('content')
-    {{-- navbar voor home-achtige schermen --}}
     <x-nav.home />
 
-    {{-- hero met foto + titel + bulletpoints --}}
     <div class="relative">
         <img
             src="{{ asset('images/natuur-avontuur-hero.jpg') }}"
@@ -32,9 +30,9 @@
     </div>
 
     <main class="px-4 pt-4 pb-6">
-        {{-- hier komt zo je spelregels-component --}}
+        
         <x-game.rules-card :rules="$rules" class="mt-4" />
-
+        
         <footer class="mt-6 text-center text-small text-deep-black/60">
             <p>Bezoek de website</p>
             <p class="mt-1">Voorwaarden | Privacy | Cookieverklaring</p>

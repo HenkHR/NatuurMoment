@@ -33,9 +33,25 @@ class GameInfoController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show()
     {
-        //
+        $game = [
+            'title' => 'Natuur Avontuur',
+            'location' => 'Buitenplaats de Tempel',
+            'players_min' => 4,
+            'players_max' => 12,
+            'needs_materials' => false,
+            'organisers' => 1,
+        ];
+
+        $rules = [
+            'Volg de route door het natuurgebied',
+            'Tijdens de route maak je foto’s om de bingokaart te vullen',
+            'Ook krijg je tijdens de route quizvragen bij bezienswaardigheden',
+            'Let jij het beste op tijdens de route en haal je het binnen de tijd?',
+        ];
+
+        return view('games.info', compact('game', 'rules'));
     }
 
     /**

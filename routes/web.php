@@ -26,7 +26,8 @@ Route::middleware('auth')->group(function () {
 use App\Http\Controllers\GameInfoController;
 
 Route::get('/games/natuur-avontuur', [GameInfoController::class, 'show'])
-    ->name('games.natuur-avontuur');
+    ->name('games.info');
+
 
 require __DIR__.'/auth.php';
 

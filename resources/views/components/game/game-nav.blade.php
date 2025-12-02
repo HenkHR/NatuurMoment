@@ -1,9 +1,2 @@
-<div class="max-w-md mx-auto p-4 flex flex-col justify-between min-h-screen">
-    {{ $header ?? '' }}
+<a {{$attributes}}>{{$slot}}</a>
 
-    <main class="flex-grow mt-4">
-        {{ $slot }}
-    </main>
-
-    {{ $footer ?? '' }}
-</div>

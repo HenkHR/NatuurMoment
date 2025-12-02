@@ -3,8 +3,12 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
+Route::get('/spel', function () {
     return view('bingo');
+});
+
+Route::get('/speluitleg', function () {
+    return view('speluitleg');
 });
 
 Route::get('/dashboard', function () {

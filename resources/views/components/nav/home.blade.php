@@ -3,25 +3,22 @@
     'back' => false,
 ])
 
-<header class="bg-sky-500 px-4 py-3 flex items-center gap-3 shadow-card">
+<header class="bg-forest-700 h-14 pl-1 pr-4 shadow-card flex items-center">
+    <div class="flex items-center gap-3 w-full">
 
-    {{-- optionele terug-knop links --}}
-    @if($back)
-        <button type="button" class="text-pure-white text-xl">
-            {{-- hier later een icoon (heroicon / svg) --}}
-            ←
-        </button>
-    @endif
+        @if($back)
+            <button type="button" class="text-pure-white text-xl">
+                ←
+            </button>
+        @endif
 
-    {{-- logo / tekst --}}
-    <div class="flex items-center gap-2">
-        {{-- placeholder voor logo-blokje --}}
-        <div class="w-8 h-8 rounded-icon bg-pure-white/10 flex items-center justify-center">
-            <span class="text-pure-white text-xs font-semibold">Nm</span>
-        </div>
+        <a href="{{ url('/') }}" class="flex items-center">
+            <img
+                src="{{ asset('images/NM_LOGO.png') }}"
+                alt="Natuurmonumenten logo"
+                class="h-20 w-auto"
+            >
+        </a>
 
-        <span class="text-pure-white font-semibold text-small tracking-wide">
-            {{ $title }}
-        </span>
     </div>
 </header>

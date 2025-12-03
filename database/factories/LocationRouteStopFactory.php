@@ -17,15 +17,15 @@ class LocationRouteStopFactory extends Factory
     {
         return [
             'location_id' => Location::factory(),
-            'name' => \fake()->words(3, true),
-            'question_text' => \fake()->sentence() . '?',
-            'option_a' => \fake()->word(),
-            'option_b' => \fake()->word(),
-            'option_c' => \fake()->optional()->word(),
-            'option_d' => \fake()->optional()->word(),
-            'correct_option' => \fake()->randomElement(['A', 'B', 'C', 'D']),
-            'points' => \fake()->numberBetween(1, 10),
-            'sequence' => \fake()->numberBetween(0, 20),
+            'name' => fake()->words(3, true),
+            'question_text' => fake()->sentence() . '?',
+            'option_a' => fake()->word(),
+            'option_b' => fake()->word(),
+            'option_c' => fake()->optional()->word(),
+            'option_d' => fake()->optional()->word(),
+            'correct_option' => fake()->randomElement(['A', 'B', 'C', 'D']),
+            'points' => fake()->numberBetween(1, 10),
+            'sequence' => fake()->numberBetween(0, 20),
         ];
     }
 }

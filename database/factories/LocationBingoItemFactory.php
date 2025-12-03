@@ -17,9 +17,9 @@ class LocationBingoItemFactory extends Factory
     {
         return [
             'location_id' => Location::factory(),
-            'label' => \fake()->randomElement(['Eekhoorn', 'Paddenstoel', 'Vogelnest', 'Konijn', 'Kever', 'Vlinder', 'Eikel', 'Blad']),
-            'points' => \fake()->numberBetween(1, 5),
-            'icon' => \fake()->optional()->emoji(),
+            'label' => fake()->randomElement(['Eekhoorn', 'Paddenstoel', 'Vogelnest', 'Konijn', 'Kever', 'Vlinder', 'Eikel', 'Blad']),
+            'points' => fake()->numberBetween(1, 5),
+            'icon' => fake()->optional()->emoji(),
         ];
     }
 }

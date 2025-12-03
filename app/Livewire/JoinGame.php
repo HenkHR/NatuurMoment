@@ -25,14 +25,12 @@ class JoinGame extends Component
         //validatie van de PIN input in de form
         $this->validate(['pin' => 'required|size:6']);
 
-        //kijkt of het spel bestaat en of het in de lobby is of al gestart is. Dit is een boolean
-        $game = Game::where('pin', $this->pin)
-            ->where('status', 'lobby')
-            ->first();
+        //kijkt of het spel bestaat en niet gefinished is
+        $game = Game::where('pin', $this->pin)->first();
 
         //als het spel niet bestaat of al gestart is, word er een foutmelding gegeven. wordt in blade template getoond met @error('pin') <span>{{ $message }}</span> @enderror
         if (!$game) {
-            $this->addError('pin', 'Spel niet gevonden of al gestart');
+            $this->addError('pin', 'Spel niet gevonden');
             return;
         }
 
@@ -47,8 +45,24 @@ class JoinGame extends Component
             ->first();
 
             if ($existingPlayer) {
-                return redirect()->route('player.lobby', $game->id);
+                if ($game->status === 'lobby') {
+                    return redirect()->route('player.lobby', $game->id);
+                } elseif ($game->status === 'started') {
+                    return redirect()->route('player.game', [
+                        'game' => $game->id,
+                        'token' => $existingToken
+                    ]);
+                } elseif ($game->status === 'finished') {
+                    $this->addError('game', 'Spel is afgerond, er kunnen geen nieuwe spelers meedoen');
+                    return;
+                }
             }
+        }
+
+        //check of spel al gestart is voor nieuwe spelers
+        if ($game->status !== 'lobby') {
+            $this->addError('game', 'Spel is al gestart, er kunnen geen nieuwe spelers meedoen');
+            return;
         }
 
         $this->step = 2;
@@ -61,6 +75,13 @@ class JoinGame extends Component
         $this->validate(['name' => 'required|min:2|max:20']);
 
         $game = Game::findOrFail($this->gameId);
+
+
+        //word ook al gecheckt in de checkPin functie maar er word om de 2 seconden gecontroleerd of het spel nog in de lobby is
+        if ($game->status !== 'lobby') {
+            $this->addError('game', 'Spel is al gestart, er kunnen geen nieuwe spelers meedoen');
+            return;
+        }
         
         //check of de naam al gebruikt
         $duplicateName = GamePlayer::where('game_id', $game->id)

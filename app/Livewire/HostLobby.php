@@ -39,13 +39,15 @@ class HostLobby extends Component
     //start het spel als er minstens 1 player in de lobby is, spel functionaliteit komt nog
     public function startGame()
     {
-        $game = Game::findOrFail($this->gameId);
-        
-        if ($this->playerCount < 1) {
+        $game = Game::withCount('players')->findOrFail($this->gameId);
+
+        $freshPlayerCount = $game->players_count;
+
+        if ($freshPlayerCount < 1) {
             session()->flash('error', 'Need at least 1 player to start!');
             return;
         }
-        
+
         $game->update([
             'status' => 'started',
             'started_at' => now(),

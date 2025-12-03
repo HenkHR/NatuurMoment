@@ -14,11 +14,9 @@ class LocationFactory extends Factory
 
     public function definition(): array
     {
-        $faker = \Faker\Factory::create();
-        
         return [
-            'name' => $faker->unique()->city . ' ' . $faker->randomElement(['Bos', 'Park', 'Natuurgebied', 'Heide']),
-            'description' => $faker->optional()->paragraph,
+            'name' => \fake()->unique()->city() . ' ' . \fake()->randomElement(['Bos', 'Park', 'Natuurgebied', 'Heide']),
+            'description' => \fake()->optional()->paragraph(),
         ];
     }
 }

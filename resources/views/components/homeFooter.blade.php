@@ -21,11 +21,6 @@
                 </h3>
                 <ul class="space-y-2 text-sm">
                     <li><a href="{{ route('home') }}" class="hover:text-white">Home</a></li>
-                    @auth
-                        <li><a href="{{ route('dashboard') }}" class="hover:text-white">Dashboard</a></li>
-                    @else
-                        <li><a href="{{ route('login') }}" class="hover:text-white">Login</a></li>
-                    @endauth
                 </ul>
             </div>
 

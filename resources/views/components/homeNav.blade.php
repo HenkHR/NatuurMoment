@@ -15,18 +15,6 @@
                    class="text-gray-700 hover:text-green-700 text-sm font-medium">
                     Home
                 </a>
-
-                @auth
-                    <a href="{{ route('dashboard') }}"
-                       class="text-gray-700 hover:text-green-700 text-sm font-medium">
-                        Dashboard
-                    </a>
-                @else
-                    <a href="{{ route('login') }}"
-                       class="text-gray-700 hover:text-green-700 text-sm font-medium">
-                        Login
-                    </a>
-                @endauth
             </div>
 
             {{-- Mobile hamburger menu --}}
@@ -51,18 +39,6 @@
                class="block text-gray-700 hover:text-green-700 text-sm">
                 Home
             </a>
-
-            @auth
-                <a href="{{ route('dashboard') }}"
-                   class="block text-gray-700 hover:text-green-700 text-sm">
-                    Dashboard
-                </a>
-            @else
-                <a href="{{ route('login') }}"
-                   class="block text-gray-700 hover:text-green-700 text-sm">
-                    Login
-                </a>
-            @endauth
 
         </div>
     </div>

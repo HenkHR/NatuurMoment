@@ -1,13 +1,16 @@
 <x-admin.layout>
     <div class="mb-6">
-        <a href="{{ route('admin.locations.bingo-items.index', $location) }}" class="text-sky-600 hover:text-sky-700">
-            &larr; Terug naar bingo items
+        <a href="{{ route('admin.locations.bingo-items.index', $location) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100 rounded-md transition-colors text-sm font-medium">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            Terug naar bingo items
         </a>
     </div>
 
     <div class="bg-pure-white overflow-hidden rounded-card shadow-card p-6">
-        <h2 class="text-h2 text-forest-800 mb-2">Nieuw bingo item</h2>
-        <p class="text-body text-forest-600 mb-6">Locatie: {{ $location->name }}</p>
+        <h2 class="text-h2 text-deep-black mb-2">Nieuw bingo item</h2>
+        <p class="text-body text-deep-black mb-6">Locatie: {{ $location->name }}</p>
 
         <form method="POST" action="{{ route('admin.locations.bingo-items.store', $location) }}" enctype="multipart/form-data">
             @csrf
@@ -26,13 +29,13 @@
 
             <div class="mb-6">
                 <x-input-label for="icon" value="Icon afbeelding (optioneel)" />
-                <input id="icon" name="icon" type="file" accept="image/*" class="mt-1 block w-full text-sm text-forest-600
+                <input id="icon" name="icon" type="file" accept="image/*" class="mt-1 block w-full text-sm text-deep-black
                     file:mr-4 file:py-2 file:px-4
                     file:rounded-button file:border-0
                     file:text-sm file:font-semibold
-                    file:bg-forest-50 file:text-forest-700
-                    hover:file:bg-forest-100" />
-                <p class="mt-1 text-small text-forest-600">Max 2MB. Toegestane formaten: jpeg, png, jpg, gif, svg, webp</p>
+                    file:bg-sky-50 file:text-sky-700
+                    hover:file:bg-sky-100" />
+                <p class="mt-1 text-small text-deep-black">Max 2MB. Toegestane formaten: jpeg, png, jpg, gif, svg, webp</p>
                 <x-input-error :messages="$errors->get('icon')" class="mt-2" />
             </div>
 

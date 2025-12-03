@@ -41,6 +41,19 @@ Route::get('/player/lobby/{game}', [GameController::class, 'playerLobby'])->name
 Route::get('/styleguide', function () {
     return view('styleguide');
 })->name('styleguide');
+Route::get('/spel', function () {
+    return view('bingo');
+});
+
+Route::get('/bingo', function () {
+    return view('bingo');
+});
+
+
+
+Route::get('/speluitleg', function () {
+    return view('speluitleg');
+});
 
 Route::get('/dashboard', function () {
     return redirect()->route('admin.locations.index');

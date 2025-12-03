@@ -42,11 +42,11 @@
     </div>
 
     <div class="px-4 py-5 flex justify-center bg-pure-white">
-        <button
-            type="button"
-            class="w-full max-w-xs bg-action-500 hover:bg-action-600 text-pure-white font-semibold text-small py-3 rounded-button shadow-card transition"
-        >
-            {{ $buttonLabel }}
-        </button>
+    <form action="{{ route('play.create', 1) }}" method="POST" class="w-full max-w-xs bg-action-500 hover:bg-action-600 text-pure-white font-semibold text-small py-3 rounded-button text-center shadow-card transition">
+                @csrf
+                <button type="submit">{{ $buttonLabel }}</button>
+            </form>
+
+        
     </div>
 </section>

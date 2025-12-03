@@ -11,6 +11,10 @@
 
             {{-- Desktop menu --}}
             <div class="hidden sm:flex items-center space-x-6">
+                <a href="{{ route('player.join') }}"
+                   class="bg-action-500 text-pure-white font-semibold text-small py-2 px-3 rounded-button text-center shadow-card transition">
+                    Join Game
+                </a>
                 <a href="{{ route('home') }}"
                    class="text-gray-700 hover:text-green-700 text-sm font-medium">
                     Home
@@ -33,11 +37,16 @@
 
     {{-- Mobile menu panel --}}
     <div id="mobile-menu" class="sm:hidden hidden border-t border-gray-200 bg-white">
-        <div class="px-4 py-3 space-y-3">
+        <div class="px-4 py-3 space-y-3 flex flex-col gap-2 justify-center items-center">
 
             <a href="{{ route('home') }}"
                class="block text-gray-700 hover:text-green-700 text-sm">
                 Home
+            </a>
+
+            <a href="{{ route('player.join') }}"
+               class="bg-action-500 text-pure-white font-semibold text-small py-2 px-3 rounded-button text-center shadow-card transition">
+                Join Game
             </a>
 
         </div>

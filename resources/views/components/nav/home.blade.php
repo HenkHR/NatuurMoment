@@ -20,5 +20,10 @@
             >
         </a>
 
+        <a href="{{ route('player.join') }}"
+           class="bg-action-500 text-pure-white font-semibold text-small py-2 px-3 rounded-button text-center shadow-card transition">
+            Join Game
+        </a>
+
     </div>
 </header>

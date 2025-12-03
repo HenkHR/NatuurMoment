@@ -1,4 +1,3 @@
-{{--
 <nav x-data="{ open: false }" class="bg-forest-700 shadow-lg">
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -15,6 +14,7 @@
 
             <!-- Settings Dropdown -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
+                @auth
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button class="inline-flex items-center px-3 py-2 border border-transparent text-base leading-4 font-medium rounded-button text-pure-white bg-forest-700 hover:text-forest-100 focus:outline-none transition ease-in-out duration-150">
@@ -45,6 +45,7 @@
                         </form>
                     </x-slot>
                 </x-dropdown>
+                @endauth
             </div>
 
             <!-- Hamburger -->
@@ -61,6 +62,7 @@
 
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden bg-forest-700">
+        @auth
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-forest-600">
             <div class="px-4">
@@ -85,6 +87,6 @@
                 </form>
             </div>
         </div>
+        @endauth
     </div>
 </nav>
---}}

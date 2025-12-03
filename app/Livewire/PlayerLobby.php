@@ -23,7 +23,11 @@ class PlayerLobby extends Component
         $this->gameId = $gameId;
         $this->playerToken = $playerToken;
         
-        $player = GamePlayer::where('token', $playerToken)->firstOrFail();
+        //Kijk of de lokaal opgeslagen token bij de game id hoort
+        $player = GamePlayer::where('token', $playerToken)
+        ->where('game_id', $gameId)  
+        ->firstOrFail();
+
         $this->playerName = $player->name;
         
         $game = Game::findOrFail($gameId);

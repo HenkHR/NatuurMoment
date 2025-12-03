@@ -27,9 +27,10 @@ Route::get('/play/{locationId}', function ($locationId) {
 
 Route::post('/play/{locationId}', [GameController::class, 'create'])->name('play.create');
 
-Route::get('/host/lobby/{game}', [GameController::class, 'hostLobby'])->name('host.lobby');
-
 Route::get('/join', [GameController::class, 'showJoin'])->name('player.join');
+
+
+Route::get('/host/lobby/{game}', [GameController::class, 'hostLobby'])->name('host.lobby');
 Route::get('/player/lobby/{game}', [GameController::class, 'playerLobby'])->name('player.lobby');
 
 

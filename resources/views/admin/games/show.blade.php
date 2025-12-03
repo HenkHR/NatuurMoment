@@ -1,30 +1,30 @@
 <x-admin.layout>
     <div class="mb-6">
-        <a href="{{ route('admin.games.index') }}" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">
+        <a href="{{ route('admin.games.index') }}" class="text-sky-600 hover:text-sky-700">
             &larr; Terug naar games
         </a>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6">
+    <div class="bg-pure-white overflow-hidden rounded-card shadow-card p-6">
         <div class="flex justify-between items-start mb-6">
             <div>
-                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Game Details</h3>
-                <p class="text-3xl font-mono font-bold text-indigo-600 dark:text-indigo-400 mt-2">{{ $game->pin }}</p>
+                <h2 class="text-h2 text-forest-800">Game Details</h2>
+                <p class="text-3xl font-mono font-bold text-action mt-2">{{ $game->pin }}</p>
             </div>
             <div>
                 @switch($game->status)
                     @case('lobby')
-                        <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                        <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-badge bg-action-100 text-action-700">
                             Lobby
                         </span>
                         @break
                     @case('started')
-                        <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                        <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-badge bg-forest-100 text-forest-700">
                             Gestart
                         </span>
                         @break
                     @case('finished')
-                        <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                        <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-badge bg-surface-medium text-deep-black">
                             Afgelopen
                         </span>
                         @break
@@ -33,45 +33,45 @@
         </div>
 
         <dl class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Locatie</dt>
-                <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">{{ $game->location->name ?? 'Onbekend' }}</dd>
+            <div class="border-t border-surface-medium pt-4">
+                <dt class="text-sm font-medium text-forest-600">Locatie</dt>
+                <dd class="mt-1 text-sm text-deep-black">{{ $game->location->name ?? 'Onbekend' }}</dd>
             </div>
 
-            <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Aangemaakt</dt>
-                <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">{{ $game->created_at->format('d-m-Y H:i:s') }}</dd>
+            <div class="border-t border-surface-medium pt-4">
+                <dt class="text-sm font-medium text-forest-600">Aangemaakt</dt>
+                <dd class="mt-1 text-sm text-deep-black">{{ $game->created_at->format('d-m-Y H:i:s') }}</dd>
             </div>
 
             @if ($game->started_at)
-                <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Gestart op</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">{{ $game->started_at->format('d-m-Y H:i:s') }}</dd>
+                <div class="border-t border-surface-medium pt-4">
+                    <dt class="text-sm font-medium text-forest-600">Gestart op</dt>
+                    <dd class="mt-1 text-sm text-deep-black">{{ $game->started_at->format('d-m-Y H:i:s') }}</dd>
                 </div>
             @endif
 
             @if ($game->finished_at)
-                <div class="border-t border-gray-200 dark:border-gray-700 pt-4">
-                    <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Afgelopen op</dt>
-                    <dd class="mt-1 text-sm text-gray-900 dark:text-gray-100">{{ $game->finished_at->format('d-m-Y H:i:s') }}</dd>
+                <div class="border-t border-surface-medium pt-4">
+                    <dt class="text-sm font-medium text-forest-600">Afgelopen op</dt>
+                    <dd class="mt-1 text-sm text-deep-black">{{ $game->finished_at->format('d-m-Y H:i:s') }}</dd>
                 </div>
             @endif
         </dl>
 
-        <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 flex justify-end">
-            <button x-data="" x-on:click="$dispatch('open-modal', 'delete-game-{{ $game->id }}')" class="text-red-600 hover:text-red-900 dark:text-red-400">
+        <div class="mt-6 pt-6 border-t border-surface-medium flex justify-end">
+            <button x-data="" x-on:click="$dispatch('open-modal', 'delete-game-{{ $game->id }}')">
                 <x-danger-button>Game verwijderen</x-danger-button>
             </button>
         </div>
     </div>
 
     <x-modal name="delete-game-{{ $game->id }}" focusable>
-        <form method="POST" action="{{ route('admin.games.destroy', $game) }}" class="p-6">
+        <form method="POST" action="{{ route('admin.games.destroy', $game) }}">
             @csrf
             @method('DELETE')
 
-            <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">Game verwijderen?</h2>
-            <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            <h2 class="text-h3 text-forest-800">Game verwijderen?</h2>
+            <p class="mt-2 text-body text-forest-600">
                 Weet je zeker dat je game "{{ $game->pin }}" wilt verwijderen?
             </p>
 

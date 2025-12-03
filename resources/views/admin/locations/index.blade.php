@@ -1,50 +1,60 @@
 <x-admin.layout>
     <div class="flex justify-between items-center mb-6">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Locaties</h3>
+        <h2 class="text-h2 text-forest-800">Locaties</h2>
         <a href="{{ route('admin.locations.create') }}">
             <x-primary-button>Nieuwe locatie</x-primary-button>
         </a>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
-        <table class="w-full">
-            <thead class="bg-gray-50 dark:bg-gray-700">
+    <div class="bg-pure-white overflow-x-auto rounded-card shadow-card">
+        <table class="w-full min-w-[600px]">
+            <thead class="bg-forest-50">
                 <tr>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Naam</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Bingo Items</th>
-                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Vragen</th>
-                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Acties</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-forest-700 uppercase tracking-wider">Naam</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-forest-700 uppercase tracking-wider">Bingo Items</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-forest-700 uppercase tracking-wider">Vragen</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-forest-700 uppercase tracking-wider">Acties</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-200 dark:divide-gray-600">
+            <tbody class="divide-y divide-surface-medium">
                 @forelse ($locations as $location)
-                    <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                    <tr class="hover:bg-forest-50/50 transition-colors">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-deep-black">
                             {{ $location->name }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                            <a href="{{ route('admin.locations.bingo-items.index', $location) }}" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <a href="{{ route('admin.locations.bingo-items.index', $location) }}" class="text-sky-600 hover:text-sky-700">
                                 {{ $location->bingo_items_count }} items
                             </a>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                            <a href="{{ route('admin.locations.route-stops.index', $location) }}" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm">
+                            <a href="{{ route('admin.locations.route-stops.index', $location) }}" class="text-sky-600 hover:text-sky-700">
                                 {{ $location->route_stops_count }} vragen
                             </a>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                            <a href="{{ route('admin.locations.edit', $location) }}" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">Bewerk</a>
-                            <button x-data="" x-on:click="$dispatch('open-modal', 'delete-location-{{ $location->id }}')" class="text-red-600 hover:text-red-900 dark:text-red-400">Verwijder</button>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div class="flex justify-end gap-2">
+                                <a href="{{ route('admin.locations.edit', $location) }}" class="p-2 text-sky-600 hover:text-sky-700 hover:bg-sky-50 rounded-button transition-colors" title="Bewerk">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </a>
+                                <button x-data="" x-on:click="$dispatch('open-modal', 'delete-location-{{ $location->id }}')" class="p-2 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-button transition-colors" title="Verwijder">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
                         </td>
                     </tr>
 
                     <x-modal name="delete-location-{{ $location->id }}" focusable>
-                        <form method="POST" action="{{ route('admin.locations.destroy', $location) }}" class="p-6">
+                        <form method="POST" action="{{ route('admin.locations.destroy', $location) }}">
                             @csrf
                             @method('DELETE')
 
-                            <h2 class="text-lg font-medium text-gray-900 dark:text-gray-100">Locatie verwijderen?</h2>
-                            <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                            <h2 class="text-h3 text-forest-800">Locatie verwijderen?</h2>
+                            <p class="mt-2 text-body text-forest-600">
                                 Weet je zeker dat je "{{ $location->name }}" wilt verwijderen?
                                 Alle gekoppelde bingo items en vragen worden ook verwijderd.
                             </p>
@@ -57,7 +67,7 @@
                     </x-modal>
                 @empty
                     <tr>
-                        <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400">
+                        <td colspan="4" class="px-6 py-4 text-center text-sm text-forest-600">
                             Geen locaties gevonden.
                         </td>
                     </tr>

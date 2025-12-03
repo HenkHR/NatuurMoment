@@ -1,13 +1,13 @@
 <x-admin.layout>
     <div class="mb-6">
-        <a href="{{ route('admin.locations.bingo-items.index', $location) }}" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">
+        <a href="{{ route('admin.locations.bingo-items.index', $location) }}" class="text-sky-600 hover:text-sky-700">
             &larr; Terug naar bingo items
         </a>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Nieuw bingo item</h3>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Locatie: {{ $location->name }}</p>
+    <div class="bg-pure-white overflow-hidden rounded-card shadow-card p-6">
+        <h2 class="text-h2 text-forest-800 mb-2">Nieuw bingo item</h2>
+        <p class="text-body text-forest-600 mb-6">Locatie: {{ $location->name }}</p>
 
         <form method="POST" action="{{ route('admin.locations.bingo-items.store', $location) }}" enctype="multipart/form-data">
             @csrf
@@ -26,14 +26,13 @@
 
             <div class="mb-6">
                 <x-input-label for="icon" value="Icon afbeelding (optioneel)" />
-                <input id="icon" name="icon" type="file" accept="image/*" class="mt-1 block w-full text-sm text-gray-500 dark:text-gray-400
+                <input id="icon" name="icon" type="file" accept="image/*" class="mt-1 block w-full text-sm text-forest-600
                     file:mr-4 file:py-2 file:px-4
-                    file:rounded-md file:border-0
+                    file:rounded-button file:border-0
                     file:text-sm file:font-semibold
-                    file:bg-indigo-50 file:text-indigo-700
-                    hover:file:bg-indigo-100
-                    dark:file:bg-indigo-900 dark:file:text-indigo-300" />
-                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Max 2MB. Toegestane formaten: jpeg, png, jpg, gif, svg, webp</p>
+                    file:bg-forest-50 file:text-forest-700
+                    hover:file:bg-forest-100" />
+                <p class="mt-1 text-small text-forest-600">Max 2MB. Toegestane formaten: jpeg, png, jpg, gif, svg, webp</p>
                 <x-input-error :messages="$errors->get('icon')" class="mt-2" />
             </div>
 

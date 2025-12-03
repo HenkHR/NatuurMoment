@@ -1,13 +1,13 @@
 <x-admin.layout>
     <div class="mb-6">
-        <a href="{{ route('admin.locations.route-stops.index', $routeStop->location) }}" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">
+        <a href="{{ route('admin.locations.route-stops.index', $routeStop->location) }}" class="text-sky-600 hover:text-sky-700">
             &larr; Terug naar vragen
         </a>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Vraag bewerken</h3>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">Locatie: {{ $routeStop->location->name }}</p>
+    <div class="bg-pure-white overflow-hidden rounded-card shadow-card p-6">
+        <h2 class="text-h2 text-forest-800 mb-2">Vraag bewerken</h2>
+        <p class="text-body text-forest-600 mb-6">Locatie: {{ $routeStop->location->name }}</p>
 
         <form method="POST" action="{{ route('admin.route-stops.update', $routeStop) }}">
             @csrf
@@ -29,7 +29,7 @@
 
             <div class="mb-4">
                 <x-input-label for="question_text" value="Vraagtekst" />
-                <textarea id="question_text" name="question_text" rows="3" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" required>{{ old('question_text', $routeStop->question_text) }}</textarea>
+                <textarea id="question_text" name="question_text" rows="3" class="mt-1 block w-full border-surface-medium bg-pure-white text-deep-black focus:border-action focus:ring-action rounded-input shadow-sm" required>{{ old('question_text', $routeStop->question_text) }}</textarea>
                 <x-input-error :messages="$errors->get('question_text')" class="mt-2" />
             </div>
 
@@ -62,7 +62,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div>
                     <x-input-label for="correct_option" value="Correct antwoord" />
-                    <select id="correct_option" name="correct_option" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm" required>
+                    <select id="correct_option" name="correct_option" class="mt-1 block w-full border-surface-medium bg-pure-white text-deep-black focus:border-action focus:ring-action rounded-input shadow-sm" required>
                         <option value="">Selecteer...</option>
                         <option value="A" {{ old('correct_option', $routeStop->correct_option) === 'A' ? 'selected' : '' }}>A</option>
                         <option value="B" {{ old('correct_option', $routeStop->correct_option) === 'B' ? 'selected' : '' }}>B</option>

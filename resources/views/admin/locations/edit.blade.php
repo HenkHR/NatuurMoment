@@ -1,12 +1,12 @@
 <x-admin.layout>
     <div class="mb-6">
-        <a href="{{ route('admin.locations.index') }}" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400">
+        <a href="{{ route('admin.locations.index') }}" class="text-sky-600 hover:text-sky-700">
             &larr; Terug naar locaties
         </a>
     </div>
 
-    <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg p-6">
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-6">Locatie bewerken</h3>
+    <div class="bg-pure-white overflow-hidden rounded-card shadow-card p-6">
+        <h2 class="text-h2 text-forest-800 mb-6">Locatie bewerken</h2>
 
         <form method="POST" action="{{ route('admin.locations.update', $location) }}">
             @csrf
@@ -20,7 +20,7 @@
 
             <div class="mb-6">
                 <x-input-label for="description" value="Beschrijving" />
-                <textarea id="description" name="description" rows="4" class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">{{ old('description', $location->description) }}</textarea>
+                <textarea id="description" name="description" rows="4" class="mt-1 block w-full border-surface-medium bg-pure-white text-deep-black focus:border-action focus:ring-action rounded-input shadow-sm">{{ old('description', $location->description) }}</textarea>
                 <x-input-error :messages="$errors->get('description')" class="mt-2" />
             </div>
 

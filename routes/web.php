@@ -2,10 +2,36 @@
 
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\GameController;
+
+
+//mag weg als locatie pagina er is
+use App\Models\Location;
 
 Route::get('/', function () {
     return view('welcome');
 });
+
+
+//aanpassen als locatie pagina er is
+Route::get('/play', function () {
+    $location = Location::find(1);
+    return view('play', compact('location'));
+})->name('play');
+
+Route::get('/play/{locationId}', function ($locationId) {
+    $location = Location::findOrFail($locationId);
+    return view('play', compact('location'));
+})->name('play.location');
+
+
+Route::post('/play/{locationId}', [GameController::class, 'create'])->name('play.create');
+
+Route::get('/host/lobby/{game}', [GameController::class, 'hostLobby'])->name('host.lobby');
+
+Route::get('/join', [GameController::class, 'showJoin'])->name('player.join');
+Route::get('/player/lobby/{game}', [GameController::class, 'playerLobby'])->name('player.lobby');
+
 
 Route::get('/styleguide', function () {
     return view('styleguide');

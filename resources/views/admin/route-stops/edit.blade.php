@@ -1,0 +1,90 @@
+<x-admin.layout>
+    <div class="mb-6">
+        <a href="{{ route('admin.locations.route-stops.index', $routeStop->location) }}" class="text-sky-600 hover:text-sky-700">
+            &larr; Terug naar vragen
+        </a>
+    </div>
+
+    <div class="bg-pure-white overflow-hidden rounded-card shadow-card p-6">
+        <h2 class="text-h2 text-forest-800 mb-2">Vraag bewerken</h2>
+        <p class="text-body text-forest-600 mb-6">Locatie: {{ $routeStop->location->name }}</p>
+
+        <form method="POST" action="{{ route('admin.route-stops.update', $routeStop) }}">
+            @csrf
+            @method('PUT')
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <x-input-label for="name" value="Naam" />
+                    <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $routeStop->name)" required autofocus />
+                    <x-input-error :messages="$errors->get('name')" class="mt-2" />
+                </div>
+
+                <div>
+                    <x-input-label for="sequence" value="Volgorde" />
+                    <x-text-input id="sequence" name="sequence" type="number" min="0" class="mt-1 block w-full" :value="old('sequence', $routeStop->sequence)" required />
+                    <x-input-error :messages="$errors->get('sequence')" class="mt-2" />
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <x-input-label for="question_text" value="Vraagtekst" />
+                <textarea id="question_text" name="question_text" rows="3" class="mt-1 block w-full border-surface-medium bg-pure-white text-deep-black focus:border-action focus:ring-action rounded-input shadow-sm" required>{{ old('question_text', $routeStop->question_text) }}</textarea>
+                <x-input-error :messages="$errors->get('question_text')" class="mt-2" />
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <x-input-label for="option_a" value="Antwoord A" />
+                    <x-text-input id="option_a" name="option_a" type="text" class="mt-1 block w-full" :value="old('option_a', $routeStop->option_a)" required />
+                    <x-input-error :messages="$errors->get('option_a')" class="mt-2" />
+                </div>
+
+                <div>
+                    <x-input-label for="option_b" value="Antwoord B" />
+                    <x-text-input id="option_b" name="option_b" type="text" class="mt-1 block w-full" :value="old('option_b', $routeStop->option_b)" required />
+                    <x-input-error :messages="$errors->get('option_b')" class="mt-2" />
+                </div>
+
+                <div>
+                    <x-input-label for="option_c" value="Antwoord C (optioneel)" />
+                    <x-text-input id="option_c" name="option_c" type="text" class="mt-1 block w-full" :value="old('option_c', $routeStop->option_c)" />
+                    <x-input-error :messages="$errors->get('option_c')" class="mt-2" />
+                </div>
+
+                <div>
+                    <x-input-label for="option_d" value="Antwoord D (optioneel)" />
+                    <x-text-input id="option_d" name="option_d" type="text" class="mt-1 block w-full" :value="old('option_d', $routeStop->option_d)" />
+                    <x-input-error :messages="$errors->get('option_d')" class="mt-2" />
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                    <x-input-label for="correct_option" value="Correct antwoord" />
+                    <select id="correct_option" name="correct_option" class="mt-1 block w-full border-surface-medium bg-pure-white text-deep-black focus:border-action focus:ring-action rounded-input shadow-sm" required>
+                        <option value="">Selecteer...</option>
+                        <option value="A" {{ old('correct_option', $routeStop->correct_option) === 'A' ? 'selected' : '' }}>A</option>
+                        <option value="B" {{ old('correct_option', $routeStop->correct_option) === 'B' ? 'selected' : '' }}>B</option>
+                        <option value="C" {{ old('correct_option', $routeStop->correct_option) === 'C' ? 'selected' : '' }}>C</option>
+                        <option value="D" {{ old('correct_option', $routeStop->correct_option) === 'D' ? 'selected' : '' }}>D</option>
+                    </select>
+                    <x-input-error :messages="$errors->get('correct_option')" class="mt-2" />
+                </div>
+
+                <div>
+                    <x-input-label for="points" value="Punten" />
+                    <x-text-input id="points" name="points" type="number" min="1" class="mt-1 block w-full" :value="old('points', $routeStop->points)" required />
+                    <x-input-error :messages="$errors->get('points')" class="mt-2" />
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-3">
+                <a href="{{ route('admin.locations.route-stops.index', $routeStop->location) }}">
+                    <x-secondary-button type="button">Annuleren</x-secondary-button>
+                </a>
+                <x-primary-button>Bijwerken</x-primary-button>
+            </div>
+        </form>
+    </div>
+</x-admin.layout>

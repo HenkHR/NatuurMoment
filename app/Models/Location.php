@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Location extends Model
 {
@@ -14,18 +15,26 @@ class Location extends Model
         'description',
     ];
 
-    public function games()
-    {
-        return $this->hasMany(Game::class);
-    }
-
-    public function bingoItems()
+    public function bingoItems(): HasMany
     {
         return $this->hasMany(LocationBingoItem::class);
     }
 
-    public function routeStops()
+    public function routeStops(): HasMany
     {
-        return $this->hasMany(LocationRouteStop::class);
+        return $this->hasMany(LocationRouteStop::class)->orderBy('sequence');
+    }
+
+    public function games(): HasMany
+    {
+        return $this->hasMany(Game::class);
+    }
+
+    protected static function booted(): void
+    {
+        static::deleting(function (Location $location) {
+            $location->bingoItems()->delete();
+            $location->routeStops()->delete();
+        });
     }
 }

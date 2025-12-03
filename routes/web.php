@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\BingoItemController;
 use App\Http\Controllers\Admin\AdminGameController;
 use App\Http\Controllers\Admin\LocationController;
 use App\Http\Controllers\Admin\RouteStopController;
+use App\Http\Controllers\GameInfoController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GameController;
@@ -57,5 +58,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('locations.route-stops', RouteStopController::class)->shallow()->except(['show']);
     Route::resource('games', AdminGameController::class)->only(['index', 'show', 'destroy']);
 });
+//game info route
+
+
+Route::get('/games/natuur-avontuur', [GameInfoController::class, 'show'])
+    ->name('games.info');
+
 
 require __DIR__.'/auth.php';
+

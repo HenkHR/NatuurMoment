@@ -7,6 +7,7 @@ use App\Http\Requests\StoreLocationRequest;
 use App\Http\Requests\UpdateLocationRequest;
 use App\Models\Location;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class LocationController extends Controller
@@ -54,7 +55,9 @@ class LocationController extends Controller
             return back()->with('error', 'Kan locatie niet verwijderen: er zijn nog games gekoppeld. Verwijder eerst alle games.');
         }
 
-        $location->delete();
+        DB::transaction(function () use ($location) {
+            $location->delete();
+        });
 
         return redirect()
             ->route('admin.locations.index')

@@ -13,7 +13,7 @@ class IsAdmin
      */
     public function handle(Request $request, Closure $next): Response
     {
-        abort_if(!auth()->user()?->is_admin, 403, 'Je hebt geen toegang tot deze pagina.');
+        abort_if(!$request->user() || !$request->user()->is_admin, 403, 'Je hebt geen toegang tot deze pagina.');
 
         return $next($request);
     }

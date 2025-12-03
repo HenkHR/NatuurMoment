@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateBingoItemRequest;
 use App\Models\Location;
 use App\Models\LocationBingoItem;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
@@ -32,7 +33,11 @@ class BingoItemController extends Controller
         $data = $request->safe()->only(['label', 'points']);
 
         if ($request->hasFile('icon')) {
-            $data['icon'] = $request->file('icon')->store('bingo-icons', 'public');
+            $path = $request->file('icon')->store('bingo-icons', 'public');
+            if ($path === false) {
+                return back()->withErrors(['icon' => 'Bestand kon niet worden opgeslagen.'])->withInput();
+            }
+            $data['icon'] = $path;
         }
 
         $location->bingoItems()->create($data);
@@ -54,15 +59,19 @@ class BingoItemController extends Controller
         $data = $request->safe()->only(['label', 'points']);
 
         if ($request->boolean('remove_icon')) {
-            if ($bingoItem->icon) {
+            if ($bingoItem->icon && Storage::disk('public')->exists($bingoItem->icon)) {
                 Storage::disk('public')->delete($bingoItem->icon);
             }
             $data['icon'] = null;
         } elseif ($request->hasFile('icon')) {
-            if ($bingoItem->icon) {
+            if ($bingoItem->icon && Storage::disk('public')->exists($bingoItem->icon)) {
                 Storage::disk('public')->delete($bingoItem->icon);
             }
-            $data['icon'] = $request->file('icon')->store('bingo-icons', 'public');
+            $path = $request->file('icon')->store('bingo-icons', 'public');
+            if ($path === false) {
+                return back()->withErrors(['icon' => 'Bestand kon niet worden opgeslagen.'])->withInput();
+            }
+            $data['icon'] = $path;
         }
 
         $bingoItem->update($data);
@@ -75,12 +84,15 @@ class BingoItemController extends Controller
     public function destroy(LocationBingoItem $bingoItem): RedirectResponse
     {
         $location = $bingoItem->location;
+        $icon = $bingoItem->icon;
 
-        if ($bingoItem->icon) {
-            Storage::disk('public')->delete($bingoItem->icon);
+        DB::transaction(function () use ($bingoItem) {
+            $bingoItem->delete();
+        });
+
+        if ($icon && Storage::disk('public')->exists($icon)) {
+            Storage::disk('public')->delete($icon);
         }
-
-        $bingoItem->delete();
 
         return redirect()
             ->route('admin.locations.bingo-items.index', $location)

@@ -7,7 +7,7 @@ use App\Models\Game;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
-class GameController extends Controller
+class AdminGameController extends Controller
 {
     public function index(): View
     {

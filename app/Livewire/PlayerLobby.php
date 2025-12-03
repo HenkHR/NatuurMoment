@@ -10,12 +10,12 @@ use Livewire\Attributes\Locked;
 
 class PlayerLobby extends Component
 {
-    #[locked]
+    #[Locked]
     public $gameId;
 
-    #[locked]
+    #[Locked]
     public $playerToken;
-    
+
     public $pin;
     public $playerName;
     public $playerCount = 0;

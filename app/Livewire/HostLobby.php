@@ -9,9 +9,9 @@ use Livewire\Attributes\Locked;
 
 class HostLobby extends Component
 {
-    #[locked]
+    #[Locked]
     public $gameId;
-    
+
     public $pin;
     public $playerCount = 0;
     public $players = [];
@@ -47,7 +47,7 @@ class HostLobby extends Component
         $freshPlayerCount = $game->players_count;
 
         if ($freshPlayerCount < 1) {
-            session()->flash('error', 'Need at least 1 player to start!');
+            session()->flash('error', 'Minstens 1 speler is nodig om het spel te starten!');
             return;
         }
 

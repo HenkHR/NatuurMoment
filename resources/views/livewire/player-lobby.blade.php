@@ -8,14 +8,14 @@
             <h4>Spelers die meedoen:</h4>
             @if(count($players) > 0)
                 <ul>
-                    @foreach($players as $player)
-                        <li>
-                            {{ $player['name'] }}
-                            @if($player['name'] === $playerName)
-                                (jij)
-                            @endif
-                        </li>
-                    @endforeach
+                @foreach($players as $player)
+                    <li wire:key="player-{{ $player['id'] }}">
+                        {{ $player['name'] }}
+                        @if($player['name'] === $playerName)
+                            (jij)
+                        @endif
+                    </li>
+                @endforeach
                 </ul>
             @else
                 <p>Nog geen spelers...</p>

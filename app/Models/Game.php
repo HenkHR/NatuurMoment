@@ -29,6 +29,12 @@ class Game extends Model
         return $this->hasMany(GamePlayer::class);
     }
 
+    public function location()
+    {
+        return $this->belongsTo(Location::class);
+    }
+
+
     public static function generatePin()
     {
         do {

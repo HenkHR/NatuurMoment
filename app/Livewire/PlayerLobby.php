@@ -6,11 +6,16 @@ use App\Models\Game;
 use App\Models\GamePlayer;
 use Livewire\Component;
 use Livewire\Attributes\On;
+use Livewire\Attributes\Locked;
 
 class PlayerLobby extends Component
 {
+    #[locked]
     public $gameId;
+
+    #[locked]
     public $playerToken;
+    
     public $pin;
     public $playerName;
     public $playerCount = 0;

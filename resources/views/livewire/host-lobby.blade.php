@@ -13,7 +13,9 @@
             @if(count($players) > 0)
                 <ul>
                     @foreach($players as $player)
-                        <li>{{ $player['name'] }}</li>
+                        <li wire:key="player-{{ $player['id'] }}">
+                            {{ $player['name'] }}
+                        </li>
                     @endforeach
                 </ul>
             @else

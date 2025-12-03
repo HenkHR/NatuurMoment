@@ -5,10 +5,13 @@ namespace App\Livewire;
 use App\Models\Game;
 use Livewire\Component;
 use Livewire\Attributes\On;
+use Livewire\Attributes\Locked;
 
 class HostLobby extends Component
 {
+    #[locked]
     public $gameId;
+    
     public $pin;
     public $playerCount = 0;
     public $players = [];

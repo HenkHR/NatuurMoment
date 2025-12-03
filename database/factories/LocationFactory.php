@@ -15,8 +15,8 @@ class LocationFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->unique()->city() . ' ' . fake()->randomElement(['Bos', 'Park', 'Natuurgebied', 'Heide']),
-            'description' => fake()->optional()->paragraph(),
+            'name' => \fake()->unique()->city() . ' ' . \fake()->randomElement(['Bos', 'Park', 'Natuurgebied', 'Heide']),
+            'description' => \fake()->optional()->paragraph(),
         ];
     }
 }

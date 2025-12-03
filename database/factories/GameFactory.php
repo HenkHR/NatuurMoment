@@ -19,10 +19,10 @@ class GameFactory extends Factory
         return [
             'location_id' => Location::factory(),
             'pin' => strtoupper(Str::random(6)),
-            'status' => fake()->randomElement(['lobby', 'started', 'finished']),
+            'status' => \fake()->randomElement(['lobby', 'started', 'finished']),
             'host_token' => Str::random(64),
-            'started_at' => fake()->optional()->dateTimeThisMonth(),
-            'finished_at' => fake()->optional()->dateTimeThisMonth(),
+            'started_at' => \fake()->optional()->dateTimeThisMonth(),
+            'finished_at' => \fake()->optional()->dateTimeThisMonth(),
         ];
     }
 

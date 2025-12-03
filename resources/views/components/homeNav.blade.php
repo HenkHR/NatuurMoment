@@ -16,11 +16,6 @@
                     Home
                 </a>
 
-                <a href="{{ route('styleguide') }}"
-                   class="text-gray-700 hover:text-green-700 text-sm font-medium">
-                    Styleguide
-                </a>
-
                 @auth
                     <a href="{{ route('dashboard') }}"
                        class="text-gray-700 hover:text-green-700 text-sm font-medium">

@@ -16,13 +16,15 @@ class GameFactory extends Factory
 
     public function definition(): array
     {
+        $faker = \Faker\Factory::create();
+        
         return [
             'location_id' => Location::factory(),
             'pin' => strtoupper(Str::random(6)),
-            'status' => \fake()->randomElement(['lobby', 'started', 'finished']),
+            'status' => $faker->randomElement(['lobby', 'started', 'finished']),
             'host_token' => Str::random(64),
-            'started_at' => \fake()->optional()->dateTimeThisMonth(),
-            'finished_at' => \fake()->optional()->dateTimeThisMonth(),
+            'started_at' => $faker->optional()->dateTimeThisMonth,
+            'finished_at' => $faker->optional()->dateTimeThisMonth,
         ];
     }
 

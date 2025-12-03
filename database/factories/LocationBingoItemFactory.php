@@ -15,11 +15,13 @@ class LocationBingoItemFactory extends Factory
 
     public function definition(): array
     {
+        $faker = \Faker\Factory::create();
+        
         return [
             'location_id' => Location::factory(),
-            'label' => \fake()->randomElement(['Eekhoorn', 'Paddenstoel', 'Vogelnest', 'Konijn', 'Kever', 'Vlinder', 'Eikel', 'Blad']),
-            'points' => \fake()->numberBetween(1, 5),
-            'icon' => \fake()->optional()->emoji(),
+            'label' => $faker->words(3, true),
+            'points' => $faker->numberBetween(1, 10),
+            'icon' => $faker->optional()->word(),
         ];
     }
 }

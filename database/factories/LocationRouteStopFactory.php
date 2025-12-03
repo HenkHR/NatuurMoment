@@ -15,17 +15,19 @@ class LocationRouteStopFactory extends Factory
 
     public function definition(): array
     {
+        $faker = \Faker\Factory::create();
+        
         return [
             'location_id' => Location::factory(),
-            'name' => \fake()->words(3, true),
-            'question_text' => \fake()->sentence() . '?',
-            'option_a' => \fake()->word(),
-            'option_b' => \fake()->word(),
-            'option_c' => \fake()->optional()->word(),
-            'option_d' => \fake()->optional()->word(),
-            'correct_option' => \fake()->randomElement(['A', 'B', 'C', 'D']),
-            'points' => \fake()->numberBetween(1, 10),
-            'sequence' => \fake()->numberBetween(0, 20),
+            'name' => $faker->words(3, true),
+            'question_text' => $faker->sentence . '?',
+            'option_a' => $faker->word,
+            'option_b' => $faker->word,
+            'option_c' => $faker->optional()->word,
+            'option_d' => $faker->optional()->word,
+            'correct_option' => $faker->randomElement(['A', 'B', 'C', 'D']),
+            'points' => $faker->numberBetween(1, 10),
+            'sequence' => $faker->numberBetween(0, 20),
         ];
     }
 }

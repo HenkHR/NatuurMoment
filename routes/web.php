@@ -7,14 +7,13 @@ use App\Http\Controllers\Admin\RouteStopController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GameController;
+use App\Http\Controllers\HomeController;
 
 
 //mag weg als locatie pagina er is
 use App\Models\Location;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 
 //aanpassen als locatie pagina er is

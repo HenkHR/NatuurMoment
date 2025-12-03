@@ -39,7 +39,7 @@
         </div>
 
         <div class="border-t border-gray-700 mt-8 pt-4 text-center text-xs text-gray-500">
-            © {{ date('Y') }} Spellen in de Natuur. Alle rechten voorbehouden.
+            © {{ date('Y') }} NatuurMoment. Alle rechten voorbehouden.
         </div>
 
     </div>

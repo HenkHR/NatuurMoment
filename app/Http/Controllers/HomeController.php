@@ -1,47 +1,45 @@
 <?php
+
 namespace App\Http\Controllers;
 
-use App\Models\Game;
 use App\Models\Location;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
 {
-    public function home(Request $request)
+    public function index(Request $request)
     {
-        $search   = $request->get('search');
-        $location = $request->get('location');   // location_id
+        $search      = $request->get('search');
+        $locationId  = $request->get('location');
 
-        $locations = Location::orderBy('name')->get();
+        // Alle locaties voor de dropdown
+        $locationOptions = Location::orderBy('name')->get();
 
-        $gamesQuery = Game::with('location');
+        // Query voor de kaartjes (gefilterde lijst)
+        $locationsQuery = Location::query();
 
-        if ($location) {
-            $gamesQuery->where('location_id', $location);
+        if ($locationId) {
+            $locationsQuery->where('id', $locationId);
         }
 
         if ($search) {
-            $gamesQuery->where(function ($q) use ($search) {
+            $locationsQuery->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%")
-                    ->orWhereHas('location', function ($sub) use ($search) {
-                        $sub->where('name', 'like', "%{$search}%");
-                    });
+                    ->orWhere('description', 'like', "%{$search}%");
             });
         }
 
-        $games = $gamesQuery->orderBy('name')->paginate(12)->withQueryString();
+        $locations = $locationsQuery->orderBy('name')->get();
 
-        $selectedLocation = $location
-            ? $locations->firstWhere('id', $location)
+        $selectedLocation = $locationId
+            ? $locationOptions->firstWhere('id', $locationId)
             : null;
 
-        return view('home', compact('games', 'location', 'selectedLocation'), [
+        return view('home', [
             'locations'        => $locations,
-            'games'            => $games,
+            'locationOptions'  => $locationOptions,
             'search'           => $search,
             'selectedLocation' => $selectedLocation,
         ]);
     }
 }
-

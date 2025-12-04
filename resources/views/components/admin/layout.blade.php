@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-layouts.admin>
     <div class="py-6 bg-surface-light min-h-screen">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {{-- Flash Messages --}}
@@ -17,4 +17,4 @@
             {{ $slot }}
         </div>
     </div>
-</x-app-layout>
+</x-layouts.admin>

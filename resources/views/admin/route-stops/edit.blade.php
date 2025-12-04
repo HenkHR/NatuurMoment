@@ -6,8 +6,8 @@
     </div>
 
     <div class="bg-pure-white overflow-hidden rounded-card shadow-card p-6">
-        <h2 class="text-h2 text-forest-800 mb-2">Vraag bewerken</h2>
-        <p class="text-body text-forest-600 mb-6">Locatie: {{ $routeStop->location->name }}</p>
+        <h2 class="text-h2 text-deep-black mb-2">Vraag bewerken</h2>
+        <p class="text-body text-deep-black mb-6">Locatie: {{ $routeStop->location->name }}</p>
 
         <form method="POST" action="{{ route('admin.route-stops.update', $routeStop) }}">
             @csrf

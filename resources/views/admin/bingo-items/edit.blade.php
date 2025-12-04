@@ -6,8 +6,8 @@
     </div>
 
     <div class="bg-pure-white overflow-hidden rounded-card shadow-card p-6">
-        <h2 class="text-h2 text-forest-800 mb-2">Bingo item bewerken</h2>
-        <p class="text-body text-forest-600 mb-6">Locatie: {{ $bingoItem->location->name }}</p>
+        <h2 class="text-h2 text-deep-black mb-2">Bingo item bewerken</h2>
+        <p class="text-body text-deep-black mb-6">Locatie: {{ $bingoItem->location->name }}</p>
 
         <form method="POST" action="{{ route('admin.bingo-items.update', $bingoItem) }}" enctype="multipart/form-data">
             @csrf
@@ -30,7 +30,7 @@
 
                 @if($bingoItem->icon)
                     <div class="mt-2 mb-3">
-                        <p class="text-small text-forest-600 mb-2">Huidige icon:</p>
+                        <p class="text-small text-deep-black mb-2">Huidige icon:</p>
                         <div class="flex items-center gap-4">
                             <img src="{{ Storage::url($bingoItem->icon) }}" alt="Huidige icon" class="h-16 w-16 object-cover rounded-icon border border-surface-medium">
                             <label class="flex items-center gap-2 text-sm text-red-600 cursor-pointer">
@@ -41,13 +41,13 @@
                     </div>
                 @endif
 
-                <input id="icon" name="icon" type="file" accept="image/*" class="mt-1 block w-full text-sm text-forest-600
+                <input id="icon" name="icon" type="file" accept="image/*" class="mt-1 block w-full text-sm text-deep-black
                     file:mr-4 file:py-2 file:px-4
                     file:rounded-button file:border-0
                     file:text-sm file:font-semibold
-                    file:bg-forest-50 file:text-forest-700
-                    hover:file:bg-forest-100" />
-                <p class="mt-1 text-small text-forest-600">Max 2MB. Toegestane formaten: jpeg, png, jpg, gif, svg, webp</p>
+                    file:bg-sky-50 file:text-sky-700
+                    hover:file:bg-sky-100" />
+                <p class="mt-1 text-small text-deep-black">Max 2MB. Toegestane formaten: jpeg, png, jpg, gif, svg, webp</p>
                 <x-input-error :messages="$errors->get('icon')" class="mt-2" />
             </div>
 

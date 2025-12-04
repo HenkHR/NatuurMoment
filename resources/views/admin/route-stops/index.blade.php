@@ -29,23 +29,28 @@
             <tbody class="divide-y divide-surface-medium">
                 @forelse ($routeStops as $routeStop)
                     <tr class="hover:bg-sky-50/50 transition-colors cursor-pointer" onclick="window.location='{{ route('admin.route-stops.edit', $routeStop) }}'">
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-forest-600">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-deep-black">
                             {{ $routeStop->sequence }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-base font-medium text-deep-black">
                             {{ $routeStop->name }}
                         </td>
-                        <td class="px-6 py-4 text-sm text-forest-600 max-w-xs truncate">
+                        <td class="px-6 py-4 text-sm text-deep-black max-w-xs truncate">
                             {{ Str::limit($routeStop->question_text, 50) }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-forest-600">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-deep-black">
                             {{ $routeStop->correct_option }}
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-forest-600">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-deep-black">
                             {{ $routeStop->points }}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div class="flex justify-end gap-2">
+                                <a href="{{ route('admin.route-stops.edit', $routeStop) }}" onclick="event.stopPropagation()" class="p-2 text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100 rounded-button transition-colors" title="Bewerken">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                </a>
                                 <button x-data x-on:click.stop="$dispatch('open-modal', 'delete-route-stop-{{ $routeStop->id }}')" class="p-2 text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-button transition-colors" title="Verwijder">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -76,13 +81,18 @@
                         </span>
                         <h3 class="text-base font-medium text-deep-black truncate">{{ $routeStop->name }}</h3>
                     </div>
-                    <p class="mt-2 text-sm text-forest-600 line-clamp-2">{{ $routeStop->question_text }}</p>
-                    <div class="mt-2 flex gap-4 text-xs text-forest-500">
+                    <p class="mt-2 text-sm text-deep-black line-clamp-2">{{ $routeStop->question_text }}</p>
+                    <div class="mt-2 flex gap-4 text-xs text-deep-black">
                         <span>Correct: {{ $routeStop->correct_option }}</span>
                         <span>{{ $routeStop->points }} punten</span>
                     </div>
                 </div>
                 <div class="flex gap-1 ml-2">
+                    <a href="{{ route('admin.route-stops.edit', $routeStop) }}" onclick="event.stopPropagation()" class="p-2 text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100 rounded-button transition-colors" title="Bewerken">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                    </a>
                     <button x-data x-on:click.stop="$dispatch('open-modal', 'delete-route-stop-{{ $routeStop->id }}')" class="p-2 text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 rounded-button transition-colors" title="Verwijder">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -91,7 +101,7 @@
                 </div>
             </div>
         @empty
-            <div class="bg-pure-white rounded-card shadow-card p-4 text-center text-sm text-forest-600">
+            <div class="bg-pure-white rounded-card shadow-card p-4 text-center text-sm text-deep-black">
                 Geen vragen gevonden.
             </div>
         @endforelse

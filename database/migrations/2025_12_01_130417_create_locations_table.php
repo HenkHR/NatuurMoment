@@ -15,6 +15,9 @@ return new class extends Migration
             $table->id();
             $table->string('name', 255);
             $table->text('description')->nullable();
+            $table->string('image_path', 255)->nullable();
+            $table->string('province', 255);
+            $table->unsignedInteger('duration');
             $table->timestamps();
         });
     }

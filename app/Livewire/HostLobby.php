@@ -6,6 +6,8 @@ use App\Models\Game;
 use Livewire\Component;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Locked;
+use Illuminate\Support\Facades\DB;
+use App\Models\LocationBingoItem;
 
 class HostLobby extends Component
 {
@@ -51,6 +53,8 @@ class HostLobby extends Component
             return;
         }
 
+        $this->generateBingoItems($game);
+
         $game->update([
             'status' => 'started',
             'started_at' => now(),
@@ -58,6 +62,42 @@ class HostLobby extends Component
         
         // Redirect naar game pagina van de host
         return redirect()->route('host.game', $game->id);
+    }
+
+    private function generateBingoItems(Game $game): void
+    {
+        // Check if bingo items already exist (prevent duplicates)
+        if (DB::table('bingo_items')->where('game_id', $game->id)->exists()) {
+            return;
+        }
+
+        // Get all location bingo items for this game's location
+        $locationBingoItems = LocationBingoItem::where('location_id', $game->location_id)
+            ->get();
+
+        if ($locationBingoItems->count() < 9) {
+            session()->flash('error', 'Er zijn niet genoeg bingo items voor deze locatie (minimaal 9 nodig)');
+            return;
+        }
+
+        // Randomly select 9 items
+        $selectedItems = $locationBingoItems->random(9);
+
+        // Create bingo items with random positions
+        $positions = range(0, 8);
+        shuffle($positions);
+
+        foreach ($selectedItems as $index => $locationItem) {
+            DB::table('bingo_items')->insert([
+                'game_id' => $game->id,
+                'label' => $locationItem->label,
+                'points' => $locationItem->points,
+                'position' => $positions[$index],
+                'icon_path' => $locationItem->icon,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
     }
 
     public function render()

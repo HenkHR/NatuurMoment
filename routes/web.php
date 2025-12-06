@@ -37,16 +37,18 @@ Route::get('/join', [GameController::class, 'showJoin'])->name('player.join');
 Route::get('/host/lobby/{game}', [GameController::class, 'hostLobby'])->name('host.lobby');
 Route::get('/player/lobby/{game}', [GameController::class, 'playerLobby'])->name('player.lobby');
 
+Route::get('/host/game/{game}', [GameController::class, 'hostGame'])->name('host.game');
+Route::get('/player/game/{game}', [GameController::class, 'playerGame'])->name('player.game');
+
 
 Route::get('/styleguide', function () {
     return view('styleguide');
 })->name('styleguide');
-Route::get('/spel', function () {
-    return view('bingo');
-});
+
+
 
 Route::get('/bingo', function () {
-    return view('bingo');
+    return view('player.bingo');
 });
 
 

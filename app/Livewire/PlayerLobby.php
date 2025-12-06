@@ -61,7 +61,6 @@ class PlayerLobby extends Component
             // Redirect naar game pagina van de player
             return redirect()->route('player.game', [
                 'game' => $this->gameId,
-                'token' => $this->playerToken
             ]);
         }
     }

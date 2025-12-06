@@ -50,7 +50,6 @@ class JoinGame extends Component
                 } elseif ($game->status === 'started') {
                     return redirect()->route('player.game', [
                         'game' => $game->id,
-                        'token' => $existingToken
                     ]);
                 } elseif ($game->status === 'finished') {
                     $this->addError('game', 'Spel is afgerond, er kunnen geen nieuwe spelers meedoen');

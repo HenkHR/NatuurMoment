@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('label', 255);
             $table->unsignedInteger('points')->default(1);
             $table->string('icon', 255)->nullable();
+            $table->text('fact')->nullable();
             $table->timestamps();
         });
 

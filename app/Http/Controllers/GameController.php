@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Game;
 use App\Models\GamePlayer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Models\Location;
 
 class GameController extends Controller
 {
@@ -12,9 +14,11 @@ class GameController extends Controller
     public function create(Request $request, $locationId)
     {
 
+        $location = Location::findOrFail($locationId);
+
         //game word aangemaakt in de database
         $game = Game::create([
-            'location_id' => $locationId,
+            'location_id' => $location->id,
             'pin' => Game::generatePin(),
             'status' => 'lobby',
             'host_token' => Game::generateHostToken(),
@@ -56,6 +60,12 @@ class GameController extends Controller
         ->where('game_id', $gameId)
         ->firstOrFail();
 
+        $game = Game::findOrFail($gameId);
+
+        if ($game->status === 'started') {
+            return redirect()->route('player.game', $gameId);
+        }
+
         return view('player.lobby', [
             'gameId' => $gameId,
             'playerToken' => $token
@@ -65,5 +75,56 @@ class GameController extends Controller
     public function showJoin()
     {
         return view('join');
+    }
+
+
+    // Host game page - voor de host dashboard tijdens de game. deze functie host dus niet de game
+    public function hostGame(Request $request, $gameId)
+    {
+        $hostToken = session('hostToken_'.$gameId);
+
+        if (!$hostToken) {
+            return redirect()->route('play')->with('error', 'Geen toegang tot het spel');
+        }
+
+        $game = Game::where('id', $gameId)
+            ->where('host_token', $hostToken)
+            ->where('status', 'started')
+            ->firstOrFail();
+
+        return view('host.hostdashboard', ['gameId' => $gameId]);
+    }
+
+
+    public function playerGame(Request $request, $gameId)
+    {
+        $token = session('playerToken_'.$gameId);
+
+        if (!$token) {
+            return redirect()->route('player.join')->with('error', 'Geen toegang tot het spel');
+        }
+
+        $player = GamePlayer::where('token', $token)
+            ->where('game_id', $gameId)
+            ->firstOrFail();
+
+        $game = Game::findOrFail($gameId);
+        
+        if ($game->status !== 'started') {
+            return redirect()->route('player.lobby', $gameId)->with('error', 'Het spel is nog niet gestart');
+        }
+
+        // Get bingo items for this game, ordered by position
+        $bingoItems = DB::table('bingo_items')
+        ->where('game_id', $gameId)
+        ->orderBy('position')
+        ->get();
+
+
+        return view('player.bingo', [
+            'gameId' => $gameId,
+            'playerToken' => $token,
+            'bingoItems' => $bingoItems
+        ]);
     }
 }

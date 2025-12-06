@@ -13,6 +13,9 @@ class Location extends Model
     protected $fillable = [
         'name',
         'description',
+        'image_path',
+        'province',
+        'duration',
     ];
 
     public function bingoItems(): HasMany

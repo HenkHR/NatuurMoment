@@ -15,6 +15,7 @@ class LocationBingoItem extends Model
         'label',
         'points',
         'icon',
+        'fact',
     ];
 
     protected function casts(): array

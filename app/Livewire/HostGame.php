@@ -282,12 +282,31 @@ class HostGame extends Component
     {
         $disk = Storage::disk('test_photos');
         
-        // If using S3 (Laravel Cloud with private bucket), use temporary URL
-        if (config('filesystems.disks.test_photos.driver') === 's3') {
-            return $disk->temporaryUrl($path, now()->addHours(1));
+        // Check the configured driver (works even with cached config)
+        $driver = config('filesystems.disks.test_photos.driver', 'local');
+        
+        // Also check if AWS credentials are available (fallback check)
+        $hasAwsCredentials = !empty(config('filesystems.disks.test_photos.key')) && 
+                           !empty(config('filesystems.disks.test_photos.secret'));
+        
+        // If driver is S3 or AWS credentials exist, try temporaryUrl
+        if ($driver === 's3' || $hasAwsCredentials) {
+            try {
+                return $disk->temporaryUrl($path, now()->addHours(1));
+            } catch (\Exception $e) {
+                // Log error for debugging
+                \Log::error('Failed to generate temporary URL for photo', [
+                    'path' => $path,
+                    'driver' => $driver,
+                    'has_credentials' => $hasAwsCredentials,
+                    'error' => $e->getMessage()
+                ]);
+                // Fallback to url() - but this might not work for private S3 buckets
+                return $disk->url($path);
+            }
         }
         
-        // For local storage, use regular URL
+        // Local development - use regular URL
         return $disk->url($path);
     }
 

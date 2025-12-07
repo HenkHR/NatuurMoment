@@ -62,6 +62,7 @@ return [
 
         'test_photos' => [
             // Use S3 if AWS credentials exist (Laravel Cloud), otherwise use local storage
+            // Note: After changing this, run: php artisan config:clear on Laravel Cloud
             'driver' => env('AWS_ACCESS_KEY_ID') ? 's3' : 'local',
             // S3 configuration (used on Laravel Cloud)
             'key' => env('AWS_ACCESS_KEY_ID'),

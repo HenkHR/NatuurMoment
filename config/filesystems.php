@@ -17,20 +17,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Photo Storage Disk
-    |--------------------------------------------------------------------------
-    |
-    | This specifies which disk to use for storing photos. Can be overridden
-    | via PHOTO_STORAGE_DISK environment variable. Defaults to 'public' for
-    | local development, but should be set to your bucket name (e.g., 'test_photos')
-    | in Laravel Cloud environments.
-    |
-    */
-
-    'photo_storage_disk' => env('PHOTO_STORAGE_DISK', 'public'),
-
-    /*
-    |--------------------------------------------------------------------------
     | Filesystem Disks
     |--------------------------------------------------------------------------
     |
@@ -74,32 +60,15 @@ return [
             'report' => false,
         ],
 
-        // Laravel Cloud Object Storage (S3-compatible, Cloudflare R2)
-        // When a bucket is attached to an environment, Laravel Cloud automatically
-        // injects the required environment variables. The disk name should match
-        // the bucket's disk name configured in Laravel Cloud dashboard.
-        'r2' => [
+        // Laravel Cloud R2 Object Storage for photos
+        // The disk name should match what you specified when creating the bucket in Laravel Cloud
+        // Default to 'photos', but can be overridden with PHOTOS_DISK env variable
+        'photos' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),
             'secret' => env('AWS_SECRET_ACCESS_KEY'),
             'region' => env('AWS_DEFAULT_REGION', 'auto'),
             'bucket' => env('AWS_BUCKET'),
-            'url' => env('AWS_URL'),
-            'endpoint' => env('AWS_ENDPOINT'),
-            'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
-            'throw' => false,
-            'report' => false,
-        ],
-
-        'test_photos' => [
-            'driver' => 's3',
-            // Laravel Cloud will inject these via LARAVEL_CLOUD_DISK_CONFIG
-            // These are fallbacks for local development
-            'key' => env('AWS_ACCESS_KEY_ID'),
-            'secret' => env('AWS_SECRET_ACCESS_KEY'),
-            'region' => env('AWS_DEFAULT_REGION', 'auto'),
-            // Use disk name as fallback - Laravel Cloud will override this
-            'bucket' => env('AWS_BUCKET', 'test_photos'),
             'url' => env('AWS_URL'),
             'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),

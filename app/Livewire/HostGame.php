@@ -19,16 +19,6 @@ class HostGame extends Component
     public $expandedPlayers = []; // Track which player accordions are open
     public $selectedPhoto = null; // Currently selected photo for review
 
-    /**
-     * Get the storage disk for photos (configurable for Laravel Cloud)
-     * 
-     * @return string
-     */
-    private function getPhotoStorageDisk(): string
-    {
-        return config('filesystems.photo_storage_disk', env('PHOTO_STORAGE_DISK', 'public'));
-    }
-
     //constructor 
     public function mount($gameId)
     {
@@ -94,11 +84,8 @@ class HostGame extends Component
             ->get()
             ->keyBy('bingo_item_id');
         
-        // Get storage disk (configurable for Laravel Cloud)
-        $storageDisk = $this->getPhotoStorageDisk();
-        
         // Map bingo items with photo status
-        return $bingoItems->map(function($item) use ($photos, $storageDisk) {
+        return $bingoItems->map(function($item) use ($photos) {
             $photo = $photos->get($item->id);
             return [
                 'id' => $item->id,
@@ -108,7 +95,7 @@ class HostGame extends Component
                     'id' => $photo->id,
                     'status' => $photo->status,
                     'path' => $photo->path,
-                    'url' => $this->getPhotoUrl($photo->path, $storageDisk),
+                    'url' => $photo->url, // Use the accessor from Photo model
                 ] : null,
             ];
         });
@@ -130,54 +117,14 @@ class HostGame extends Component
             abort(403, 'Unauthorized');
         }
         
-        // Get storage disk (configurable for Laravel Cloud)
-        $storageDisk = $this->getPhotoStorageDisk();
-        
         $this->selectedPhoto = [
             'id' => $photo->id,
             'player_name' => $photo->gamePlayer->name,
             'bingo_item_id' => $photo->bingo_item_id,
             'status' => $photo->status,
-            'url' => $this->getPhotoUrl($photo->path, $storageDisk),
+            'url' => $photo->url, // Use the accessor from Photo model
             'taken_at' => $photo->taken_at,
         ];
-    }
-
-    /**
-     * Get the URL for a photo, handling both local and cloud storage
-     * 
-     * @param string $path
-     * @param string $disk
-     * @return string
-     */
-    private function getPhotoUrl(string $path, string $disk): string
-    {
-        if ($disk === 'public') {
-            // For local public disk, use asset() helper which is more reliable
-            return asset('storage/' . $path);
-        }
-        
-        // For cloud storage (S3, R2, etc.), get the disk configuration
-        $diskConfig = config("filesystems.disks.{$disk}");
-        
-        if (!$diskConfig || $diskConfig['driver'] !== 's3') {
-            // Fallback to Storage::url() if not S3
-            return Storage::disk($disk)->url($path);
-        }
-        
-        // For S3-compatible storage, construct URL from config
-        $baseUrl = $diskConfig['url'] ?? null;
-        
-        if ($baseUrl) {
-            // Remove trailing slash from base URL if present
-            $baseUrl = rtrim($baseUrl, '/');
-            // Ensure path doesn't start with a slash
-            $path = ltrim($path, '/');
-            return $baseUrl . '/' . $path;
-        }
-        
-        // Fallback: use Storage::url() which should work if AWS_URL is set
-        return Storage::disk($disk)->url($path);
     }
 
     /**

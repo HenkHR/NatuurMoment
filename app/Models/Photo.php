@@ -34,4 +34,58 @@ class Photo extends Model
     // {
     //     return $this->belongsTo(BingoItem::class);
     // }
+    
+    /**
+     * Get the storage disk for photos
+     * Uses disk name from env or defaults to 'photos', falls back to 'public'
+     */
+    private function getPhotoDisk(): string
+    {
+        $diskName = env('PHOTOS_DISK', 'photos');
+        
+        // Check if the disk is configured
+        if (config("filesystems.disks.{$diskName}")) {
+            return $diskName;
+        }
+        
+        // Fallback to public disk
+        return 'public';
+    }
+    
+    /**
+     * Get the full URL to the photo
+     * Prefers cloud storage (R2) if available, falls back to local storage
+     */
+    public function getUrlAttribute(): string
+    {
+        // First, try cloud storage (R2) if configured and file exists
+        if (config("filesystems.disks.photos.driver") === 's3') {
+            try {
+                if (Storage::disk('photos')->exists($this->path)) {
+                    $baseUrl = config("filesystems.disks.photos.url");
+                    if ($baseUrl) {
+                        // Construct URL directly using AWS_URL
+                        $baseUrl = rtrim($baseUrl, '/');
+                        $path = ltrim($this->path, '/');
+                        return $baseUrl . '/' . $path;
+                    }
+                    return Storage::disk('photos')->url($this->path);
+                }
+            } catch (\Exception $e) {
+                // Fall through to local storage if cloud check fails
+                \Log::warning('Failed to check cloud storage', [
+                    'path' => $this->path,
+                    'error' => $e->getMessage()
+                ]);
+            }
+        }
+        
+        // Fall back to local storage
+        if (Storage::disk('public')->exists($this->path)) {
+            return asset('storage/' . $this->path);
+        }
+        
+        // If neither exists, return local URL anyway (might be a new upload)
+        return asset('storage/' . $this->path);
+    }
 }

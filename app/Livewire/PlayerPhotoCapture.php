@@ -34,13 +34,20 @@ class PlayerPhotoCapture extends Component
     private const MAX_FILE_SIZE = 5 * 1024 * 1024;
     
     /**
-     * Get the storage disk for photos (configurable for Laravel Cloud)
-     * 
-     * @return string
+     * Get the storage disk for photos
+     * Uses disk name from env or defaults to 'photos', falls back to 'public'
      */
-    private function getPhotoStorageDisk(): string
+    private function getPhotoDisk(): string
     {
-        return env('PHOTO_STORAGE_DISK', 'public');
+        $diskName = env('PHOTOS_DISK', 'photos');
+        
+        // Check if the disk is configured
+        if (config("filesystems.disks.{$diskName}")) {
+            return $diskName;
+        }
+        
+        // Fallback to public disk
+        return 'public';
     }
     
     public function mount($gameId, $playerToken, $bingoItemId = null)
@@ -303,9 +310,6 @@ class PlayerPhotoCapture extends Component
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Get storage disk (configurable for Laravel Cloud)
-        $storageDisk = $this->getPhotoStorageDisk();
-
         // Delete old files and remove duplicate photos (keep only the most recent one)
         $existingPhoto = null;
         foreach ($existingPhotos as $index => $photo) {
@@ -313,24 +317,61 @@ class PlayerPhotoCapture extends Component
                 // Keep the first (most recent) photo record to update
                 $existingPhoto = $photo;
             } else {
-                // Delete duplicate photo files and records
+                // Delete duplicate photo files and records from both disks
                 if ($photo->path) {
-                    Storage::disk($storageDisk)->delete($photo->path);
+                    Storage::disk('public')->delete($photo->path);
+                    // Try to delete from cloud storage too (if configured)
+                    if (config("filesystems.disks.photos.driver") === 's3') {
+                        try {
+                            Storage::disk('photos')->delete($photo->path);
+                        } catch (\Exception $e) {
+                            // Log but don't fail if cloud delete fails
+                            Log::warning('Failed to delete from cloud storage', [
+                                'path' => $photo->path,
+                                'error' => $e->getMessage()
+                            ]);
+                        }
+                    }
                 }
                 $photo->delete();
             }
         }
 
-        // Delete old file if keeping existing photo
+        // Delete old file if keeping existing photo (from both disks)
         if ($existingPhoto && $existingPhoto->path) {
-            Storage::disk($storageDisk)->delete($existingPhoto->path);
+            Storage::disk('public')->delete($existingPhoto->path);
+            // Try to delete from cloud storage too
+            if (config("filesystems.disks.photos.driver") === 's3') {
+                try {
+                    Storage::disk('photos')->delete($existingPhoto->path);
+                } catch (\Exception $e) {
+                    Log::warning('Failed to delete from cloud storage', [
+                        'path' => $existingPhoto->path,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
         }
 
         // Generate secure filename
         $filename = 'photos/' . $this->gameId . '/' . $player->id . '/' . uniqid('', true) . '.jpg';
 
-        // Store on configured disk (public for local, r2/s3 for Laravel Cloud)
-        Storage::disk($storageDisk)->put($filename, $compressedData);
+        // Store on local disk (public) - always save locally
+        Storage::disk('public')->put($filename, $compressedData);
+
+        // Also store on cloud disk (R2) if configured
+        if (config("filesystems.disks.photos.driver") === 's3') {
+            try {
+                Storage::disk('photos')->put($filename, $compressedData);
+                Log::info('Photo saved to cloud storage', ['path' => $filename]);
+            } catch (\Exception $e) {
+                // Log error but don't fail - local storage is the primary
+                Log::error('Failed to save to cloud storage', [
+                    'path' => $filename,
+                    'error' => $e->getMessage()
+                ]);
+            }
+        }
 
         // Update existing photo or create new one
         if ($existingPhoto) {
@@ -365,7 +406,6 @@ class PlayerPhotoCapture extends Component
 
     /**
      * Compress and optimize image
-     * Handles EXIF orientation for mobile photos
      * 
      * @param string $imageData Raw image data
      * @param array|false $imageInfo Result from getimagesizefromstring
@@ -380,26 +420,6 @@ class PlayerPhotoCapture extends Component
         // JPEG quality (0-100, lower = smaller file but lower quality)
         $quality = 85;
         
-        // Read EXIF orientation if available (only for JPEG)
-        $orientation = 1; // Default: normal orientation
-        if ($imageInfo[2] === IMAGETYPE_JPEG && function_exists('exif_read_data')) {
-            // Create temporary file to read EXIF data (exif_read_data needs a file path)
-            $tempFile = tmpfile();
-            if ($tempFile !== false) {
-                $tempPath = stream_get_meta_data($tempFile)['uri'];
-                file_put_contents($tempPath, $imageData);
-                
-                // Read EXIF orientation
-                $exif = @exif_read_data($tempPath);
-                if ($exif && isset($exif['Orientation'])) {
-                    $orientation = (int)$exif['Orientation'];
-                }
-                
-                // Clean up temp file
-                fclose($tempFile);
-            }
-        }
-        
         // Create image resource from string
         $sourceImage = @imagecreatefromstring($imageData);
         
@@ -409,18 +429,18 @@ class PlayerPhotoCapture extends Component
             ]);
         }
         
-        // Apply EXIF orientation correction
-        $sourceImage = $this->fixImageOrientation($sourceImage, $orientation);
+        // Fix EXIF orientation for mobile photos
+        $sourceImage = $this->fixImageOrientation($sourceImage, $imageData);
         
         $originalWidth = imagesx($sourceImage);
         $originalHeight = imagesy($sourceImage);
+        
 
         if ($originalWidth <= 0 || $originalHeight <= 0) {
             throw ValidationException::withMessages([
                 'image' => 'Invalid image dimensions'
             ]);
         }
-        
         // Calculate new dimensions if resizing needed
         $ratio = min($maxWidth / $originalWidth, $maxHeight / $originalHeight);
         $newWidth = (int)($originalWidth * $ratio);
@@ -462,58 +482,83 @@ class PlayerPhotoCapture extends Component
     }
     
     /**
-     * Fix image orientation based on EXIF data
-     * 
-     * @param resource $image GD image resource
-     * @param int $orientation EXIF orientation value (1-8)
-     * @return resource Corrected image resource
+     * Fix EXIF orientation for mobile photos
+     * Mobile devices often store photos with EXIF orientation data
+     * that needs to be applied to display correctly
      */
-    private function fixImageOrientation($image, int $orientation)
+    private function fixImageOrientation($image, $imageData)
     {
-        // EXIF orientation values:
-        // 1 = Normal (0°)
-        // 2 = Horizontal flip
-        // 3 = Rotate 180°
-        // 4 = Vertical flip
-        // 5 = Rotate 90° CCW, then flip horizontally
-        // 6 = Rotate 90° CW
-        // 7 = Rotate 90° CW, then flip horizontally
-        // 8 = Rotate 90° CCW
-        //
-        // Note: imagerotate uses positive values for counter-clockwise rotation
+        // Check if EXIF extension is available
+        if (!function_exists('exif_read_data')) {
+            return $image; // Can't read EXIF, return as-is
+        }
         
+        // Try to read EXIF data from the image data
+        // We need to write to a temp file to read EXIF (exif_read_data requires a file)
+        $tempFile = tmpfile();
+        if ($tempFile === false) {
+            return $image; // Can't create temp file, return as-is
+        }
+        
+        $tempPath = stream_get_meta_data($tempFile)['uri'];
+        file_put_contents($tempPath, $imageData);
+        
+        $exif = @exif_read_data($tempPath);
+        
+        // Clean up temp file
+        fclose($tempFile);
+        @unlink($tempPath);
+        
+        if (!$exif || !isset($exif['Orientation'])) {
+            return $image; // No orientation data, return as-is
+        }
+        
+        $orientation = $exif['Orientation'];
+        
+        // Apply rotation/flip based on EXIF orientation
+        // Note: imagerotate uses degrees, positive = counter-clockwise
         switch ($orientation) {
             case 2:
                 // Horizontal flip
-                imageflip($image, IMG_FLIP_HORIZONTAL);
+                if (function_exists('imageflip')) {
+                    imageflip($image, IMG_FLIP_HORIZONTAL);
+                }
                 break;
             case 3:
-                // Rotate 180 degrees
+                // 180° rotation
                 $image = imagerotate($image, 180, 0);
                 break;
             case 4:
                 // Vertical flip
-                imageflip($image, IMG_FLIP_VERTICAL);
+                if (function_exists('imageflip')) {
+                    imageflip($image, IMG_FLIP_VERTICAL);
+                }
                 break;
             case 5:
-                // Rotate 90° CCW, then flip horizontally
-                $image = imagerotate($image, 90, 0);
-                imageflip($image, IMG_FLIP_HORIZONTAL);
+                // Vertical flip + 90° clockwise (270° counter-clockwise)
+                if (function_exists('imageflip')) {
+                    imageflip($image, IMG_FLIP_VERTICAL);
+                }
+                $image = imagerotate($image, -90, 0);
                 break;
             case 6:
-                // Rotate 90° CW (use -90 for clockwise)
+                // 90° clockwise (270° counter-clockwise)
                 $image = imagerotate($image, -90, 0);
                 break;
             case 7:
-                // Rotate 90° CW, then flip horizontally
+                // Horizontal flip + 90° clockwise (270° counter-clockwise)
+                if (function_exists('imageflip')) {
+                    imageflip($image, IMG_FLIP_HORIZONTAL);
+                }
                 $image = imagerotate($image, -90, 0);
-                imageflip($image, IMG_FLIP_HORIZONTAL);
                 break;
             case 8:
-                // Rotate 90° CCW (use 90 for counter-clockwise)
+                // 90° counter-clockwise
                 $image = imagerotate($image, 90, 0);
                 break;
-            // case 1: Normal orientation, no change needed
+            default:
+                // Orientation 1 or unknown - no change needed
+                break;
         }
         
         return $image;

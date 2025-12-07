@@ -35,7 +35,7 @@ class GameController extends Controller
         $hostToken = session('hostToken_'.$gameId);
 
         if (!$hostToken) {
-            return redirect()->route('games.info')->with('error', 'Geen toegang tot het spel');
+            return redirect()->route('play')->with('error', 'Geen toegang tot het spel');
         }
 
         $game = Game::where('id', $gameId)
@@ -88,7 +88,7 @@ class GameController extends Controller
         $hostToken = session('hostToken_'.$gameId);
 
         if (!$hostToken) {
-            return redirect()->route('games.info')->with('error', 'Geen toegang tot het spel');
+            return redirect()->route('play')->with('error', 'Geen toegang tot het spel');
         }
 
         $game = Game::where('id', $gameId)

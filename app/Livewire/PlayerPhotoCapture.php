@@ -352,6 +352,7 @@ class PlayerPhotoCapture extends Component
 
     /**
      * Compress and optimize image
+     * Handles EXIF orientation for phone photos
      * 
      * @param string $imageData Raw image data
      * @param array|false $imageInfo Result from getimagesizefromstring
@@ -373,6 +374,31 @@ class PlayerPhotoCapture extends Component
             throw ValidationException::withMessages([
                 'image' => 'Failed to process image'
             ]);
+        }
+        
+        // Try to read EXIF orientation data (for phone photos)
+        // Note: canvas.toDataURL() strips EXIF, but we try anyway in case it's preserved
+        $orientation = 1;
+        if (function_exists('exif_read_data') && $imageInfo[2] === IMAGETYPE_JPEG) {
+            // Create temporary file to read EXIF data
+            $tempFile = tmpfile();
+            if ($tempFile !== false) {
+                $tempPath = stream_get_meta_data($tempFile)['uri'];
+                file_put_contents($tempPath, $imageData);
+                
+                $exif = @exif_read_data($tempPath);
+                if ($exif && isset($exif['Orientation'])) {
+                    $orientation = (int)$exif['Orientation'];
+                }
+                
+                // Clean up temp file
+                fclose($tempFile);
+            }
+        }
+        
+        // Apply EXIF orientation correction if needed
+        if ($orientation !== 1 && function_exists('imagerotate')) {
+            $sourceImage = $this->applyOrientation($sourceImage, $orientation);
         }
         
         $originalWidth = imagesx($sourceImage);
@@ -422,6 +448,60 @@ class PlayerPhotoCapture extends Component
         imagedestroy($sourceImage);
         
         return $compressedData;
+    }
+    
+    /**
+     * Apply EXIF orientation to image
+     * Fixes rotation issues with phone photos
+     * 
+     * @param resource $image GD image resource
+     * @param int $orientation EXIF orientation value (1-8)
+     * @return resource Rotated/flipped image resource
+     */
+    private function applyOrientation($image, $orientation)
+    {
+        if ($orientation === 1 || $orientation === 0) {
+            // No rotation needed
+            return $image;
+        }
+        
+        $width = imagesx($image);
+        $height = imagesy($image);
+        
+        switch ($orientation) {
+            case 2:
+                // Flip horizontal
+                imageflip($image, IMG_FLIP_HORIZONTAL);
+                break;
+            case 3:
+                // Rotate 180 degrees
+                $image = imagerotate($image, 180, 0);
+                break;
+            case 4:
+                // Flip vertical
+                imageflip($image, IMG_FLIP_VERTICAL);
+                break;
+            case 5:
+                // Rotate 90 degrees counter-clockwise and flip horizontal
+                $image = imagerotate($image, -90, 0);
+                imageflip($image, IMG_FLIP_HORIZONTAL);
+                break;
+            case 6:
+                // Rotate 90 degrees clockwise
+                $image = imagerotate($image, -90, 0);
+                break;
+            case 7:
+                // Rotate 90 degrees clockwise and flip horizontal
+                $image = imagerotate($image, 90, 0);
+                imageflip($image, IMG_FLIP_HORIZONTAL);
+                break;
+            case 8:
+                // Rotate 90 degrees counter-clockwise
+                $image = imagerotate($image, 90, 0);
+                break;
+        }
+        
+        return $image;
     }
 
     

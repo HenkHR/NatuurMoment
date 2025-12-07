@@ -50,9 +50,9 @@
 
     <!-- Camera View -->
     @if ($showCamera)
-        <div class="fixed inset-0 z-50 bg-black flex flex-col">
+        <div class="fixed inset-0 z-50 bg-black flex flex-col" style="z-index: 9999;">
             <!-- Camera Container -->
-            <div class="relative flex-1 flex items-center justify-center">
+            <div class="relative flex-1 flex items-center justify-center overflow-hidden" style="min-height: 0;">
                 <!-- Video Element (hidden when preview is shown) -->
                 <video 
                     id="camera-video" 
@@ -66,7 +66,7 @@
 
                 <!-- Bingo Item Name (Top) -->
                 @if($bingoItemLabel)
-                    <div class="absolute top-4 left-0 right-0 text-center z-10">
+                    <div class="absolute top-4 left-0 right-0 text-center z-20 pointer-events-none">
                         <div class="bg-[#2E7D32] text-white px-6 py-3 rounded-lg inline-block text-xl font-bold max-w-[90%] shadow-lg">
                             {{ $bingoItemLabel }}
                         </div>
@@ -75,7 +75,7 @@
 
                 <!-- Overlay Text (Fact) -->
                 @if($overlayText)
-                    <div class="absolute top-24 left-0 right-0 text-center z-10">
+                    <div class="absolute top-24 left-0 right-0 text-center z-20 pointer-events-none">
                         <div class="bg-black bg-opacity-70 text-white px-4 py-2 rounded-lg inline-block text-lg font-bold max-w-[90%]">
                             {{ $overlayText }}
                         </div>
@@ -93,26 +93,29 @@
             </div>
 
             <!-- Controls -->
-            <div class="bg-black bg-opacity-80 p-4 flex justify-center gap-4">
+            <div id="camera-controls" class="bg-black bg-opacity-90 p-4 flex justify-center gap-4 z-30 relative flex-shrink-0" style="z-index: 30; display: flex !important; visibility: visible !important;">
                 @if(!$capturedImage)
                     <!-- Capture Button -->
                     <button 
                         onclick="capturePhoto()"
-                        class="bg-white rounded-full p-4 hover:bg-gray-200 transition">
+                        class="bg-white rounded-full p-4 hover:bg-gray-200 transition relative z-40"
+                        style="z-index: 40;">
                         <div class="w-16 h-16 border-4 border-gray-800 rounded-full"></div>
                     </button>
                 @else
                     <!-- Retake Button -->
                     <button 
                         wire:click="retakePhoto"
-                        class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold">
+                        class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold relative z-40"
+                        style="z-index: 40;">
                         🔄 Opnieuw
                     </button>
                     
                     <!-- Submit Button -->
                     <button 
                         onclick="submitPhoto(event)"
-                        class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold">
+                        class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold relative z-40"
+                        style="z-index: 40;">
                         ✓ Verzenden
                     </button>
                 @endif
@@ -120,7 +123,8 @@
                 <!-- Close Button -->
                 <button 
                     wire:click="closeCamera"
-                    class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold">
+                    class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold relative z-40"
+                    style="z-index: 40;">
                     ✕ Sluiten
                 </button>
             </div>
@@ -136,16 +140,48 @@ let canvas = null;
 document.addEventListener('livewire:init', () => {
     Livewire.on('open-camera', () => {
         startCamera();
+        // Ensure controls are visible after Livewire update
+        setTimeout(() => {
+            ensureControlsVisible();
+        }, 100);
     });
     
     Livewire.on('retake-photo', () => {
         startCamera();
+        setTimeout(() => {
+            ensureControlsVisible();
+        }, 100);
     });
     
     Livewire.on('close-camera', () => {
         stopCamera();
     });
+    
+    // Ensure controls stay visible after Livewire updates
+    Livewire.hook('morph.updated', () => {
+        if (document.getElementById('camera-controls')) {
+            ensureControlsVisible();
+        }
+    });
 });
+
+function ensureControlsVisible() {
+    const controlsDiv = document.getElementById('camera-controls');
+    if (controlsDiv) {
+        controlsDiv.style.display = 'flex';
+        controlsDiv.style.visibility = 'visible';
+        controlsDiv.style.opacity = '1';
+        controlsDiv.style.zIndex = '30';
+        
+        // Ensure all buttons are visible
+        const buttons = controlsDiv.querySelectorAll('button');
+        buttons.forEach(button => {
+            button.style.visibility = 'visible';
+            button.style.opacity = '1';
+            button.style.zIndex = '40';
+        });
+    }
+}
 
 async function startCamera() {
     try {
@@ -155,12 +191,22 @@ async function startCamera() {
         // Make sure video is visible
         if (video) {
             video.style.display = 'block';
+            video.style.visibility = 'visible';
         }
         
         // Hide preview image if visible
         const previewImg = document.getElementById('preview-image');
         if (previewImg) {
             previewImg.style.display = 'none';
+        }
+        
+        // Ensure controls are visible
+        const controlsDiv = document.getElementById('camera-controls');
+        if (controlsDiv) {
+            controlsDiv.style.display = 'flex';
+            controlsDiv.style.visibility = 'visible';
+            controlsDiv.style.opacity = '1';
+            controlsDiv.style.zIndex = '30';
         }
         
         // Request camera access

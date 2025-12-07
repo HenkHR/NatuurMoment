@@ -53,8 +53,9 @@ Route::get('/bingo', function () {
 
 
 
-Route::get('/speluitleg', function () {
-    return view('speluitleg');
+Route::get('/speluitleg/{location?}', function ($location = null) {
+    $locationId = $location ?: 1;
+    return view('speluitleg', ['locationId' => $locationId]);
 });
 
 Route::get('/dashboard', function () {
@@ -76,7 +77,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 //game info route
 
 
-Route::get('/games/natuur-avontuur', [GameInfoController::class, 'show'])
+Route::get('/games/natuur-avontuur/{locationId}', [GameInfoController::class, 'show'])
     ->name('games.info');
 
 

@@ -146,7 +146,7 @@
                                     </div>
 
                                     <div class="px-4 pb-4">
-                                        <a href="{{ route('games.info') }}"
+                                        <a href="{{ route('games.info', $location->id) }}"
                                             type="button"
                                             class="inline-flex w-full justify-center rounded-md bg-orange-500 hover:bg-orange-600 text-white text-xs sm:text-sm font-medium py-2.5">
                                             Bekijk spel

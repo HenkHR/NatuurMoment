@@ -12,7 +12,7 @@
         <p>{{ $location->description }}</p>
         <div>
             <h2>Play</h2>
-            <form action="{{ route('play.create', 1) }}" method="POST">
+            <form action="{{ route('play.create', $location->id) }}" method="POST">
                 @csrf
                 <button type="submit">Start Game (Host)</button>
             </form>

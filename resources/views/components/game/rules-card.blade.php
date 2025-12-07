@@ -1,6 +1,7 @@
 @props([
     'rules' => [],
     'buttonLabel' => 'Spel spelen',
+    'locationId',
 ])
 
 <section {{ $attributes->merge(['class' => 'bg-pure-white rounded-card shadow-card overflow-hidden']) }}>
@@ -42,7 +43,7 @@
     </div>
 
     <div class="px-4 py-5 flex justify-center bg-pure-white">
-    <form action="{{ route('play.create', 1) }}" method="POST" class="w-full max-w-xs bg-action-500 hover:bg-action-600 text-pure-white font-semibold text-small py-3 rounded-button text-center shadow-card transition">
+    <form action="{{ route('play.create', $locationId) }}" method="POST" class="w-full max-w-xs bg-action-500 hover:bg-action-600 text-pure-white font-semibold text-small py-3 rounded-button text-center shadow-card transition">
                 @csrf
                 <button type="submit">{{ $buttonLabel }}</button>
             </form>

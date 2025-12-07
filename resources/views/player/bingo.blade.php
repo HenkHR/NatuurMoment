@@ -28,25 +28,7 @@
         </x-game.game-nav>
     </div>
 
-    <!-- grid voor de items van de bingo kaart  -->
-    <div class="grid grid-cols-3 gap-3 max-w-md mx-auto px-4 mt-6 mb-6 bg-[#e0e0e0] p-2 rounded-lg">
-        @if(count($bingoItems) > 0)
-
-        @foreach ($bingoItems as $bingoItem)
-            <button
-                wire:click="$dispatch('open-photo-capture', { bingoItemId: {{ json_encode($bingoItem->id) }} })"
-                class="bg-[#FFFFFF] border border-[#e0e0e0] rounded-lg shadow w-28 h-28
-                   text-green-700 font-semibold flex justify-center items-center text-center
-                   hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-500">
-                {{ $bingoItem->label }}
-            </button>
-        @endforeach
-        @else
-        <p>Geen bingo items gevonden voor deze game.</p>
-        @endif
-    </div>
-
-    <!-- Photo Capture Component -->
+    <!-- Photo Capture Component (includes bingo card) -->
     @livewire('player-photo-capture', [
         'gameId' => $gameId,
         'playerToken' => $playerToken,

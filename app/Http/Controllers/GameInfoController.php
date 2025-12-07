@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Location;
 
 class GameInfoController extends Controller
 {
@@ -33,11 +34,19 @@ class GameInfoController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show()
+    public function show($locationId = null)
     {
+        if (!$locationId) {
+            $locationId = request('location');
+        }
+        
+        if (!$locationId) {
+            abort(404, 'Location is required');
+        }
+        $locationModel = Location::findOrFail($locationId);
         $game = [
             'title' => 'Natuur Avontuur',
-            'location' => 'Buitenplaats de Tempel',
+            'location' => $locationModel->name,
             'players_min' => 4,
             'players_max' => 12,
             'needs_materials' => false,
@@ -51,7 +60,7 @@ class GameInfoController extends Controller
             'Let jij het beste op tijdens de route en haal je het binnen de tijd?',
         ];
 
-        return view('games.info', compact('game', 'rules'));
+        return view('games.info', compact('game', 'rules', 'locationId'));
     }
 
     /**

@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Game;
 use App\Models\GamePlayer;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Models\Location;
 
 class GameController extends Controller
@@ -42,6 +41,11 @@ class GameController extends Controller
         $game = Game::where('id', $gameId)
         ->where('host_token', $hostToken)
         ->firstOrFail();
+
+        // Redirect to game if already started
+        if ($game->status === 'started') {
+            return redirect()->route('host.game', $gameId);
+        }
 
         return view('host.lobby', ['gameId' => $gameId]);
     }
@@ -114,17 +118,9 @@ class GameController extends Controller
             return redirect()->route('player.lobby', $gameId)->with('error', 'Het spel is nog niet gestart');
         }
 
-        // Get bingo items for this game, ordered by position
-        $bingoItems = DB::table('bingo_items')
-        ->where('game_id', $gameId)
-        ->orderBy('position')
-        ->get();
-
-
         return view('player.bingo', [
             'gameId' => $gameId,
             'playerToken' => $token,
-            'bingoItems' => $bingoItems
         ]);
     }
 }

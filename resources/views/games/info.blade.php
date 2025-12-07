@@ -40,7 +40,7 @@
             </section>
 
             <main class="px-4 pt-4 pb-6">
-                <x-game.rules-card :rules="$rules" class="mt-4" />
+                <x-game.rules-card :rules="$rules" :locationId="$locationId" class="mt-4" />
             </main>
         </div>
 

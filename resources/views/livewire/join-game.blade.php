@@ -10,9 +10,11 @@
                         type="text" 
                         id="pin" 
                         wire:model="pin" 
-                        maxlength="6" 
+                        maxlength="6"
+                        autocomplete="off"
                         placeholder="Voer hier de game PIN in"
                         autofocus
+                        inputmode="numeric"
                         class="bg-forest-300 text-white rounded-card p-2 w-full placeholder:text-white border-white"
                     >
                     @error('pin') <span>{{ $message }}</span> @enderror
@@ -41,6 +43,8 @@
                         wire:model="name" 
                         maxlength="20" 
                         placeholder="Voer hier je gebruikersnaam in"
+                        inputmode="text"
+                        autocomplete="name"
                         autofocus
                         class="bg-forest-300 text-white rounded-card p-2 w-full placeholder:text-white border-white"
                         >

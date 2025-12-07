@@ -23,6 +23,13 @@ class HostLobby extends Component
     {
         $this->gameId = $gameId;
         $game = Game::findOrFail($gameId);
+        
+        // Redirect to game if already started
+        if ($game->status === 'started') {
+            $this->redirect(route('host.game', $gameId), navigate: true);
+            return;
+        }
+        
         $this->pin = $game->pin;
         $this->loadPlayers();
     }

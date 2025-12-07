@@ -93,13 +93,17 @@ return [
 
         'test_photos' => [
             'driver' => 's3',
+            // Laravel Cloud will inject these via LARAVEL_CLOUD_DISK_CONFIG
+            // These are fallbacks for local development
             'key' => env('AWS_ACCESS_KEY_ID'),
             'secret' => env('AWS_SECRET_ACCESS_KEY'),
             'region' => env('AWS_DEFAULT_REGION', 'auto'),
-            'bucket' => env('AWS_BUCKET'),
+            // Use disk name as fallback - Laravel Cloud will override this
+            'bucket' => env('AWS_BUCKET', 'test_photos'),
             'url' => env('AWS_URL'),
             'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
+            'visibility' => 'public',
             'throw' => false,
             'report' => false,
         ],

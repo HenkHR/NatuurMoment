@@ -302,7 +302,7 @@ class PlayerPhotoCapture extends Component
             } else {
                 // Delete duplicate photo files and records
                 if ($photo->path) {
-                    Storage::disk('public')->delete($photo->path);
+                    Storage::disk('test_photos')->delete($photo->path);
                 }
                 $photo->delete();
             }
@@ -310,14 +310,14 @@ class PlayerPhotoCapture extends Component
 
         // Delete old file if keeping existing photo
         if ($existingPhoto && $existingPhoto->path) {
-            Storage::disk('public')->delete($existingPhoto->path);
+            Storage::disk('test_photos')->delete($existingPhoto->path);
         }
 
         // Generate secure filename
         $filename = 'photos/' . $this->gameId . '/' . $player->id . '/' . uniqid('', true) . '.jpg';
 
-        // Store on public disk
-        Storage::disk('public')->put($filename, $compressedData);
+        // Store on test_photos disk (S3 on Laravel Cloud, local on dev)
+        Storage::disk('test_photos')->put($filename, $compressedData);
 
         // Update existing photo or create new one
         if ($existingPhoto) {

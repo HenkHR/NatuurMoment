@@ -95,7 +95,7 @@ class HostGame extends Component
                     'id' => $photo->id,
                     'status' => $photo->status,
                     'path' => $photo->path,
-                    'url' => asset('storage/' . $photo->path),
+                    'url' => $this->getPhotoUrl($photo->path),
                 ] : null,
             ];
         });
@@ -122,7 +122,7 @@ class HostGame extends Component
             'player_name' => $photo->gamePlayer->name,
             'bingo_item_id' => $photo->bingo_item_id,
             'status' => $photo->status,
-            'url' => asset('storage/' . $photo->path),
+            'url' => $this->getPhotoUrl($photo->path),
             'taken_at' => $photo->taken_at,
         ];
     }
@@ -273,6 +273,22 @@ class HostGame extends Component
     public function closePhotoModal()
     {
         $this->selectedPhoto = null;
+    }
+
+    /**
+     * Get photo URL - uses temporaryUrl for S3 (private bucket) or url for local
+     */
+    private function getPhotoUrl(string $path): string
+    {
+        $disk = Storage::disk('test_photos');
+        
+        // If using S3 (Laravel Cloud with private bucket), use temporary URL
+        if (config('filesystems.disks.test_photos.driver') === 's3') {
+            return $disk->temporaryUrl($path, now()->addHours(1));
+        }
+        
+        // For local storage, use regular URL
+        return $disk->url($path);
     }
 
     public function render()

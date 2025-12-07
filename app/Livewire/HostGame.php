@@ -26,7 +26,7 @@ class HostGame extends Component
      */
     private function getPhotoStorageDisk(): string
     {
-        return env('PHOTO_STORAGE_DISK', 'public');
+        return config('filesystems.photo_storage_disk', env('PHOTO_STORAGE_DISK', 'public'));
     }
 
     //constructor 
@@ -108,7 +108,7 @@ class HostGame extends Component
                     'id' => $photo->id,
                     'status' => $photo->status,
                     'path' => $photo->path,
-                    'url' => Storage::disk($storageDisk)->url($photo->path),
+                    'url' => $this->getPhotoUrl($photo->path, $storageDisk),
                 ] : null,
             ];
         });
@@ -157,7 +157,26 @@ class HostGame extends Component
             return asset('storage/' . $path);
         }
         
-        // For cloud storage (S3, R2, etc.), use Storage::url()
+        // For cloud storage (S3, R2, etc.), get the disk configuration
+        $diskConfig = config("filesystems.disks.{$disk}");
+        
+        if (!$diskConfig || $diskConfig['driver'] !== 's3') {
+            // Fallback to Storage::url() if not S3
+            return Storage::disk($disk)->url($path);
+        }
+        
+        // For S3-compatible storage, construct URL from config
+        $baseUrl = $diskConfig['url'] ?? null;
+        
+        if ($baseUrl) {
+            // Remove trailing slash from base URL if present
+            $baseUrl = rtrim($baseUrl, '/');
+            // Ensure path doesn't start with a slash
+            $path = ltrim($path, '/');
+            return $baseUrl . '/' . $path;
+        }
+        
+        // Fallback: use Storage::url() which should work if AWS_URL is set
         return Storage::disk($disk)->url($path);
     }
 

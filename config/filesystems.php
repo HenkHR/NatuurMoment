@@ -17,6 +17,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Photo Storage Disk
+    |--------------------------------------------------------------------------
+    |
+    | This specifies which disk to use for storing photos. Can be overridden
+    | via PHOTO_STORAGE_DISK environment variable. Defaults to 'public' for
+    | local development, but should be set to your bucket name (e.g., 'test_photos')
+    | in Laravel Cloud environments.
+    |
+    */
+
+    'photo_storage_disk' => env('PHOTO_STORAGE_DISK', 'public'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Filesystem Disks
     |--------------------------------------------------------------------------
     |

@@ -352,7 +352,7 @@ class PlayerPhotoCapture extends Component
 
     /**
      * Compress and optimize image
-     * Handles EXIF orientation for phone photos
+     * Handles EXIF orientation for mobile photos
      * 
      * @param string $imageData Raw image data
      * @param array|false $imageInfo Result from getimagesizefromstring
@@ -367,6 +367,27 @@ class PlayerPhotoCapture extends Component
         // JPEG quality (0-100, lower = smaller file but lower quality)
         $quality = 85;
         
+        // Handle EXIF orientation for mobile photos
+        $orientation = 1; // Default: no rotation needed
+        if ($imageInfo[2] === IMAGETYPE_JPEG && function_exists('exif_read_data') && function_exists('exif_imagetype')) {
+            // Write to temp file to read EXIF data
+            $tempFile = @tempnam(sys_get_temp_dir(), 'photo_');
+            if ($tempFile !== false) {
+                @file_put_contents($tempFile, $imageData);
+                
+                // Verify it's a valid image file
+                if (@exif_imagetype($tempFile) === IMAGETYPE_JPEG) {
+                    $exif = @exif_read_data($tempFile);
+                    if ($exif && isset($exif['Orientation']) && is_numeric($exif['Orientation'])) {
+                        $orientation = (int)$exif['Orientation'];
+                    }
+                }
+                
+                // Clean up temp file
+                @unlink($tempFile);
+            }
+        }
+        
         // Create image resource from string
         $sourceImage = @imagecreatefromstring($imageData);
         
@@ -376,47 +397,29 @@ class PlayerPhotoCapture extends Component
             ]);
         }
         
-        // Try to read EXIF orientation data (for phone photos)
-        // Note: canvas.toDataURL() strips EXIF, but we try anyway in case it's preserved
-        $orientation = 1;
-        if (function_exists('exif_read_data') && $imageInfo[2] === IMAGETYPE_JPEG) {
-            // Create temporary file to read EXIF data
-            $tempFile = tmpfile();
-            if ($tempFile !== false) {
-                $tempPath = stream_get_meta_data($tempFile)['uri'];
-                file_put_contents($tempPath, $imageData);
-                
-                $exif = @exif_read_data($tempPath);
-                if ($exif && isset($exif['Orientation'])) {
-                    $orientation = (int)$exif['Orientation'];
-                }
-                
-                // Clean up temp file
-                fclose($tempFile);
-            }
-        }
-        
-        // Apply EXIF orientation correction if needed
-        if ($orientation !== 1 && function_exists('imagerotate')) {
-            $sourceImage = $this->applyOrientation($sourceImage, $orientation);
-        }
-        
         $originalWidth = imagesx($sourceImage);
         $originalHeight = imagesy($sourceImage);
         
-
         if ($originalWidth <= 0 || $originalHeight <= 0) {
             throw ValidationException::withMessages([
                 'image' => 'Invalid image dimensions'
             ]);
         }
+        
+        // Apply EXIF orientation correction
+        $sourceImage = $this->applyOrientation($sourceImage, $orientation);
+        
+        // Get dimensions after orientation (may have swapped)
+        $width = imagesx($sourceImage);
+        $height = imagesy($sourceImage);
+        
         // Calculate new dimensions if resizing needed
-        $ratio = min($maxWidth / $originalWidth, $maxHeight / $originalHeight);
-        $newWidth = (int)($originalWidth * $ratio);
-        $newHeight = (int)($originalHeight * $ratio);
+        $ratio = min($maxWidth / $width, $maxHeight / $height);
+        $newWidth = (int)($width * $ratio);
+        $newHeight = (int)($height * $ratio);
         
         // Only resize if image is larger than max dimensions
-        if ($originalWidth > $maxWidth || $originalHeight > $maxHeight) {
+        if ($width > $maxWidth || $height > $maxHeight) {
             // Create new image with calculated dimensions
             $resizedImage = imagecreatetruecolor($newWidth, $newHeight);
             
@@ -431,8 +434,8 @@ class PlayerPhotoCapture extends Component
                 0, 0, 0, 0,
                 $newWidth,
                 $newHeight,
-                $originalWidth,
-                $originalHeight
+                $width,
+                $height
             );
             
             imagedestroy($sourceImage);
@@ -452,52 +455,50 @@ class PlayerPhotoCapture extends Component
     
     /**
      * Apply EXIF orientation to image
-     * Fixes rotation issues with phone photos
      * 
      * @param resource $image GD image resource
      * @param int $orientation EXIF orientation value (1-8)
      * @return resource Rotated/flipped image resource
      */
-    private function applyOrientation($image, $orientation)
+    private function applyOrientation($image, int $orientation)
     {
-        if ($orientation === 1 || $orientation === 0) {
-            // No rotation needed
-            return $image;
-        }
-        
-        $width = imagesx($image);
-        $height = imagesy($image);
+        // Black background for JPEG (no transparency needed)
+        $backgroundColor = imagecolorallocate($image, 0, 0, 0);
         
         switch ($orientation) {
             case 2:
-                // Flip horizontal
+                // Horizontal flip
                 imageflip($image, IMG_FLIP_HORIZONTAL);
                 break;
             case 3:
                 // Rotate 180 degrees
-                $image = imagerotate($image, 180, 0);
+                $image = imagerotate($image, 180, $backgroundColor);
                 break;
             case 4:
-                // Flip vertical
+                // Vertical flip
                 imageflip($image, IMG_FLIP_VERTICAL);
                 break;
             case 5:
-                // Rotate 90 degrees counter-clockwise and flip horizontal
-                $image = imagerotate($image, -90, 0);
+                // Rotate 90 degrees counter-clockwise and flip horizontally
+                $image = imagerotate($image, -90, $backgroundColor);
                 imageflip($image, IMG_FLIP_HORIZONTAL);
                 break;
             case 6:
-                // Rotate 90 degrees clockwise
-                $image = imagerotate($image, -90, 0);
+                // Rotate 90 degrees clockwise (portrait mode - most common on mobile)
+                $image = imagerotate($image, -90, $backgroundColor);
                 break;
             case 7:
-                // Rotate 90 degrees clockwise and flip horizontal
-                $image = imagerotate($image, 90, 0);
+                // Rotate 90 degrees clockwise and flip horizontally
+                $image = imagerotate($image, 90, $backgroundColor);
                 imageflip($image, IMG_FLIP_HORIZONTAL);
                 break;
             case 8:
                 // Rotate 90 degrees counter-clockwise
-                $image = imagerotate($image, 90, 0);
+                $image = imagerotate($image, 90, $backgroundColor);
+                break;
+            case 1:
+            default:
+                // No rotation needed
                 break;
         }
         

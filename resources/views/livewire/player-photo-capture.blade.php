@@ -229,26 +229,16 @@ async function startCamera() {
 async function capturePhoto() {
     if (!video || !canvas) return;
     
-    // Get video dimensions
-    const videoWidth = video.videoWidth;
-    const videoHeight = video.videoHeight;
-    
-    // Set canvas dimensions to match video (ensure correct orientation)
-    canvas.width = videoWidth;
-    canvas.height = videoHeight;
+    // Set canvas dimensions to match video
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
     
     // Draw video frame to canvas
     const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0);
     
-    // Ensure proper image rendering
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
-    
-    // Draw the video frame
-    ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
-    
-    // Convert to base64 with high quality
-    const imageData = canvas.toDataURL('image/jpeg', 0.92);
+    // Convert to base64
+    const imageData = canvas.toDataURL('image/jpeg', 0.85);
     
     // Update Livewire component and wait for it to complete
     try {
@@ -259,7 +249,6 @@ async function capturePhoto() {
         if (previewImg) {
             previewImg.src = imageData;
             previewImg.style.display = 'block';
-            previewImg.style.objectFit = 'contain';
         }
         
         // Hide video element

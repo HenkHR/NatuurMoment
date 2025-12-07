@@ -106,12 +106,11 @@
                             class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
                     </div>
                     
-                    <div class="mb-4 flex justify-center">
+                    <div class="mb-4">
                         <img 
                             src="{{ $selectedPhoto['url'] }}" 
                             alt="Foto" 
-                            class="max-w-full max-h-[70vh] w-auto h-auto rounded-lg shadow-lg mx-auto object-contain"
-                            style="image-orientation: from-image;"
+                            class="max-w-full h-auto rounded-lg shadow-lg mx-auto"
                             onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'300\'%3E%3Crect fill=\'%23ddd\' width=\'400\' height=\'300\'/%3E%3Ctext fill=\'%23999\' font-family=\'sans-serif\' font-size=\'18\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dominant-baseline=\'middle\'%3EFoto niet gevonden%3C/text%3E%3C/svg%3E'; console.error('Image failed to load:', '{{ $selectedPhoto['url'] }}');">
                     </div>
                     

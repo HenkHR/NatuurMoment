@@ -23,8 +23,7 @@ class GameController extends Controller
             'host_token' => Game::generateHostToken(),
         ]);
 
-        $request->session()->put('hostToken_'.$game->id, $game->host_token);
-        $request->session()->save();
+        session(['hostToken_'.$game->id => $game->host_token]);
 
         return redirect()->route('host.lobby', $game->id);
     }

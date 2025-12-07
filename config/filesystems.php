@@ -60,11 +60,12 @@ return [
             'report' => false,
         ],
 
-        'test_photos' => [
-            // Use S3 if AWS credentials exist (Laravel Cloud), otherwise use local storage
-            // Note: After changing this, run: php artisan config:clear on Laravel Cloud
-            'driver' => env('AWS_ACCESS_KEY_ID') ? 's3' : 'local',
-            // S3 configuration (used on Laravel Cloud)
+        // Laravel Cloud Object Storage (S3-compatible, Cloudflare R2)
+        // When a bucket is attached to an environment, Laravel Cloud automatically
+        // injects the required environment variables. The disk name should match
+        // the bucket's disk name configured in Laravel Cloud dashboard.
+        'r2' => [
+            'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),
             'secret' => env('AWS_SECRET_ACCESS_KEY'),
             'region' => env('AWS_DEFAULT_REGION', 'auto'),
@@ -72,9 +73,6 @@ return [
             'url' => env('AWS_URL'),
             'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
-            // Local configuration (used for local development)
-            'root' => storage_path('app/public'),
-            'visibility' => 'public',
             'throw' => false,
             'report' => false,
         ],

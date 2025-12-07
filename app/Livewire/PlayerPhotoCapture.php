@@ -293,6 +293,9 @@ class PlayerPhotoCapture extends Component
             ->orderBy('created_at', 'desc')
             ->get();
 
+        // Get storage disk (configurable for Laravel Cloud)
+        $storageDisk = $this->getPhotoStorageDisk();
+
         // Delete old files and remove duplicate photos (keep only the most recent one)
         $existingPhoto = null;
         foreach ($existingPhotos as $index => $photo) {
@@ -302,7 +305,7 @@ class PlayerPhotoCapture extends Component
             } else {
                 // Delete duplicate photo files and records
                 if ($photo->path) {
-                    Storage::disk('test_photos')->delete($photo->path);
+                    Storage::disk($storageDisk)->delete($photo->path);
                 }
                 $photo->delete();
             }
@@ -310,14 +313,14 @@ class PlayerPhotoCapture extends Component
 
         // Delete old file if keeping existing photo
         if ($existingPhoto && $existingPhoto->path) {
-            Storage::disk('test_photos')->delete($existingPhoto->path);
+            Storage::disk($storageDisk)->delete($existingPhoto->path);
         }
 
         // Generate secure filename
         $filename = 'photos/' . $this->gameId . '/' . $player->id . '/' . uniqid('', true) . '.jpg';
 
-        // Store on test_photos disk (S3 on Laravel Cloud, local on dev)
-        Storage::disk('test_photos')->put($filename, $compressedData);
+        // Store on configured disk (public for local, r2/s3 for Laravel Cloud)
+        Storage::disk($storageDisk)->put($filename, $compressedData);
 
         // Update existing photo or create new one
         if ($existingPhoto) {
@@ -367,24 +370,23 @@ class PlayerPhotoCapture extends Component
         // JPEG quality (0-100, lower = smaller file but lower quality)
         $quality = 85;
         
-        // Handle EXIF orientation for mobile photos
-        $orientation = 1; // Default: no rotation needed
-        if ($imageInfo[2] === IMAGETYPE_JPEG && function_exists('exif_read_data') && function_exists('exif_imagetype')) {
-            // Write to temp file to read EXIF data
-            $tempFile = @tempnam(sys_get_temp_dir(), 'photo_');
+        // Read EXIF orientation if available (only for JPEG)
+        $orientation = 1; // Default: normal orientation
+        if ($imageInfo[2] === IMAGETYPE_JPEG && function_exists('exif_read_data')) {
+            // Create temporary file to read EXIF data (exif_read_data needs a file path)
+            $tempFile = tmpfile();
             if ($tempFile !== false) {
-                @file_put_contents($tempFile, $imageData);
+                $tempPath = stream_get_meta_data($tempFile)['uri'];
+                file_put_contents($tempPath, $imageData);
                 
-                // Verify it's a valid image file
-                if (@exif_imagetype($tempFile) === IMAGETYPE_JPEG) {
-                    $exif = @exif_read_data($tempFile);
-                    if ($exif && isset($exif['Orientation']) && is_numeric($exif['Orientation'])) {
-                        $orientation = (int)$exif['Orientation'];
-                    }
+                // Read EXIF orientation
+                $exif = @exif_read_data($tempPath);
+                if ($exif && isset($exif['Orientation'])) {
+                    $orientation = (int)$exif['Orientation'];
                 }
                 
                 // Clean up temp file
-                @unlink($tempFile);
+                fclose($tempFile);
             }
         }
         
@@ -397,29 +399,25 @@ class PlayerPhotoCapture extends Component
             ]);
         }
         
+        // Apply EXIF orientation correction
+        $sourceImage = $this->fixImageOrientation($sourceImage, $orientation);
+        
         $originalWidth = imagesx($sourceImage);
         $originalHeight = imagesy($sourceImage);
-        
+
         if ($originalWidth <= 0 || $originalHeight <= 0) {
             throw ValidationException::withMessages([
                 'image' => 'Invalid image dimensions'
             ]);
         }
         
-        // Apply EXIF orientation correction
-        $sourceImage = $this->applyOrientation($sourceImage, $orientation);
-        
-        // Get dimensions after orientation (may have swapped)
-        $width = imagesx($sourceImage);
-        $height = imagesy($sourceImage);
-        
         // Calculate new dimensions if resizing needed
-        $ratio = min($maxWidth / $width, $maxHeight / $height);
-        $newWidth = (int)($width * $ratio);
-        $newHeight = (int)($height * $ratio);
+        $ratio = min($maxWidth / $originalWidth, $maxHeight / $originalHeight);
+        $newWidth = (int)($originalWidth * $ratio);
+        $newHeight = (int)($originalHeight * $ratio);
         
         // Only resize if image is larger than max dimensions
-        if ($width > $maxWidth || $height > $maxHeight) {
+        if ($originalWidth > $maxWidth || $originalHeight > $maxHeight) {
             // Create new image with calculated dimensions
             $resizedImage = imagecreatetruecolor($newWidth, $newHeight);
             
@@ -434,8 +432,8 @@ class PlayerPhotoCapture extends Component
                 0, 0, 0, 0,
                 $newWidth,
                 $newHeight,
-                $width,
-                $height
+                $originalWidth,
+                $originalHeight
             );
             
             imagedestroy($sourceImage);
@@ -454,16 +452,25 @@ class PlayerPhotoCapture extends Component
     }
     
     /**
-     * Apply EXIF orientation to image
+     * Fix image orientation based on EXIF data
      * 
      * @param resource $image GD image resource
      * @param int $orientation EXIF orientation value (1-8)
-     * @return resource Rotated/flipped image resource
+     * @return resource Corrected image resource
      */
-    private function applyOrientation($image, int $orientation)
+    private function fixImageOrientation($image, int $orientation)
     {
-        // Black background for JPEG (no transparency needed)
-        $backgroundColor = imagecolorallocate($image, 0, 0, 0);
+        // EXIF orientation values:
+        // 1 = Normal (0°)
+        // 2 = Horizontal flip
+        // 3 = Rotate 180°
+        // 4 = Vertical flip
+        // 5 = Rotate 90° CCW, then flip horizontally
+        // 6 = Rotate 90° CW
+        // 7 = Rotate 90° CW, then flip horizontally
+        // 8 = Rotate 90° CCW
+        //
+        // Note: imagerotate uses positive values for counter-clockwise rotation
         
         switch ($orientation) {
             case 2:
@@ -472,34 +479,31 @@ class PlayerPhotoCapture extends Component
                 break;
             case 3:
                 // Rotate 180 degrees
-                $image = imagerotate($image, 180, $backgroundColor);
+                $image = imagerotate($image, 180, 0);
                 break;
             case 4:
                 // Vertical flip
                 imageflip($image, IMG_FLIP_VERTICAL);
                 break;
             case 5:
-                // Rotate 90 degrees counter-clockwise and flip horizontally
-                $image = imagerotate($image, -90, $backgroundColor);
+                // Rotate 90° CCW, then flip horizontally
+                $image = imagerotate($image, 90, 0);
                 imageflip($image, IMG_FLIP_HORIZONTAL);
                 break;
             case 6:
-                // Rotate 90 degrees clockwise (portrait mode - most common on mobile)
-                $image = imagerotate($image, -90, $backgroundColor);
+                // Rotate 90° CW (use -90 for clockwise)
+                $image = imagerotate($image, -90, 0);
                 break;
             case 7:
-                // Rotate 90 degrees clockwise and flip horizontally
-                $image = imagerotate($image, 90, $backgroundColor);
+                // Rotate 90° CW, then flip horizontally
+                $image = imagerotate($image, -90, 0);
                 imageflip($image, IMG_FLIP_HORIZONTAL);
                 break;
             case 8:
-                // Rotate 90 degrees counter-clockwise
-                $image = imagerotate($image, 90, $backgroundColor);
+                // Rotate 90° CCW (use 90 for counter-clockwise)
+                $image = imagerotate($image, 90, 0);
                 break;
-            case 1:
-            default:
-                // No rotation needed
-                break;
+            // case 1: Normal orientation, no change needed
         }
         
         return $image;

@@ -19,6 +19,16 @@ class HostGame extends Component
     public $expandedPlayers = []; // Track which player accordions are open
     public $selectedPhoto = null; // Currently selected photo for review
 
+    /**
+     * Get the storage disk for photos (configurable for Laravel Cloud)
+     * 
+     * @return string
+     */
+    private function getPhotoStorageDisk(): string
+    {
+        return env('PHOTO_STORAGE_DISK', 'public');
+    }
+
     //constructor 
     public function mount($gameId)
     {
@@ -84,8 +94,11 @@ class HostGame extends Component
             ->get()
             ->keyBy('bingo_item_id');
         
+        // Get storage disk (configurable for Laravel Cloud)
+        $storageDisk = $this->getPhotoStorageDisk();
+        
         // Map bingo items with photo status
-        return $bingoItems->map(function($item) use ($photos) {
+        return $bingoItems->map(function($item) use ($photos, $storageDisk) {
             $photo = $photos->get($item->id);
             return [
                 'id' => $item->id,
@@ -95,7 +108,7 @@ class HostGame extends Component
                     'id' => $photo->id,
                     'status' => $photo->status,
                     'path' => $photo->path,
-                    'url' => $this->getPhotoUrl($photo->path),
+                    'url' => Storage::disk($storageDisk)->url($photo->path),
                 ] : null,
             ];
         });
@@ -117,12 +130,15 @@ class HostGame extends Component
             abort(403, 'Unauthorized');
         }
         
+        // Get storage disk (configurable for Laravel Cloud)
+        $storageDisk = $this->getPhotoStorageDisk();
+        
         $this->selectedPhoto = [
             'id' => $photo->id,
             'player_name' => $photo->gamePlayer->name,
             'bingo_item_id' => $photo->bingo_item_id,
             'status' => $photo->status,
-            'url' => $this->getPhotoUrl($photo->path),
+            'url' => Storage::disk($storageDisk)->url($photo->path),
             'taken_at' => $photo->taken_at,
         ];
     }
@@ -273,41 +289,6 @@ class HostGame extends Component
     public function closePhotoModal()
     {
         $this->selectedPhoto = null;
-    }
-
-    /**
-     * Get photo URL - uses temporaryUrl for S3 (private bucket) or url for local
-     */
-    private function getPhotoUrl(string $path): string
-    {
-        $disk = Storage::disk('test_photos');
-        
-        // Check the configured driver (works even with cached config)
-        $driver = config('filesystems.disks.test_photos.driver', 'local');
-        
-        // Also check if AWS credentials are available (fallback check)
-        $hasAwsCredentials = !empty(config('filesystems.disks.test_photos.key')) && 
-                           !empty(config('filesystems.disks.test_photos.secret'));
-        
-        // If driver is S3 or AWS credentials exist, try temporaryUrl
-        if ($driver === 's3' || $hasAwsCredentials) {
-            try {
-                return $disk->temporaryUrl($path, now()->addHours(1));
-            } catch (\Exception $e) {
-                // Log error for debugging
-                \Log::error('Failed to generate temporary URL for photo', [
-                    'path' => $path,
-                    'driver' => $driver,
-                    'has_credentials' => $hasAwsCredentials,
-                    'error' => $e->getMessage()
-                ]);
-                // Fallback to url() - but this might not work for private S3 buckets
-                return $disk->url($path);
-            }
-        }
-        
-        // Local development - use regular URL
-        return $disk->url($path);
     }
 
     public function render()

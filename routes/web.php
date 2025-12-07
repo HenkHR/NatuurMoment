@@ -11,7 +11,22 @@ use App\Http\Controllers\GameController;
 use App\Http\Controllers\HomeController;
 
 
+//mag weg als locatie pagina er is
+use App\Models\Location;
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
+
+
+//aanpassen als locatie pagina er is
+Route::get('/play', function () {
+    $location = Location::find(1);
+    return view('play', compact('location'));
+})->name('play');
+
+Route::get('/play/{locationId}', function ($locationId) {
+    $location = Location::findOrFail($locationId);
+    return view('play', compact('location'));
+})->name('play.location');
 
 
 Route::post('/play/{locationId}', [GameController::class, 'create'])->name('play.create');

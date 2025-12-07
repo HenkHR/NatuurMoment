@@ -1,9 +1,9 @@
 @props([
     'rules' => [],
-    'buttonLabel' => 'Spel spelen',
 ])
 
 <section {{ $attributes->merge(['class' => 'bg-pure-white rounded-card shadow-card overflow-hidden']) }}>
+    {{-- groene basisachtergrond zodat er nooit wit tussen de vlakken zit --}}
     <div class="rounded-card overflow-hidden bg-forest">
         @foreach($rules as $index => $rule)
             @php
@@ -24,7 +24,7 @@
                 // overlap om naden te voorkomen
                 $overlapClass = $index > 0 ? '-mt-[2px]' : '';
 
-                // ⭐ tekst uitlijning — hier komt jouw nieuwe code ⭐
+                // tekst uitlijning
                 $textAlignClass = in_array($index, [1, 3]) ? 'text-right' : 'text-left';
             @endphp
 
@@ -41,12 +41,29 @@
         @endforeach
     </div>
 
-    <div class="px-4 py-5 flex justify-center bg-pure-white">
-    <form action="{{ route('play.create', 1) }}" method="POST" class="w-full max-w-xs bg-action-500 hover:bg-action-600 text-pure-white font-semibold text-small py-3 rounded-button text-center shadow-card transition">
-                @csrf
-                <button type="submit">{{ $buttonLabel }}</button>
-            </form>
+    {{-- knoppen --}}
+    <div class="px-4 py-5 flex flex-col items-center gap-3 bg-pure-white">
+        {{-- JOIN GAME (POST) --}}
+        <form
+            action="{{ route('play.create', 1) }}"
+            method="POST"
+            class="w-full max-w-xs"
+        >
+            @csrf
+            <button
+                type="submit"
+                class="w-full bg-action-500 hover:bg-action-600 text-pure-white font-semibold text-small py-3 rounded-button text-center shadow-card transition"
+            >
+                Join game
+            </button>
+        </form>
 
-        
+        {{-- SPEL AANMAKEN (pas route aan naar wat jullie gebruiken) --}}
+        <a
+            href="#"
+            class="w-full max-w-xs bg-sky-500 hover:bg-sky-600 text-pure-white font-semibold text-small py-3 rounded-button text-center shadow-card transition"
+        >
+            Spel aanmaken
+        </a>
     </div>
 </section>

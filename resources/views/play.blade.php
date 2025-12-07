@@ -10,6 +10,11 @@
         <h1>Locatie:</h1>
         <p>{{ $location->name }}</p>
         <p>{{ $location->description }}</p>
+        @if(session('error'))
+            <div class="alert alert-danger">
+                {{ session('error') }}
+            </div>
+        @endif
         <div>
             <h2>Play</h2>
             <form action="{{ route('play.create', $location->id) }}" method="POST">

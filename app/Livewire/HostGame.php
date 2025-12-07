@@ -138,9 +138,27 @@ class HostGame extends Component
             'player_name' => $photo->gamePlayer->name,
             'bingo_item_id' => $photo->bingo_item_id,
             'status' => $photo->status,
-            'url' => Storage::disk($storageDisk)->url($photo->path),
+            'url' => $this->getPhotoUrl($photo->path, $storageDisk),
             'taken_at' => $photo->taken_at,
         ];
+    }
+
+    /**
+     * Get the URL for a photo, handling both local and cloud storage
+     * 
+     * @param string $path
+     * @param string $disk
+     * @return string
+     */
+    private function getPhotoUrl(string $path, string $disk): string
+    {
+        if ($disk === 'public') {
+            // For local public disk, use asset() helper which is more reliable
+            return asset('storage/' . $path);
+        }
+        
+        // For cloud storage (S3, R2, etc.), use Storage::url()
+        return Storage::disk($disk)->url($path);
     }
 
     /**

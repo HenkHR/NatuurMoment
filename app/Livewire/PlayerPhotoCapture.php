@@ -33,6 +33,16 @@ class PlayerPhotoCapture extends Component
     // Maximum file size: 5MB
     private const MAX_FILE_SIZE = 5 * 1024 * 1024;
     
+    /**
+     * Get the storage disk for photos (configurable for Laravel Cloud)
+     * 
+     * @return string
+     */
+    private function getPhotoStorageDisk(): string
+    {
+        return env('PHOTO_STORAGE_DISK', 'public');
+    }
+    
     public function mount($gameId, $playerToken, $bingoItemId = null)
     {
         // Validate player token and game access

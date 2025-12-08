@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Traits\PhotoStorage;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 
 class Photo extends Model
 {
+    use PhotoStorage;
+
     protected $fillable = [
         'game_id',
         'game_player_id',
@@ -30,26 +33,9 @@ class Photo extends Model
         return $this->belongsTo(GamePlayer::class); 
     }
 
-    // public function bingoItem()
-    // {
-    //     return $this->belongsTo(BingoItem::class);
-    // }
-    
-    /**
-     * Get the storage disk for photos
-     * Uses disk name from env or defaults to 'photos', falls back to 'public'
-     */
-    private function getPhotoDisk(): string
+    public function bingoItem()
     {
-        $diskName = env('PHOTOS_DISK', 'photos');
-        
-        // Check if the disk is configured
-        if (config("filesystems.disks.{$diskName}")) {
-            return $diskName;
-        }
-        
-        // Fallback to public disk
-        return 'public';
+        return $this->belongsTo(BingoItem::class);
     }
     
     /**

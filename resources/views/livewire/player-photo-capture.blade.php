@@ -12,7 +12,7 @@
             @if(count($bingoItems) > 0)
                 @foreach ($bingoItems as $bingoItem)
                     @php
-                        $status = $bingoItemStatuses[$bingoItem->id] ?? null;
+                        $status = $bingoItemStatuses[$bingoItem['id']] ?? null;
                         $isApproved = $status === 'approved';
                         $statusClass = match($status) {
                             'approved' => 'bg-green-100 border-green-500 border-2',
@@ -28,7 +28,7 @@
                         };
                     @endphp
                     <button
-                        wire:click="openPhotoCapture({{ $bingoItem->id }})"
+                        wire:click="openPhotoCapture({{ $bingoItem['id'] }})"
                         @if($isApproved) disabled @endif
                         class="{{ $statusClass }} rounded-lg shadow w-28 h-28
                            text-green-700 font-semibold flex flex-col justify-center items-center text-center
@@ -37,7 +37,7 @@
                         @if($statusIcon)
                             <span class="absolute top-1 right-1 text-lg">{{ $statusIcon }}</span>
                         @endif
-                        <span class="text-sm">{{ $bingoItem->label }}</span>
+                        <span class="text-sm">{{ $bingoItem['label'] }}</span>
                     </button>
                 @endforeach
             @else

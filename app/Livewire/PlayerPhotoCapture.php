@@ -5,7 +5,9 @@ namespace App\Livewire;
 use App\Models\Photo;
 use App\Models\GamePlayer;
 use App\Models\Game;
+use App\Models\BingoItem;
 use App\Models\LocationBingoItem;
+use App\Traits\PhotoStorage;
 use Livewire\Component;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Locked;
@@ -16,6 +18,8 @@ use Illuminate\Support\Facades\Log;
 
 class PlayerPhotoCapture extends Component
 {
+    use PhotoStorage;
+
     #[Locked]
     public $gameId;
     
@@ -32,23 +36,6 @@ class PlayerPhotoCapture extends Component
     
     // Maximum file size: 5MB
     private const MAX_FILE_SIZE = 5 * 1024 * 1024;
-    
-    /**
-     * Get the storage disk for photos
-     * Uses disk name from env or defaults to 'photos', falls back to 'public'
-     */
-    private function getPhotoDisk(): string
-    {
-        $diskName = env('PHOTOS_DISK', 'photos');
-        
-        // Check if the disk is configured
-        if (config("filesystems.disks.{$diskName}")) {
-            return $diskName;
-        }
-        
-        // Fallback to public disk
-        return 'public';
-    }
     
     public function mount($gameId, $playerToken, $bingoItemId = null)
     {
@@ -78,8 +65,7 @@ class PlayerPhotoCapture extends Component
      */
     private function loadBingoItems(): void
     {
-        $this->bingoItems = DB::table('bingo_items')
-            ->where('game_id', $this->gameId)
+        $this->bingoItems = BingoItem::where('game_id', $this->gameId)
             ->orderBy('position')
             ->get()
             ->toArray();
@@ -174,8 +160,7 @@ class PlayerPhotoCapture extends Component
      */
     private function validateBingoItem($bingoItemId, $gameId): void
     {
-        $exists = DB::table('bingo_items')
-            ->where('id', $bingoItemId)
+        $exists = BingoItem::where('id', $bingoItemId)
             ->where('game_id', $gameId)
             ->exists();
             
@@ -197,8 +182,7 @@ class PlayerPhotoCapture extends Component
         try {
             $game = Game::with('location')->findOrFail($this->gameId);
             
-            $bingoItem = DB::table('bingo_items')
-                ->where('id', $this->bingoItemId)
+            $bingoItem = BingoItem::where('id', $this->bingoItemId)
                 ->where('game_id', $this->gameId)
                 ->first();
             

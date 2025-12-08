@@ -17,6 +17,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Photos Disk Name
+    |--------------------------------------------------------------------------
+    |
+    | The disk name to use for photo storage. Can be overridden with
+    | PHOTOS_DISK environment variable. Defaults to 'photos'.
+    |
+    */
+
+    'photos_disk' => env('PHOTOS_DISK', 'photos'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Filesystem Disks
     |--------------------------------------------------------------------------
     |

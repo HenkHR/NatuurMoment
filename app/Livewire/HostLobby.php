@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Game;
+use App\Models\BingoItem;
 use Livewire\Component;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Locked;
@@ -74,7 +75,7 @@ class HostLobby extends Component
     private function generateBingoItems(Game $game): void
     {
         // Check if bingo items already exist (prevent duplicates)
-        if (DB::table('bingo_items')->where('game_id', $game->id)->exists()) {
+        if (BingoItem::where('game_id', $game->id)->exists()) {
             return;
         }
 
@@ -95,14 +96,12 @@ class HostLobby extends Component
         shuffle($positions);
 
         foreach ($selectedItems as $index => $locationItem) {
-            DB::table('bingo_items')->insert([
+            BingoItem::create([
                 'game_id' => $game->id,
                 'label' => $locationItem->label,
                 'points' => $locationItem->points,
                 'position' => $positions[$index],
                 'icon_path' => $locationItem->icon,
-                'created_at' => now(),
-                'updated_at' => now(),
             ]);
         }
     }

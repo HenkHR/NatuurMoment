@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Game;
 use App\Models\Photo;
+use App\Models\BingoItem;
 use Livewire\Component;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Locked;
@@ -12,6 +13,34 @@ use Illuminate\Support\Facades\Storage;
 
 class HostGame extends Component
 {
+    /**
+     * Bingo grid lines for bonus point calculation
+     * 
+     * Defines all possible winning lines in a 3x3 bingo grid.
+     * Grid positions are numbered as follows:
+     *   0 1 2
+     *   3 4 5
+     *   6 7 8
+     * 
+     * Contains:
+     * - 3 horizontal rows: [0,1,2], [3,4,5], [6,7,8]
+     * - 3 vertical columns: [0,3,6], [1,4,7], [2,5,8]
+     * - 2 diagonals: [0,4,8], [2,4,6]
+     */
+    private const BINGO_LINES = [
+        // Horizontal rows
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        // Vertical columns
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        // Diagonals
+        [0, 4, 8],
+        [2, 4, 6],
+    ];
+
     #[Locked]
     public $gameId;
 
@@ -23,7 +52,6 @@ class HostGame extends Component
     public function mount($gameId)
     {
         $this->gameId = $gameId;
-        $game = Game::findOrFail($gameId);
         $this->loadPlayers();
     }
 
@@ -43,8 +71,8 @@ class HostGame extends Component
         
         // Calculate scores for each player (includes line bonuses)
         $this->players = $game->players->map(function($player) use ($pendingCounts) {
-            // Calculate score using the same method as approve/reject
-            $score = $this->calculatePlayerScore($player->id);
+            // Get score without updating database (read-only for display)
+            $score = $this->getPlayerScore($player->id);
             
             return [
                 'id' => $player->id,
@@ -73,8 +101,7 @@ class HostGame extends Component
     public function getPlayerBingoItems($playerId)
     {
         // Get all bingo items for this game
-        $bingoItems = DB::table('bingo_items')
-            ->where('game_id', $this->gameId)
+        $bingoItems = BingoItem::where('game_id', $this->gameId)
             ->orderBy('position')
             ->get();
         
@@ -128,11 +155,10 @@ class HostGame extends Component
     }
 
     /**
-     * Calculate and update player score based on all approved photos
-     * This ensures the score is always accurate and prevents double-counting
-     * Also adds bonus points for completed lines (rows, columns, diagonals)
+     * Get player score without updating database (read-only)
+     * Used for display purposes in loadPlayers()
      */
-    private function calculatePlayerScore($playerId)
+    private function getPlayerScore($playerId): int
     {
         // Get total points from all approved photos for this player
         $baseScore = Photo::where('photos.game_id', $this->gameId)
@@ -152,9 +178,21 @@ class HostGame extends Component
         // Calculate bonus points for completed lines
         $bonusPoints = $this->calculateLineBonuses($approvedPositions);
         
-        $totalScore = ($baseScore ?? 0) + $bonusPoints;
+        return (int)(($baseScore ?? 0) + $bonusPoints);
+    }
+
+    /**
+     * Calculate and update player score based on all approved photos
+     * This ensures the score is always accurate and prevents double-counting
+     * Also adds bonus points for completed lines (rows, columns, diagonals)
+     * 
+     * This method should only be called when the score actually changes (approve/reject)
+     */
+    private function calculatePlayerScore($playerId)
+    {
+        $totalScore = $this->getPlayerScore($playerId);
         
-        // Update player score
+        // Update player score in database
         DB::table('game_players')
             ->where('id', $playerId)
             ->update(['score' => $totalScore]);
@@ -164,34 +202,18 @@ class HostGame extends Component
     
     /**
      * Calculate bonus points for completed lines in the 3x3 bingo grid
-     * Grid positions: 0 1 2
-     *                 3 4 5
-     *                 6 7 8
      * 
-     * Lines:
-     * - Horizontal: [0,1,2], [3,4,5], [6,7,8]
-     * - Vertical: [0,3,6], [1,4,7], [2,5,8]
-     * - Diagonal: [0,4,8], [2,4,6]
+     * Checks all possible winning lines (defined in BINGO_LINES constant)
+     * and awards 1 bonus point for each completed line.
+     * 
+     * @param array $approvedPositions Array of grid positions (0-8) with approved photos
+     * @return int Total bonus points for completed lines
      */
     private function calculateLineBonuses(array $approvedPositions): int
     {
-        $lines = [
-            // Horizontal rows
-            [0, 1, 2],
-            [3, 4, 5],
-            [6, 7, 8],
-            // Vertical columns
-            [0, 3, 6],
-            [1, 4, 7],
-            [2, 5, 8],
-            // Diagonals
-            [0, 4, 8],
-            [2, 4, 6],
-        ];
-        
         $bonusPoints = 0;
         
-        foreach ($lines as $line) {
+        foreach (self::BINGO_LINES as $line) {
             // Check if all positions in this line are approved
             $lineCompleted = true;
             foreach ($line as $position) {
@@ -227,9 +249,7 @@ class HostGame extends Component
         $newScore = $this->calculatePlayerScore($photo->game_player_id);
         
         // Get bingo item for message
-        $bingoItem = DB::table('bingo_items')
-            ->where('id', $photo->bingo_item_id)
-            ->first();
+        $bingoItem = BingoItem::find($photo->bingo_item_id);
         
         // Close photo modal and refresh
         $this->selectedPhoto = null;

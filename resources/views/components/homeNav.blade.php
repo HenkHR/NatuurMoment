@@ -2,9 +2,10 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
 
-            <!-- Logo -->
-            <a href="{{ url('/') }}" class="text-xl font-semibold text-white tracking-tight">
-                NatuurMoment
+            <a href="{{ url('/') }}" class="flex items-center gap-3">
+                <img src="{{ asset('images/logoNM.png') }}"
+                     alt="NatuurMoment logo"
+                     class="h-20 w-auto">
             </a>
 
             <!-- Menu / Button -->

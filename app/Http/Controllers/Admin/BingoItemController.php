@@ -30,7 +30,7 @@ class BingoItemController extends Controller
 
     public function store(StoreBingoItemRequest $request, Location $location): RedirectResponse
     {
-        $data = $request->safe()->only(['label', 'points']);
+        $data = $request->safe()->only(['label', 'points', 'fact']);
 
         if ($request->hasFile('icon')) {
             $path = $request->file('icon')->store('bingo-icons', 'public');
@@ -56,7 +56,7 @@ class BingoItemController extends Controller
 
     public function update(UpdateBingoItemRequest $request, LocationBingoItem $bingoItem): RedirectResponse
     {
-        $data = $request->safe()->only(['label', 'points']);
+        $data = $request->safe()->only(['label', 'points', 'fact']);
 
         if ($request->boolean('remove_icon')) {
             if ($bingoItem->icon && Storage::disk('public')->exists($bingoItem->icon)) {

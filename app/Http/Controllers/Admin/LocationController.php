@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateLocationRequest;
 use App\Models\Location;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class LocationController extends Controller
@@ -28,7 +29,17 @@ class LocationController extends Controller
 
     public function store(StoreLocationRequest $request): RedirectResponse
     {
-        Location::create($request->validated());
+        $data = $request->safe()->only(['name', 'description', 'province', 'duration']);
+
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('location-images', 'public');
+            if ($path === false) {
+                return back()->withErrors(['image' => 'Bestand kon niet worden opgeslagen.'])->withInput();
+            }
+            $data['image_path'] = $path;
+        }
+
+        Location::create($data);
 
         return redirect()
             ->route('admin.locations.index')
@@ -42,7 +53,25 @@ class LocationController extends Controller
 
     public function update(UpdateLocationRequest $request, Location $location): RedirectResponse
     {
-        $location->update($request->validated());
+        $data = $request->safe()->only(['name', 'description', 'province', 'duration']);
+
+        if ($request->boolean('remove_image')) {
+            if ($location->image_path && Storage::disk('public')->exists($location->image_path)) {
+                Storage::disk('public')->delete($location->image_path);
+            }
+            $data['image_path'] = null;
+        } elseif ($request->hasFile('image')) {
+            if ($location->image_path && Storage::disk('public')->exists($location->image_path)) {
+                Storage::disk('public')->delete($location->image_path);
+            }
+            $path = $request->file('image')->store('location-images', 'public');
+            if ($path === false) {
+                return back()->withErrors(['image' => 'Bestand kon niet worden opgeslagen.'])->withInput();
+            }
+            $data['image_path'] = $path;
+        }
+
+        $location->update($data);
 
         return redirect()
             ->route('admin.locations.index')

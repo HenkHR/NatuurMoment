@@ -28,6 +28,7 @@
                         };
                     @endphp
                     <button
+                        wire:key="player-bingo-item-{{ $bingoItem['id'] }}"
                         wire:click="openPhotoCapture({{ $bingoItem['id'] }})"
                         @if($isApproved) disabled @endif
                         class="{{ $statusClass }} rounded-lg shadow w-28 h-28

@@ -70,6 +70,7 @@
                                                     @endphp
                                                     @if($item['photo'])
                                                         <button
+                                                            wire:key="bingo-item-{{ $item['id'] }}-photo-{{ $item['photo']['id'] }}"
                                                             wire:click="selectPhoto({{ $item['photo']['id'] }})"
                                                             class="{{ $statusClass }} rounded-lg shadow w-28 h-28
                                                                text-green-700 font-semibold flex flex-col justify-center items-center text-center
@@ -80,7 +81,9 @@
                                                             <span class="text-sm">{{ $item['label'] }}</span>
                                                         </button>
                                                     @else
-                                                        <div class="{{ $statusClass }} rounded-lg shadow w-28 h-28
+                                                        <div 
+                                                            wire:key="bingo-item-{{ $item['id'] }}-no-photo"
+                                                            class="{{ $statusClass }} rounded-lg shadow w-28 h-28
                                                            text-green-700 font-semibold flex flex-col justify-center items-center text-center
                                                            opacity-50 cursor-not-allowed relative">
                                                             <span class="text-sm">{{ $item['label'] }}</span>

@@ -71,10 +71,27 @@ class HostGame extends Component
             ->pluck('count', 'game_player_id')
             ->toArray();
         
+        // Prefetch all approved photos with bingo item data for all players in one query
+        $allApprovedPhotos = Photo::where('photos.game_id', $this->gameId)
+            ->where('photos.status', 'approved')
+            ->join('bingo_items', 'photos.bingo_item_id', '=', 'bingo_items.id')
+            ->select('photos.game_player_id', 'bingo_items.points', 'bingo_items.position')
+            ->get()
+            ->groupBy('game_player_id');
+        
+        // Pre-calculate scores for all players
+        $playerScores = [];
+        foreach ($allApprovedPhotos as $playerId => $photos) {
+            $baseScore = $photos->sum('points');
+            $approvedPositions = $photos->pluck('position')->toArray();
+            $bonusPoints = $this->calculateLineBonuses($approvedPositions);
+            $playerScores[$playerId] = (int)(($baseScore ?? 0) + $bonusPoints);
+        }
+        
         // Calculate scores for each player (includes line bonuses)
-        $this->players = $game->players->map(function($player) use ($pendingCounts) {
-            // Get score without updating database (read-only for display)
-            $score = $this->getPlayerScore($player->id);
+        $this->players = $game->players->map(function($player) use ($pendingCounts, $playerScores) {
+            // Get pre-calculated score or 0 if no approved photos
+            $score = $playerScores[$player->id] ?? 0;
             
             return [
                 'id' => $player->id,

@@ -35,6 +35,9 @@ class PlayerPhotoCapture extends Component
     public $bingoItems = [];
     public $bingoItemStatuses = []; // Array of [bingo_item_id => status]
     
+    // Cached player ID to avoid repeated lookups
+    private ?int $cachedPlayerId = null;
+    
     // Maximum file size: 5MB
     private const MAX_FILE_SIZE = 5 * 1024 * 1024;
     
@@ -77,16 +80,10 @@ class PlayerPhotoCapture extends Component
      */
     private function loadBingoItemStatuses(): void
     {
-        $player = GamePlayer::where('token', $this->playerToken)
-            ->where('game_id', $this->gameId)
-            ->first();
-        
-        if (!$player) {
-            return;
-        }
+        $playerId = $this->getPlayerId();
         
         $photos = Photo::where('game_id', $this->gameId)
-            ->where('game_player_id', $player->id)
+            ->where('game_player_id', $playerId)
             ->get();
         
         $this->bingoItemStatuses = [];
@@ -117,12 +114,10 @@ class PlayerPhotoCapture extends Component
         $this->validateBingoItem($this->bingoItemId, $this->gameId);
         
         // Check if player already has an approved photo for this bingo item
-        $player = GamePlayer::where('token', $this->playerToken)
-            ->where('game_id', $this->gameId)
-            ->firstOrFail();
+        $playerId = $this->getPlayerId();
         
         $approvedPhoto = Photo::where('game_id', $this->gameId)
-            ->where('game_player_id', $player->id)
+            ->where('game_player_id', $playerId)
             ->where('bingo_item_id', $this->bingoItemId)
             ->where('status', 'approved')
             ->exists();
@@ -138,9 +133,15 @@ class PlayerPhotoCapture extends Component
     
     /**
      * Validate that the player token is valid and belongs to the game
+     * Caches the player ID to avoid repeated lookups
      */
     private function validatePlayerAccess($gameId, $playerToken): void
     {
+        // Use cached player ID if available
+        if ($this->cachedPlayerId !== null) {
+            return;
+        }
+        
         $player = GamePlayer::where('token', $playerToken)
             ->where('game_id', $gameId)
             ->first();
@@ -149,11 +150,26 @@ class PlayerPhotoCapture extends Component
             abort(403, 'Unauthorized access');
         }
         
+        // Cache the player ID
+        $this->cachedPlayerId = $player->id;
+        
         // Verify game is active
         $game = Game::findOrFail($gameId);
         if ($game->status !== 'started') {
             abort(403, 'Game is not active');
         }
+    }
+
+    /**
+     * Get the cached player ID or fetch it if not cached
+     */
+    private function getPlayerId(): int
+    {
+        if ($this->cachedPlayerId === null) {
+            $this->validatePlayerAccess($this->gameId, $this->playerToken);
+        }
+        
+        return $this->cachedPlayerId;
     }
     
     /**
@@ -280,17 +296,15 @@ class PlayerPhotoCapture extends Component
             ]);
         }
         
-        // Get player (already validated in validatePlayerAccess)
-        $player = GamePlayer::where('token', $this->playerToken)
-        ->where('game_id', $this->gameId)
-        ->firstOrFail();
+        // Get player ID (already validated and cached in validatePlayerAccess)
+        $playerId = $this->getPlayerId();
 
         // Compress and optimize the image
         $compressedData = $this->compressImage($decodedData, $imageInfo);
 
         // Check if there's already a photo for this bingo item
         $existingPhotos = Photo::where('game_id', $this->gameId)
-            ->where('game_player_id', $player->id)
+            ->where('game_player_id', $playerId)
             ->where('bingo_item_id', $this->bingoItemId)
             ->orderBy('created_at', 'desc')
             ->get();
@@ -339,7 +353,7 @@ class PlayerPhotoCapture extends Component
         }
 
         // Generate secure filename
-        $filename = 'photos/' . $this->gameId . '/' . $player->id . '/' . uniqid('', true) . '.jpg';
+        $filename = 'photos/' . $this->gameId . '/' . $playerId . '/' . uniqid('', true) . '.jpg';
 
         // Store on local disk (public) - always save locally
         Storage::disk('public')->put($filename, $compressedData);
@@ -370,7 +384,7 @@ class PlayerPhotoCapture extends Component
             // Create new photo
             Photo::create([
                 'game_id' => $this->gameId,
-                'game_player_id' => $player->id,
+                'game_player_id' => $playerId,
                 'bingo_item_id' => $this->bingoItemId,
                 'path' => $filename,
                 'status' => 'pending',

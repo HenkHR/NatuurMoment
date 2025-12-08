@@ -57,15 +57,15 @@
                 type="submit"
                 class="w-full bg-action-500 hover:bg-action-600 text-pure-white font-semibold text-small py-3 rounded-button text-center shadow-card transition"
             >
-                Join game
+                Spel aanmaken
             </button>
         </form>
 
         <a
-            href="#"
+            href="{{ route('player.join') }}"
             class="w-full max-w-xs bg-sky-500 hover:bg-sky-600 text-pure-white font-semibold text-small py-3 rounded-button text-center shadow-card transition"
         >
-            Spel aanmaken
+            Meedoen met een spel
         </a>
     </div>
 </section>

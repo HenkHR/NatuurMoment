@@ -29,6 +29,8 @@ test('admin can create a location', function () {
         ->post('/admin/locations', [
             'name' => 'Test Locatie',
             'description' => 'Test beschrijving',
+            'province' => 'Noord-Holland',
+            'duration' => 60,
         ])
         ->assertRedirect('/admin/locations')
         ->assertSessionHas('status');
@@ -71,6 +73,8 @@ test('admin can update a location', function () {
         ->put("/admin/locations/{$location->id}", [
             'name' => 'Bijgewerkte Naam',
             'description' => 'Bijgewerkte beschrijving',
+            'province' => 'Utrecht',
+            'duration' => 90,
         ])
         ->assertRedirect('/admin/locations')
         ->assertSessionHas('status');

@@ -22,6 +22,8 @@ class UpdateLocationRequest extends FormRequest
                 Rule::unique('locations')->ignore($this->route('location')),
             ],
             'description' => ['nullable', 'string'],
+            'province' => ['required', 'string', 'max:255'],
+            'duration' => ['required', 'integer', 'min:1'],
         ];
     }
 

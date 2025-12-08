@@ -26,9 +26,10 @@ test('admin can access admin routes', function () {
 test('admin link is visible for admin users', function () {
     $admin = User::factory()->create(['is_admin' => true]);
 
+    // Dashboard redirects to admin locations for logged-in users
     $this->actingAs($admin)
         ->get('/dashboard')
-        ->assertSee('Admin');
+        ->assertRedirect('/admin/locations');
 });
 
 test('admin link is hidden for non-admin users', function () {

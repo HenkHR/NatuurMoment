@@ -1,4 +1,4 @@
-<div wire:poll.2s="checkGameStatus" class="container mx-auto">
+<div wire:poll.2s.visible="checkGameStatus" class="container mx-auto">
     <div class="flex flex-col gap-2 p-4 justify-center items-center w-full">
         <h1>Player Lobby</h1>
         <h2 class="text-center bg-forest-500 text-pure-white rounded-card p-2" >Game PIN: <span class="font-bold bg-forest-400 text-pure-white rounded-card px-2 py-1">{{ $pin }}</span></h2>

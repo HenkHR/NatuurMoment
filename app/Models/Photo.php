@@ -2,13 +2,11 @@
 
 namespace App\Models;
 
-use App\Traits\PhotoStorage;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 
 class Photo extends Model
 {
-    use PhotoStorage;
 
     protected $fillable = [
         'game_id',

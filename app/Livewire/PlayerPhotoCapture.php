@@ -7,19 +7,15 @@ use App\Models\GamePlayer;
 use App\Models\Game;
 use App\Models\BingoItem;
 use App\Models\LocationBingoItem;
-use App\Traits\PhotoStorage;
 use Livewire\Component;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Locked;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Log;
 
 
 class PlayerPhotoCapture extends Component
 {
-    use PhotoStorage;
-
     #[Locked]
     public $gameId;
     

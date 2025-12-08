@@ -8,7 +8,7 @@
 
     <!-- Bingo Card Grid -->
     @if(!$showCamera)
-        <div wire:poll.5s="refreshStatuses" class="grid grid-cols-3 gap-3 max-w-md mx-auto px-4 mt-6 mb-6 bg-[#e0e0e0] p-2 rounded-lg">
+        <div wire:poll.5s.visible="refreshStatuses" class="grid grid-cols-3 gap-3 max-w-md mx-auto px-4 mt-6 mb-6 bg-[#e0e0e0] p-2 rounded-lg">
             @if(count($bingoItems) > 0)
                 @foreach ($bingoItems as $bingoItem)
                     @php

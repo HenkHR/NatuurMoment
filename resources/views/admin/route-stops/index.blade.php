@@ -114,8 +114,8 @@
                 @csrf
                 @method('DELETE')
 
-                <h2 class="text-h3 text-forest-800">Vraag verwijderen?</h2>
-                <p class="mt-2 text-body text-forest-600">
+                <h2 class="text-h3 text-deep-black">Vraag verwijderen?</h2>
+                <p class="mt-2 text-body text-deep-black">
                     Weet je zeker dat je "{{ $routeStop->name }}" wilt verwijderen?
                 </p>
 

@@ -17,6 +17,7 @@ class UpdateBingoItemRequest extends FormRequest
         return [
             'label' => ['required', 'string', 'max:255'],
             'points' => ['required', 'integer', 'min:1'],
+            'fact' => ['nullable', 'string'],
             'icon' => ['nullable', File::image()->max(2 * 1024)],
             'remove_icon' => ['nullable', 'boolean'],
         ];

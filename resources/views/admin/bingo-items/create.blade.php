@@ -27,6 +27,12 @@
                 <x-input-error :messages="$errors->get('points')" class="mt-2" />
             </div>
 
+            <div class="mb-4">
+                <x-input-label for="fact" value="Feitje/Weetje (optioneel)" />
+                <textarea id="fact" name="fact" rows="3" class="mt-1 block w-full border-surface-medium bg-pure-white text-deep-black focus:border-action focus:ring-action rounded-input shadow-sm">{{ old('fact') }}</textarea>
+                <x-input-error :messages="$errors->get('fact')" class="mt-2" />
+            </div>
+
             <div class="mb-6">
                 <x-input-label for="icon" value="Icon afbeelding (optioneel)" />
                 <input id="icon" name="icon" type="file" accept="image/*" class="mt-1 block w-full text-sm text-deep-black

@@ -20,6 +20,7 @@
                 <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium text-sky-700 uppercase tracking-wider">Label</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-sky-700 uppercase tracking-wider">Punten</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-sky-700 uppercase tracking-wider">Feitje</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-sky-700 uppercase tracking-wider">Icon</th>
                     <th class="px-6 py-3 text-right text-xs font-medium text-sky-700 uppercase tracking-wider"></th>
                 </tr>
@@ -32,6 +33,13 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-deep-black">
                             {{ $bingoItem->points }}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-deep-black max-w-xs">
+                            @if($bingoItem->fact)
+                                <span class="line-clamp-2" title="{{ $bingoItem->fact }}">{{ $bingoItem->fact }}</span>
+                            @else
+                                <span class="text-surface-medium">-</span>
+                            @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-forest-600">
                             @if($bingoItem->icon)
@@ -57,7 +65,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="4" class="px-6 py-4 text-center text-sm text-deep-black">
+                        <td colspan="5" class="px-6 py-4 text-center text-sm text-deep-black">
                             Geen bingo items gevonden.
                         </td>
                     </tr>
@@ -81,6 +89,9 @@
                     <div>
                         <h3 class="text-base font-medium text-deep-black">{{ $bingoItem->label }}</h3>
                         <p class="text-sm text-deep-black">{{ $bingoItem->points }} punten</p>
+                        @if($bingoItem->fact)
+                            <p class="text-xs text-surface-dark mt-1 line-clamp-1">{{ $bingoItem->fact }}</p>
+                        @endif
                     </div>
                 </div>
                 <div class="flex gap-1">
@@ -110,8 +121,8 @@
                 @csrf
                 @method('DELETE')
 
-                <h2 class="text-h3 text-forest-800">Bingo item verwijderen?</h2>
-                <p class="mt-2 text-body text-forest-600">
+                <h2 class="text-h3 text-deep-black">Bingo item verwijderen?</h2>
+                <p class="mt-2 text-body text-deep-black">
                     Weet je zeker dat je "{{ $bingoItem->label }}" wilt verwijderen?
                 </p>
 

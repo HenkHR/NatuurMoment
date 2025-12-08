@@ -30,7 +30,7 @@
     <!-- grid voor de items van de bingo kaart  -->
 
     <div class="grid grid-cols-3 gap-3 max-w-md mx-auto px-4 mt-6 mb-6 bg-[#e0e0e0] p-2 rounded-lg">
-        @foreach (['Appel','Paddenstoel','Eekhoorn','Mos','Vijver','Vogel','Bloem','Boom','Blad'] as $item)
+        @foreach (['Eik','Paddenstoel','Standbeeld','Mos','Vijver','Vogel','Bloem','bessen','Blad'] as $item)
             <button
                 class="bg-[#FFFFFF] border border-[#e0e0e0] rounded-lg shadow w-28 h-28
                    text-green-700 font-semibold flex justify-center items-center
@@ -43,13 +43,13 @@
     <nav class="fixed bottom-0 left-0 right-0 bg-[#0076A8]">
         <div class="mx-auto w-full max-w-lg flex justify-around py-4 sm:py-6">
             <a href="/bingo">
-                <img src="{{ asset('img/Grid.svg') }}" alt="Bingo" class="w-8 h-8 sm:w-10 sm:h-10">
+                <x-bi-grid alt="Bingo" class="w-8 h-8 sm:w-10 sm:h-10 text-white" />
             </a>
             <a href="/home">
-                <img src="{{ asset('img/Home.svg') }}" alt="Home" class="w-8 h-8 sm:w-10 sm:h-10">
+                <x-lucide-home alt="Home" class="w-8 h-8 sm:w-10 sm:h-10 text-white"/>
             </a>
             <a href="/route">
-                <img src="{{ asset('img/mingcute_route-fill.svg') }}" alt="Route" class="w-8 h-8 sm:w-10 sm:h-10">
+                <x-lucide-route alt="Route" class="w-8 h-8 sm:w-10 sm:h-10 text-white"/>
             </a>
         </div>
     </nav>

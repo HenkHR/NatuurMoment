@@ -38,13 +38,13 @@
     <nav class="fixed bottom-0 left-0 right-0 bg-[#0076A8]">
         <div class="mx-auto w-full max-w-lg flex justify-around py-4 sm:py-6">
             <a href="/bingo">
-                <img src="{{ asset('img/Grid.svg') }}" alt="Bingo" class="w-8 h-8 sm:w-10 sm:h-10">
+                <x-bi-grid alt="Bingo" class="w-8 h-8 sm:w-10 sm:h-10 text-white" />
             </a>
             <a href="/home">
-                <img src="{{ asset('img/Home.svg') }}" alt="Home" class="w-8 h-8 sm:w-10 sm:h-10">
+                <x-lucide-home alt="Home" class="w-8 h-8 sm:w-10 sm:h-10 text-white"/>
             </a>
             <a href="/route">
-                <img src="{{ asset('img/mingcute_route-fill.svg') }}" alt="Route" class="w-8 h-8 sm:w-10 sm:h-10">
+                <x-lucide-route alt="Route" class="w-8 h-8 sm:w-10 sm:h-10 text-white"/>
             </a>
         </div>
     </nav>

@@ -51,7 +51,17 @@ class GameInfoController extends Controller
             'Let jij het beste op tijdens de route en haal je het binnen de tijd?',
         ];
 
-        return view('games.info', compact('game', 'rules'));
+        $breadcrumbs = [
+            [
+                'label' => 'Home',
+                'url'   => url('/'),               
+            ],
+            [
+                'label' => $game['title'],       
+            ],
+        ];
+
+        return view('games.info', compact('game', 'rules', 'breadcrumbs'));
     }
 
     /**

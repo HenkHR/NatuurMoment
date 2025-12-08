@@ -8,6 +8,10 @@
 
     <div class="flex-1 bg-surface-light">
         <div class="max-w-5xl mx-auto w-full px-4 lg:px-8 pb-12">
+            <x-ui.breadcrumbs
+            :items="$breadcrumbs"
+            class="hidden md:block mt-4 mb-2 md:mb-4"
+        />
 
         <section class="relative bg-forest-700 rounded-b-card overflow-hidden mt-4">
             <div class="h-56 md:h-72 overflow-hidden">

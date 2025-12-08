@@ -7,9 +7,9 @@
 
         {{-- HERO --}}
         <section class="relative w-full">
-            {{-- Achtergrondbalk (kleiner op mobiel, groter op desktop) --}}
-            <div class="h-40 sm:h-52 md:h-64 w-full bg-gradient-to-r from-green-900 via-green-700 to-green-500"></div>
-
+            <div class="h-40 sm:h-52 md:h-64 w-full bg-cover bg-center"
+                 style="background-image: url('{{ asset('images/heroImage.jpg') }}');">
+            </div>
             {{-- Tekst gecentreerd --}}
             <div class="absolute inset-0 flex items-center justify-center px-4">
                 <div class="text-center text-white max-w-xl">
@@ -17,7 +17,7 @@
                         Spellen
                     </h1>
                     <p class="mt-2 text-sm sm:text-base leading-relaxed">
-                        De leukste spellen voor tijdens je wandeltocht in één van onze natuurgebieden.
+                        De leukste spellen voor tijdens je wandeltocht in één van de natuurgebieden van Natuur Monumenten.
                     </p>
                 </div>
             </div>
@@ -25,7 +25,7 @@
 
         {{-- INHOUD --}}
         <div class="flex-1 w-full">
-            <div class="max-w-4xl mx-auto w-full px-4 sm:px-6 lg:px-8 pb-10 -mt-6 sm:-mt-8">
+            <div class="max-w-4xl mx-auto w-full ">
                 <div class="bg-white rounded-2xl shadow-md sm:shadow-lg px-4 sm:px-6 py-5 sm:py-6">
 
                     {{-- Zoek + filter rij --}}
@@ -92,16 +92,6 @@
                                         </option>
                                     @endforeach
                                 </select>
-
-                                {{-- Desktop: apart filter-icoon, op mobiel zit submit in blauwe knop hieronder --}}
-                                <button type="submit"
-                                        class="hidden sm:inline-flex items-center justify-center rounded-full border border-gray-300 w-10 h-10 text-gray-500 hover:bg-gray-100">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
-                                         viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                              d="M3 4h18M6 8h12M9 12h6M11 16h2" />
-                                    </svg>
-                                </button>
                             </div>
 
                             {{-- Mobiel: duidelijke primaire knop onder de filters --}}

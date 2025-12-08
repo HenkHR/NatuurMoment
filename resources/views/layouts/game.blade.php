@@ -15,8 +15,8 @@
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="font-sans antialiased bg-deep-black flex justify-center">
-    <div class="min-h-screen w-full max-w-sm lg:max-w-md bg-surface-light shadow-lg">
+<body class="font-sans antialiased bg-deep-black">
+    <div class="min-h-screen flex flex-col">
         @yield('content')
     </div>
 </body>

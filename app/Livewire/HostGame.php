@@ -5,11 +5,11 @@ namespace App\Livewire;
 use App\Models\Game;
 use App\Models\Photo;
 use App\Models\BingoItem;
+use App\Models\GamePlayer;
 use Livewire\Component;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Locked;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 
 class HostGame extends Component
 {
@@ -45,8 +45,10 @@ class HostGame extends Component
     public $gameId;
 
     public $players = [];
-    public $expandedPlayers = []; // Track which player accordions are open
+    public $expandedPlayerId = null; // Track which player accordion is open (only one at a time)
     public $selectedPhoto = null; // Currently selected photo for review
+    public $playerBingoItems = []; // Cached bingo items per player [playerId => items]
+    public $loadingBingoItems = false; // Loading state for bingo items
 
     //constructor 
     public function mount($gameId)
@@ -85,47 +87,90 @@ class HostGame extends Component
 
     /**
      * Toggle player accordion
+     * Only one player can be open at a time
      */
     public function togglePlayer($playerId)
     {
-        if (in_array($playerId, $this->expandedPlayers)) {
-            $this->expandedPlayers = array_diff($this->expandedPlayers, [$playerId]);
+        // If clicking the same player, close it
+        if ($this->expandedPlayerId === $playerId) {
+            $this->expandedPlayerId = null;
+            $this->playerBingoItems = [];
         } else {
-            $this->expandedPlayers[] = $playerId;
+            // Open new player and close any other
+            $this->expandedPlayerId = $playerId;
+            $this->loadPlayerBingoItems($playerId);
         }
     }
 
     /**
-     * Get bingo items for a player with photo status
+     * Load bingo items for a specific player (with prefetching to avoid N+1)
+     */
+    public function loadPlayerBingoItems($playerId)
+    {
+        // If already loaded, don't reload
+        if (isset($this->playerBingoItems[$playerId])) {
+            return;
+        }
+
+        $this->loadingBingoItems = true;
+
+        try {
+            // Prefetch all bingo items for this game (only once)
+            $bingoItems = BingoItem::where('game_id', $this->gameId)
+                ->orderBy('position')
+                ->get()
+                ->keyBy('id');
+
+            // Prefetch all photos for this player in one query
+            $photos = Photo::where('game_id', $this->gameId)
+                ->where('game_player_id', $playerId)
+                ->get()
+                ->keyBy('bingo_item_id');
+
+            // Map bingo items with photo status
+            $this->playerBingoItems[$playerId] = $bingoItems->map(function($item) use ($photos) {
+                $photo = $photos->get($item->id);
+                return [
+                    'id' => $item->id,
+                    'label' => $item->label,
+                    'position' => $item->position,
+                    'photo' => $photo ? [
+                        'id' => $photo->id,
+                        'status' => $photo->status,
+                        'path' => $photo->path,
+                        'url' => $photo->url,
+                    ] : null,
+                ];
+            })->values()->toArray();
+        } finally {
+            $this->loadingBingoItems = false;
+        }
+    }
+
+    /**
+     * Refresh bingo items for the currently expanded player
+     */
+    public function refreshBingoItems()
+    {
+        if ($this->expandedPlayerId) {
+            // Clear cache and reload
+            unset($this->playerBingoItems[$this->expandedPlayerId]);
+            $this->loadPlayerBingoItems($this->expandedPlayerId);
+        }
+    }
+
+    /**
+     * Get bingo items for a player with photo status (computed property)
+     * Uses cached data if available
      */
     public function getPlayerBingoItems($playerId)
     {
-        // Get all bingo items for this game
-        $bingoItems = BingoItem::where('game_id', $this->gameId)
-            ->orderBy('position')
-            ->get();
-        
-        // Get photos for this player
-        $photos = Photo::where('game_id', $this->gameId)
-            ->where('game_player_id', $playerId)
-            ->get()
-            ->keyBy('bingo_item_id');
-        
-        // Map bingo items with photo status
-        return $bingoItems->map(function($item) use ($photos) {
-            $photo = $photos->get($item->id);
-            return [
-                'id' => $item->id,
-                'label' => $item->label,
-                'position' => $item->position,
-                'photo' => $photo ? [
-                    'id' => $photo->id,
-                    'status' => $photo->status,
-                    'path' => $photo->path,
-                    'url' => $photo->url, // Use the accessor from Photo model
-                ] : null,
-            ];
-        });
+        // If not cached, load it
+        if (!isset($this->playerBingoItems[$playerId])) {
+            $this->loadPlayerBingoItems($playerId);
+        }
+
+        return collect($this->playerBingoItems[$playerId] ?? []);
     }
 
     /**
@@ -160,20 +205,19 @@ class HostGame extends Component
      */
     private function getPlayerScore($playerId): int
     {
-        // Get total points from all approved photos for this player
-        $baseScore = Photo::where('photos.game_id', $this->gameId)
+        // Get all approved photos with their bingo item points and positions in one query
+        $approvedPhotos = Photo::where('photos.game_id', $this->gameId)
             ->where('photos.game_player_id', $playerId)
             ->where('photos.status', 'approved')
             ->join('bingo_items', 'photos.bingo_item_id', '=', 'bingo_items.id')
-            ->sum('bingo_items.points');
+            ->select('bingo_items.points', 'bingo_items.position')
+            ->get();
         
-        // Get positions of approved photos
-        $approvedPositions = Photo::where('photos.game_id', $this->gameId)
-            ->where('photos.game_player_id', $playerId)
-            ->where('photos.status', 'approved')
-            ->join('bingo_items', 'photos.bingo_item_id', '=', 'bingo_items.id')
-            ->pluck('bingo_items.position')
-            ->toArray();
+        // Calculate base score from points
+        $baseScore = $approvedPhotos->sum('points');
+        
+        // Get positions for line bonus calculation
+        $approvedPositions = $approvedPhotos->pluck('position')->toArray();
         
         // Calculate bonus points for completed lines
         $bonusPoints = $this->calculateLineBonuses($approvedPositions);
@@ -192,9 +236,8 @@ class HostGame extends Component
     {
         $totalScore = $this->getPlayerScore($playerId);
         
-        // Update player score in database
-        DB::table('game_players')
-            ->where('id', $playerId)
+        // Update player score in database using Eloquent
+        GamePlayer::where('id', $playerId)
             ->update(['score' => $totalScore]);
         
         return $totalScore;
@@ -254,6 +297,8 @@ class HostGame extends Component
         // Close photo modal and refresh
         $this->selectedPhoto = null;
         $this->loadPlayers();
+        // Refresh bingo items if a player is expanded
+        $this->refreshBingoItems();
         
         $message = 'Foto goedgekeurd!';
         if ($bingoItem && $bingoItem->points > 0) {
@@ -283,6 +328,8 @@ class HostGame extends Component
         // Close photo modal and refresh
         $this->selectedPhoto = null;
         $this->loadPlayers();
+        // Refresh bingo items if a player is expanded
+        $this->refreshBingoItems();
         
         session()->flash('photo-message', 'Foto afgewezen.');
     }

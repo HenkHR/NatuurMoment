@@ -26,6 +26,7 @@ class PlayerPhotoCapture extends Component
     #[Locked]
     public $playerToken;
     
+    #[Locked]
     public $bingoItemId;
     public $showCamera = false;
     public $capturedImage = null;

@@ -1,4 +1,6 @@
-<div wire:poll.2s="loadPlayers" class="container mx-auto p-4">
+<div 
+    wire:poll.5s="loadPlayers" 
+    class="container mx-auto p-4">
     <div class="flex flex-col gap-4">
         <h1 class="text-3xl font-bold text-center mb-4">Host Dashboard</h1>
         
@@ -28,60 +30,67 @@
                                 </div>
                                 <div class="flex items-center gap-3">
                                     <span class="text-sm">Score: {{ $player['score'] }}</span>
-                                    <svg class="w-5 h-5 transform transition-transform {{ in_array($player['id'], $expandedPlayers) ? 'rotate-180' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-5 h-5 transform transition-transform {{ $expandedPlayerId === $player['id'] ? 'rotate-180' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                     </svg>
                                 </div>
                             </button>
                             
                             <!-- Player Bingo Card (Accordion Content) -->
-                            @if(in_array($player['id'], $expandedPlayers))
-                                <div class="p-4 bg-gray-50">
-                                    @php
-                                        $bingoItems = $this->getPlayerBingoItems($player['id']);
-                                    @endphp
-                                    
+                            @if($expandedPlayerId === $player['id'])
+                                <div class="p-4 bg-gray-50" wire:poll.2s="refreshBingoItems">
                                     <h3 class="text-lg font-semibold mb-3">Bingokaart</h3>
                                     
-                                    @if($bingoItems->count() > 0)
-                                        <div class="grid grid-cols-3 gap-3 max-w-md mx-auto bg-[#e0e0e0] p-2 rounded-lg">
-                                            @foreach($bingoItems as $item)
-                                                @php
-                                                    $statusClass = match($item['photo']['status'] ?? null) {
-                                                        'approved' => 'bg-green-100 border-green-500 border-2',
-                                                        'rejected' => 'bg-red-100 border-red-500 border-2',
-                                                        'pending' => 'bg-yellow-100 border-yellow-500 border-2',
-                                                        default => 'bg-[#FFFFFF] border-[#e0e0e0]'
-                                                    };
-                                                    $statusIcon = match($item['photo']['status'] ?? null) {
-                                                        'approved' => '✓',
-                                                        'rejected' => '✕',
-                                                        'pending' => '⏳',
-                                                        default => ''
-                                                    };
-                                                @endphp
-                                                @if($item['photo'])
-                                                    <button
-                                                        wire:click="selectPhoto({{ $item['photo']['id'] }})"
-                                                        class="{{ $statusClass }} rounded-lg shadow w-28 h-28
-                                                           text-green-700 font-semibold flex flex-col justify-center items-center text-center
-                                                           hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-500 relative cursor-pointer">
-                                                        @if($statusIcon)
-                                                            <span class="absolute top-1 right-1 text-lg">{{ $statusIcon }}</span>
-                                                        @endif
-                                                        <span class="text-sm">{{ $item['label'] }}</span>
-                                                    </button>
-                                                @else
-                                                    <div class="{{ $statusClass }} rounded-lg shadow w-28 h-28
-                                                       text-green-700 font-semibold flex flex-col justify-center items-center text-center
-                                                       opacity-50 cursor-not-allowed relative">
-                                                        <span class="text-sm">{{ $item['label'] }}</span>
-                                                    </div>
-                                                @endif
-                                            @endforeach
+                                    @if($loadingBingoItems)
+                                        <div class="flex justify-center items-center py-8">
+                                            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+                                            <span class="ml-3 text-gray-600">Bingokaart laden...</span>
                                         </div>
                                     @else
-                                        <p class="text-gray-600">Geen bingo items gevonden.</p>
+                                        @php
+                                            $bingoItems = $this->getPlayerBingoItems($player['id']);
+                                        @endphp
+                                        
+                                        @if($bingoItems->count() > 0)
+                                            <div class="grid grid-cols-3 gap-3 max-w-md mx-auto bg-[#e0e0e0] p-2 rounded-lg">
+                                                @foreach($bingoItems as $item)
+                                                    @php
+                                                        $statusClass = match($item['photo']['status'] ?? null) {
+                                                            'approved' => 'bg-green-100 border-green-500 border-2',
+                                                            'rejected' => 'bg-red-100 border-red-500 border-2',
+                                                            'pending' => 'bg-yellow-100 border-yellow-500 border-2',
+                                                            default => 'bg-[#FFFFFF] border-[#e0e0e0]'
+                                                        };
+                                                        $statusIcon = match($item['photo']['status'] ?? null) {
+                                                            'approved' => '✓',
+                                                            'rejected' => '✕',
+                                                            'pending' => '⏳',
+                                                            default => ''
+                                                        };
+                                                    @endphp
+                                                    @if($item['photo'])
+                                                        <button
+                                                            wire:click="selectPhoto({{ $item['photo']['id'] }})"
+                                                            class="{{ $statusClass }} rounded-lg shadow w-28 h-28
+                                                               text-green-700 font-semibold flex flex-col justify-center items-center text-center
+                                                               hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-500 relative cursor-pointer">
+                                                            @if($statusIcon)
+                                                                <span class="absolute top-1 right-1 text-lg">{{ $statusIcon }}</span>
+                                                            @endif
+                                                            <span class="text-sm">{{ $item['label'] }}</span>
+                                                        </button>
+                                                    @else
+                                                        <div class="{{ $statusClass }} rounded-lg shadow w-28 h-28
+                                                           text-green-700 font-semibold flex flex-col justify-center items-center text-center
+                                                           opacity-50 cursor-not-allowed relative">
+                                                            <span class="text-sm">{{ $item['label'] }}</span>
+                                                        </div>
+                                                    @endif
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <p class="text-gray-600">Geen bingo items gevonden.</p>
+                                        @endif
                                     @endif
                                 </div>
                             @endif

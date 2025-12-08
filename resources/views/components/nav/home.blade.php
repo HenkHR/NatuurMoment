@@ -4,7 +4,7 @@
             <img
                 src="{{ asset('images/NM_LOGO.png') }}"
                 alt="Natuurmonumenten logo"
-                class="h-12 md:h-14 max-h-full w-auto"
+                class="h-10 md:h-14 max-h-full w-auto"
             >
         </a>
 

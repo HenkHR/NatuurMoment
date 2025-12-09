@@ -57,12 +57,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('locations.route-stops', RouteStopController::class)->shallow()->except(['show']);
     Route::resource('games', AdminGameController::class)->only(['index', 'show', 'destroy']);
 });
+
 //game info route
 
-
-Route::get('/games/natuur-avontuur/{locationId}', [GameInfoController::class, 'show'])
+Route::get('/games/natuur-avontuur/{locationId?}', [GameInfoController::class, 'show'])
     ->name('games.info');
-
 
 require __DIR__.'/auth.php';
 

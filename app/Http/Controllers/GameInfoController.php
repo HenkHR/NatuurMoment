@@ -34,23 +34,19 @@ class GameInfoController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($locationId = null)
+    public function show(?int $locationId = null)
     {
-        if (!$locationId) {
-            $locationId = request('location');
-        }
-        
-        if (!$locationId) {
-            abort(404, 'Location is required');
-        }
-        $locationModel = Location::findOrFail($locationId);
+        $location = $locationId
+            ? Location::findOrFail($locationId)
+            : Location::firstOrFail();
+
         $game = [
-            'title' => 'Natuur Avontuur',
-            'location' => $locationModel->name,
-            'players_min' => 4,
-            'players_max' => 12,
-            'needs_materials' => false,
-            'organisers' => 1,
+            'title'          => 'Natuur Avontuur',
+            'location'       => $location->name,
+            'players_min'    => 4,
+            'players_max'    => 12,
+            'needs_materials'=> false,
+            'organisers'     => 1,
         ];
 
         $rules = [
@@ -63,14 +59,19 @@ class GameInfoController extends Controller
         $breadcrumbs = [
             [
                 'label' => 'Home',
-                'url'   => url('/'),               
+                'url'   => route('home'),
             ],
             [
-                'label' => $game['title'],       
+                'label' => $game['title'],
             ],
         ];
 
-        return view('games.info', compact('game', 'rules', 'locationId', 'breadcrumbs'));
+        return view('games.info', [
+            'game'       => $game,
+            'rules'      => $rules,
+            'locationId' => $location->id,
+            'breadcrumbs'=> $breadcrumbs,
+        ]);
     }
 
     /**

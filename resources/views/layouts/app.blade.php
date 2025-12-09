@@ -15,7 +15,16 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased">
-        <div class="min-h-screen bg-surface-light">
+    <a
+        href="#maincontent"
+        class="absolute top-2 left-2 z-[100] bg-white text-black px-4 py-2 rounded shadow
+           -translate-y-20 focus:translate-y-0 transition-transform
+           focus:outline-none focus:ring-2 focus:ring-green-700"
+    >
+        Ga naar hoofdinhoud
+    </a>
+
+    <div class="min-h-screen bg-surface-light">
             @include('layouts.navigation')
 
             <!-- Page Heading -->

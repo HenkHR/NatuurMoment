@@ -6,7 +6,7 @@
         Ga naar inhoud
     </a>
 
-    <div class="min-h-screen flex flex-col bg-gray-50">
+    <div class="min-h-screen flex flex-col bg-white">
 
         {{-- Header / navigatie landmark --}}
         <header role="banner">
@@ -16,7 +16,7 @@
         {{-- HERO --}}
         <section class="relative w-full" aria-labelledby="page-title">
             {{-- Gebruik <img> zodat we alt-tekst kunnen geven (toegankelijker dan alleen CSS background-image) --}}
-            <div class="h-40 sm:h-52 md:h-64 w-full overflow-hidden">
+            <div class="h-40 sm:h-52 md:h-64 w-full overflow-hidden brightness-[70%]">
                 <img
                     src="{{ asset('images/heroImage.jpg') }}"
                     alt="Wandelend stel in een groen natuurgebied"
@@ -40,7 +40,7 @@
         {{-- INHOUD als main landmark --}}
         <main id="maincontent" role="main" class="flex-1 w-full">
             <div class="max-w-4xl mx-auto w-full ">
-                <div class="bg-white rounded-2xl shadow-md sm:shadow-lg px-4 sm:px-6 py-5 sm:py-6">
+                <div class="bg-white px-4 sm:px-6 py-5 sm:py-6">
 
                     {{-- Zoek + filter rij --}}
                     <div class="flex flex-col gap-4 mb-5 sm:mb-6">

@@ -9,6 +9,14 @@ class HomeController extends Controller
 {
     public function index(Request $request)
     {
+
+        $breadcrumbs = [
+            [
+                'label' => 'Home',
+                'url'   => url('/'),
+            ]
+        ];
+
         $search      = $request->get('search');
         $locationId  = $request->get('location');
 
@@ -40,6 +48,7 @@ class HomeController extends Controller
             'locationOptions'  => $locationOptions,
             'search'           => $search,
             'selectedLocation' => $selectedLocation,
+            'breadcrumbs'      => $breadcrumbs,
         ]);
     }
 }

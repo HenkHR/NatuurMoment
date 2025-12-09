@@ -42,6 +42,11 @@
             <div class="max-w-4xl mx-auto w-full ">
                 <div class="bg-white px-4 sm:px-6 py-5 sm:py-6">
 
+                    <x-ui.breadcrumbs
+                        :items="$breadcrumbs"
+                        class="hidden md:block mt-4 mb-2 md:mb-4"
+                    />
+
                     {{-- Zoek + filter rij --}}
                     <div class="flex flex-col gap-4 mb-5 sm:mb-6">
                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">

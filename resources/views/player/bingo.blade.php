@@ -23,7 +23,7 @@
     </div>
 
     {{--link naar speluitleg--}}
-    <div class="flex justify-end mb-4 mt-2 mx-auto px-">
+    <div class="flex justify-end mb-4 mt-2 mx-auto max-w-md">
         <x-game.game-nav
             href="speluitleg"
             class="bg-[#2E7D32] hover:bg-green-600 text-white px-4 py-2 rounded mr-4">

@@ -23,8 +23,8 @@
                     @endif
                 </div>
             </div>
-            <!-- Header with Timer and End Game Button -->
-            <div class="flex flex-row justify-between items-center mb-4 container mx-auto px-4">
+
+            <div class="flex flex-row justify-between items-center mb-4 container mx-auto px-4 max-w-lg">
                 <button
                     wire:click="confirmEndGame"
                     class="px-4 py-2 bg-red-600 hover:bg-blue-700 text-white rounded-lg font-medium transition flex items-center gap-2">
@@ -44,7 +44,7 @@
                 </div>
             @endif
 
-            <div class="flex flex-col gap-3 container mx-auto px-4">
+            <div class="flex flex-col gap-3 container mx-auto px-4 max-w-lg">
                 <div class="flex flex-row gap-2 justify-between"><h2 class="text-xl font-semibold">Spelers</h2> <span class="text-lg text-gray-500">Roomcode: {{ $game->pin }}</span></div>
                 @if(count($players) > 0)
                     <div class="space-y-2">

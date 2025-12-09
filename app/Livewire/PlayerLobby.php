@@ -21,6 +21,7 @@ class PlayerLobby extends Component
     public $playerCount = 0;
     public $gameStatus = 'lobby';
     public $players = [];
+    public $locationName = 'Locatie'; 
 
     //constructor
     public function mount($gameId, $playerToken)
@@ -35,8 +36,10 @@ class PlayerLobby extends Component
 
         $this->playerName = $player->name;
         
-        $game = Game::findOrFail($gameId);
+        $game = Game::with('location')->findOrFail($gameId);
         $this->pin = $game->pin;
+        
+        $this->locationName = optional($game->location)->name ?? 'Locatie';
         
         $this->checkGameStatus();
     }

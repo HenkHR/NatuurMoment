@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\LoadsLeaderboard;
 use App\Models\Photo;
 use App\Models\GamePlayer;
 use App\Models\Game;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\Log;
 
 class PlayerPhotoCapture extends Component
 {
+    use LoadsLeaderboard;
     #[Locked]
     public $gameId;
 
@@ -97,15 +99,12 @@ class PlayerPhotoCapture extends Component
     private function loadBingoItemStatuses(): void
     {
         $playerId = $this->getPlayerId();
-        
-        $photos = Photo::where('game_id', $this->gameId)
+
+        // Use pluck() for more efficient query - returns [bingo_item_id => status]
+        $this->bingoItemStatuses = Photo::where('game_id', $this->gameId)
             ->where('game_player_id', $playerId)
-            ->get();
-        
-        $this->bingoItemStatuses = [];
-        foreach ($photos as $photo) {
-            $this->bingoItemStatuses[$photo->bingo_item_id] = $photo->status;
-        }
+            ->pluck('status', 'bingo_item_id')
+            ->toArray();
     }
     
     /**
@@ -128,22 +127,11 @@ class PlayerPhotoCapture extends Component
 
     /**
      * Load leaderboard data sorted by score
+     * Uses LoadsLeaderboard trait for shared implementation
      */
     private function loadLeaderboard()
     {
-        $this->leaderboardData = GamePlayer::where('game_id', $this->gameId)
-            ->orderByDesc('score')
-            ->orderBy('name')
-            ->get()
-            ->map(function($player, $index) {
-                return [
-                    'rank' => $index + 1,
-                    'id' => $player->id,
-                    'name' => $player->name,
-                    'score' => $player->score ?? 0,
-                ];
-            })
-            ->toArray();
+        $this->leaderboardData = $this->loadLeaderboardData($this->gameId);
     }
     
     /**
@@ -405,6 +393,7 @@ class PlayerPhotoCapture extends Component
         Storage::disk('public')->put($filename, $compressedData);
 
         // Also store on cloud disk (R2) if configured
+        $cloudUploadFailed = false;
         if (config("filesystems.disks.photos.driver") === 's3') {
             try {
                 Storage::disk('photos')->put($filename, $compressedData);
@@ -415,6 +404,7 @@ class PlayerPhotoCapture extends Component
                     'path' => $filename,
                     'error' => $e->getMessage()
                 ]);
+                $cloudUploadFailed = true;
             }
         }
 
@@ -445,7 +435,12 @@ class PlayerPhotoCapture extends Component
         $this->showCamera = false;
         $this->capturedImage = null;
 
-        session()->flash('photo-message', 'Foto opgeslagen!');
+        // Show success message, with warning if cloud upload failed
+        if ($cloudUploadFailed) {
+            session()->flash('photo-message', 'Foto opgeslagen (cloud backup mislukt).');
+        } else {
+            session()->flash('photo-message', 'Foto opgeslagen!');
+        }
         $this->dispatch('photo-saved');
     }
 
@@ -662,6 +657,18 @@ class PlayerPhotoCapture extends Component
      */
     public function submitFeedback()
     {
+        // Validate rating (1-10)
+        if ($this->rating !== null && ($this->rating < 1 || $this->rating > 10)) {
+            return;
+        }
+
+        // Validate age (0-120, must be numeric)
+        if ($this->age !== null && $this->age !== '') {
+            if (!is_numeric($this->age) || (int)$this->age < 0 || (int)$this->age > 120) {
+                return;
+            }
+        }
+
         // Get player to save feedback
         $player = GamePlayer::where('token', $this->playerToken)
             ->where('game_id', $this->gameId)
@@ -670,7 +677,7 @@ class PlayerPhotoCapture extends Component
         if ($player) {
             $player->update([
                 'feedback_rating' => $this->rating,
-                'feedback_age' => $this->age,
+                'feedback_age' => $this->age !== null && $this->age !== '' ? (int)$this->age : null,
             ]);
         }
 

@@ -1,5 +1,5 @@
 <div
-    wire:poll.5s.visible="loadPlayers"
+    wire:poll.10s.visible="loadPlayers"
     class="container mx-auto p-4">
 
     @if($showLeaderboard)
@@ -73,7 +73,7 @@
 
                                 <!-- Player Bingo Card (Accordion Content) -->
                                 @if($expandedPlayerId === $player['id'])
-                                    <div class="p-4 bg-gray-50" wire:poll.2s.visible="refreshBingoItems">
+                                    <div class="p-4 bg-gray-50" wire:poll.5s.visible="refreshBingoItems">
                                         <h3 class="text-lg font-semibold mb-3">Bingokaart</h3>
 
                                         @if($loadingBingoItems)

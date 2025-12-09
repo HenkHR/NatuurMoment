@@ -74,7 +74,10 @@ class HostLobby extends Component
             return;
         }
 
-        $this->generateBingoItems($game);
+        // Generate bingo items - halt if it fails
+        if (!$this->generateBingoItems($game)) {
+            return;
+        }
 
         // Calculate timer_ends_at if timer is enabled
         $timerEndsAt = null;
@@ -94,11 +97,17 @@ class HostLobby extends Component
         return redirect()->route('host.game', $game->id);
     }
 
-    private function generateBingoItems(Game $game): void
+    /**
+     * Generate bingo items for the game
+     *
+     * @param Game $game The game to generate items for
+     * @return bool True if successful, false if failed
+     */
+    private function generateBingoItems(Game $game): bool
     {
         // Check if bingo items already exist (prevent duplicates)
         if (BingoItem::where('game_id', $game->id)->exists()) {
-            return;
+            return true; // Already exists, not an error
         }
 
         // Get all location bingo items for this game's location
@@ -107,7 +116,7 @@ class HostLobby extends Component
 
         if ($locationBingoItems->count() < 9) {
             session()->flash('error', 'Er zijn niet genoeg bingo items voor deze locatie (minimaal 9 nodig)');
-            return;
+            return false;
         }
 
         // Randomly select 9 items
@@ -126,6 +135,8 @@ class HostLobby extends Component
                 'icon_path' => $locationItem->icon,
             ]);
         }
+
+        return true;
     }
 
     public function render()

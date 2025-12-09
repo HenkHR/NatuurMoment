@@ -2,17 +2,22 @@
 
 namespace App\Livewire;
 
-use App\Models\Game;
+use App\Livewire\Concerns\VerifiesHostAccess;
 use App\Models\BingoItem;
+use App\Models\Game;
 use App\Models\GamePlayer;
-use Livewire\Component;
-use Livewire\Attributes\On;
-use Livewire\Attributes\Locked;
-use Illuminate\Support\Facades\DB;
 use App\Models\LocationBingoItem;
+use App\Models\Photo;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Livewire\Attributes\Locked;
+use Livewire\Attributes\On;
+use Livewire\Component;
 
 class HostLobby extends Component
 {
+    use VerifiesHostAccess;
+
     // ============================================
     // PROPERTIES SECTION
     // ============================================
@@ -21,9 +26,13 @@ class HostLobby extends Component
     public int $gameId;
 
     public $pin;
+
     public $playerCount = 0;
+
     public $players = [];
+
     public $timerEnabled = false;
+
     public $timerDurationMinutes = null;
 
     // ============================================
@@ -38,6 +47,7 @@ class HostLobby extends Component
         // Redirect to game if already started
         if ($game->status === 'started') {
             $this->redirect(route('host.game', $gameId), navigate: true);
+
             return;
         }
 
@@ -51,17 +61,7 @@ class HostLobby extends Component
     // AUTHORIZATION SECTION
     // ============================================
 
-    /**
-     * Verify that the current session is the game host
-     */
-    private function verifyHostAccess(): void
-    {
-        $game = Game::findOrFail($this->gameId);
-
-        if (session("hostToken_{$this->gameId}") !== $game->host_token) {
-            abort(403, 'Unauthorized: Not the game host');
-        }
-    }
+    // verifyHostAccess() is provided by VerifiesHostAccess trait
 
     // ============================================
     // DATA LOADING SECTION
@@ -101,10 +101,23 @@ class HostLobby extends Component
             abort(403, 'Unauthorized: Player does not belong to this game');
         }
 
-        $player->delete();
-        $this->loadPlayers();
+        try {
+            DB::transaction(function () use ($player) {
+                // Delete associated photos first (cascade)
+                Photo::where('game_player_id', $player->id)->delete();
+                $player->delete();
+            });
 
-        session()->flash('message', 'Speler verwijderd');
+            $this->loadPlayers();
+            session()->flash('message', 'Speler verwijderd');
+        } catch (\Exception $e) {
+            Log::error('Failed to remove player', [
+                'game_id' => $this->gameId,
+                'player_id' => $playerId,
+                'error' => $e->getMessage(),
+            ]);
+            session()->flash('error', 'Fout bij verwijderen speler. Probeer opnieuw.');
+        }
     }
 
     // ============================================
@@ -124,11 +137,12 @@ class HostLobby extends Component
 
         if ($freshPlayerCount < 1) {
             session()->flash('error', 'Minstens 1 speler is nodig om het spel te starten!');
+
             return;
         }
 
         // Generate bingo items - halt if it fails
-        if (!$this->generateBingoItems($game)) {
+        if (! $this->generateBingoItems($game)) {
             return;
         }
 
@@ -151,7 +165,7 @@ class HostLobby extends Component
     /**
      * Generate bingo items for the game
      *
-     * @param Game $game The game to generate items for
+     * @param  Game  $game  The game to generate items for
      * @return bool True if successful, false if failed
      */
     private function generateBingoItems(Game $game): bool
@@ -167,6 +181,7 @@ class HostLobby extends Component
 
         if ($locationBingoItems->count() < 9) {
             session()->flash('error', 'Er zijn niet genoeg bingo items voor deze locatie (minimaal 9 nodig)');
+
             return false;
         }
 

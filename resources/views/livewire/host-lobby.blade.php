@@ -1,4 +1,4 @@
-<div wire:poll.2s.visible="loadPlayers" class="container mx-auto" x-data="{
+<div wire:poll.5s.visible="loadPlayers" class="container mx-auto" x-data="{
     showRoomCodePopup: true,
     copied: false,
     confirmDelete: false,
@@ -103,7 +103,7 @@
                         <li wire:key="player-{{ $player['id'] }}" class="text-left flex flex-row justify-between items-center bg-forest-500 text-pure-white rounded-card p-3 w-full">
                             <span class="font-medium">{{ $player['name'] }}</span>
                             <button
-                                @click="playerToDelete = {{ $player['id'] }}; playerToDeleteName = '{{ addslashes($player['name']) }}'; confirmDelete = true"
+                                @click="playerToDelete = {{ $player['id'] }}; playerToDeleteName = @js($player['name']); confirmDelete = true"
                                 class="bg-red-500 hover:bg-red-600 text-pure-white font-semibold text-sm px-3 py-1 rounded-button text-center shadow-card transition">
                                 Verwijderen
                             </button>

@@ -8,12 +8,7 @@
 </head>
 <body class="bg-white">
 <main class="relative min-h-screen overflow-hidden">
-    <!-- Schuine achtergrondlaag -->
-    <div
-        class="absolute inset-0 -z-10 bg-gradient-to-br from-[#FFFFFF] to-blue-100"
-        style="clip-path: polygon(0 0, 100% 10%, 100% 100%, 0 90%);">
-    </div>
-
+    
     <div class="w-full px-4 pt-6 pb-24 bg-[#2E7D32]"
          style="clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), 0 100%);">
         <h1 class="text-4xl font-bold text-[#FFFFFF] mb-2 text-left">Foto Bingo</h1>

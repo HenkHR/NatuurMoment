@@ -3,10 +3,10 @@
         {{-- Voor schermlezers: korte kop zodat footer makkelijk te vinden is --}}
         <h2 class="sr-only">Voettekst</h2>
 
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="md:items-center md:justify-between gap-4">
 
             {{-- Copyright / credit --}}
-            <div class="text-center text-xs text-gray-700 order-1 md:order-2">
+            <div class="text-center text-xs text-gray-700">
                 <p>
                     &copy;
                     <time datetime="{{ date('Y') }}">{{ date('Y') }}</time>

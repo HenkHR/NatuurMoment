@@ -47,19 +47,12 @@
 
     {{-- knoppen --}}
     <div class="px-4 py-5 flex flex-col items-center gap-3 bg-pure-white">
-        <form
-            action="{{ route('play.create', $locationId) }}"
-            method="POST"
-            class="w-full max-w-xs"
+        <a
+            href="{{ route('host.create', $locationId) }}"
+            class="w-full max-w-xs bg-action-500 hover:bg-action-600 text-pure-white font-semibold text-small py-3 rounded-button text-center shadow-card transition"
         >
-            @csrf
-            <button
-                type="submit"
-                class="w-full bg-action-500 hover:bg-action-600 text-pure-white font-semibold text-small py-3 rounded-button text-center shadow-card transition"
-            >
-                Spel aanmaken
-            </button>
-        </form>
+            Spel aanmaken
+        </a>
 
         <a
             href="{{ route('player.join') }}"

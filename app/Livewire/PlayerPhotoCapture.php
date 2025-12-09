@@ -19,7 +19,7 @@ class PlayerPhotoCapture extends Component
 {
     use LoadsLeaderboard;
     #[Locked]
-    public $gameId;
+    public int $gameId;
 
     #[Locked]
     public $playerToken;
@@ -51,7 +51,7 @@ class PlayerPhotoCapture extends Component
     
     public function mount($gameId, $playerToken, $bingoItemId = null)
     {
-        $this->gameId = $gameId;
+        $this->gameId = (int) $gameId;
         $this->playerToken = $playerToken;
 
         // Load game data first

@@ -49,13 +49,14 @@ class HostGame extends Component
     // ============================================
 
     private const BINGO_ITEM_COUNT = 9;
+    private const FULL_CARD_BONUS = 5;
 
     // ============================================
     // PROPERTIES SECTION
     // ============================================
 
     #[Locked]
-    public $gameId;
+    public int $gameId;
 
     public $players = [];
     public $expandedPlayerId = null;
@@ -76,7 +77,7 @@ class HostGame extends Component
 
     public function mount($gameId)
     {
-        $this->gameId = $gameId;
+        $this->gameId = (int) $gameId;
         $this->loadGame();
         $this->loadPlayers();
     }
@@ -394,17 +395,18 @@ class HostGame extends Component
     
     /**
      * Calculate bonus points for completed lines in the 3x3 bingo grid
-     * 
+     *
      * Checks all possible winning lines (defined in BINGO_LINES constant)
      * and awards 1 bonus point for each completed line.
-     * 
+     * Also awards FULL_CARD_BONUS points when all 9 positions are filled.
+     *
      * @param array $approvedPositions Array of grid positions (0-8) with approved photos
-     * @return int Total bonus points for completed lines
+     * @return int Total bonus points for completed lines and full card
      */
     private function calculateLineBonuses(array $approvedPositions): int
     {
         $bonusPoints = 0;
-        
+
         foreach (self::BINGO_LINES as $line) {
             // Check if all positions in this line are approved
             $lineCompleted = true;
@@ -414,12 +416,17 @@ class HostGame extends Component
                     break;
                 }
             }
-            
+
             if ($lineCompleted) {
                 $bonusPoints += 1;
             }
         }
-        
+
+        // Full card bonus: award extra points when all 9 positions are filled
+        if (count(array_unique($approvedPositions)) >= self::BINGO_ITEM_COUNT) {
+            $bonusPoints += self::FULL_CARD_BONUS;
+        }
+
         return $bonusPoints;
     }
 

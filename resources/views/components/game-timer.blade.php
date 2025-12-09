@@ -30,14 +30,9 @@
         },
 
         formatTime() {
-            const hours = Math.floor(this.timeRemaining / 3600);
-            const minutes = Math.floor((this.timeRemaining % 3600) / 60);
-            const seconds = this.timeRemaining % 60;
-
-            if (hours > 0) {
-                return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            }
-            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            // Show only minutes (rounded up)
+            const minutes = Math.ceil(this.timeRemaining / 60);
+            return `${minutes} min`;
         },
 
         getColorClass() {

@@ -11,7 +11,7 @@ use Livewire\Attributes\Locked;
 class PlayerLobby extends Component
 {
     #[Locked]
-    public $gameId;
+    public int $gameId;
 
     #[Locked]
     public $playerToken;
@@ -25,7 +25,7 @@ class PlayerLobby extends Component
     //constructor
     public function mount($gameId, $playerToken)
     {
-        $this->gameId = $gameId;
+        $this->gameId = (int) $gameId;
         $this->playerToken = $playerToken;
         
         //Kijk of de lokaal opgeslagen token bij de game id hoort
@@ -47,6 +47,17 @@ class PlayerLobby extends Component
     #[On('refresh')]
     public function checkGameStatus()
     {
+        // Check if this player still exists (may have been removed by host)
+        $player = GamePlayer::where('token', $this->playerToken)
+            ->where('game_id', $this->gameId)
+            ->first();
+
+        if (!$player) {
+            // Player was removed by host, redirect to home
+            session()->flash('message', 'Je bent verwijderd uit de lobby door de host.');
+            return redirect()->route('home');
+        }
+
         $game = Game::with('players')->findOrFail($this->gameId);
         $this->players = $game->players->map(function($player) {
             return [
@@ -56,7 +67,7 @@ class PlayerLobby extends Component
         })->toArray();
         $this->playerCount = count($this->players);
         $this->gameStatus = $game->status;
-        
+
         if ($this->gameStatus === 'started') {
             // Redirect naar game pagina van de player
             return redirect()->route('player.game', [

@@ -12,6 +12,7 @@ use App\Http\Controllers\HomeController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
+Route::get('/host/game/create/{locationId}', [GameController::class, 'showCreate'])->name('host.create');
 Route::post('/play/{locationId}', [GameController::class, 'create'])->name('play.create');
 
 Route::get('/join', [GameController::class, 'showJoin'])->name('player.join');

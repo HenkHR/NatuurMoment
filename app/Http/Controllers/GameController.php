@@ -10,6 +10,12 @@ use App\Models\Location;
 class GameController extends Controller
 {
 
+    public function showCreate($locationId)
+    {
+        $location = Location::findOrFail($locationId);
+        return view('host.create', ['locationId' => $locationId]);
+    }
+
     public function create(Request $request, $locationId)
     {
 

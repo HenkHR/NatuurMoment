@@ -1,18 +1,9 @@
-<html lang="nl">
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bingokaart</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.tailwindcss.com"></script>
-    @livewireStyles
-</head>
-<body class="bg-white">
-<main class="relative min-h-screen overflow-hidden">
+<div class="relative min-h-screen overflow-hidden pb-24" wire:poll.5s.visible="refreshLeaderboard">
     
     <div class="w-full px-4 pt-6 pb-12 bg-[#2E7D32]"
          style="clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), 0 100%);">
         <div class="container mx-auto px-4 flex flex-col justify-between items-center">
-        <h1 class="text-4xl font-bold text-[#FFFFFF] mb-2 text-left">Foto Bingo</h1>
+        <h1 class="text-4xl font-bold text-[#FFFFFF] mb-2 text-left">Ranglijst</h1>
         <!-- Timer Display (if enabled) -->
         @if($game && $game->timer_enabled && $game->timer_ends_at)
             <div class="flex justify-end px-4 mb-2">
@@ -22,21 +13,11 @@
         </div>
     </div>
 
-    {{--link naar speluitleg--}}
-    <div class="flex justify-end mb-4 mt-2 mx-auto px-">
-        <x-game.game-nav
-            href="speluitleg"
-            class="bg-[#2E7D32] hover:bg-green-600 text-white px-4 py-2 rounded mr-4">
-            Speluitleg
-        </x-game.game-nav>
-    </div>
 
-    <!-- Photo Capture Component (includes bingo card) -->
-    @livewire('player-photo-capture', [
-        'gameId' => $gameId,
-        'playerToken' => $playerToken,
-        'bingoItemId' => null
-    ])
+    {{-- TODO: Voeg de ranglijst toe --}}
+    <div class="container mx-auto px-4 mt-6 mb-6">
+        <p>De ranglijst wordt nog gewerkt aan en zal binnenkort beschikbaar zijn.</p>
+    </div>
 
     <nav class="fixed bottom-0 left-0 right-0 bg-[#0076A8]">
         <div class="mx-auto w-full max-w-lg flex justify-around py-4 sm:py-6">
@@ -55,7 +36,4 @@
         </div>
     </nav>
 
-</main>
-@livewireScripts
-</body>
-</html>
+</div>

@@ -22,6 +22,8 @@ Route::get('/player/lobby/{game}', [GameController::class, 'playerLobby'])->name
 
 Route::get('/host/game/{game}', [GameController::class, 'hostGame'])->name('host.game');
 Route::get('/player/game/{game}', [GameController::class, 'playerGame'])->name('player.game');
+Route::get('/player/route/{game}', [GameController::class, 'playerRoute'])->name('player.route');
+Route::get('/player/leaderboard/{game}', [GameController::class, 'playerLeaderboard'])->name('player.leaderboard');
 
 
 Route::get('/styleguide', function () {
@@ -31,8 +33,21 @@ Route::get('/styleguide', function () {
 
 
 Route::get('/bingo', function () {
-    return view('player.bingo');
-});
+    // Find the game ID from session
+    $gameId = null;
+    foreach (session()->all() as $key => $value) {
+        if (str_starts_with($key, 'playerToken_')) {
+            $gameId = str_replace('playerToken_', '', $key);
+            break;
+        }
+    }
+    
+    if (!$gameId) {
+        return redirect()->route('player.join')->with('error', 'Geen actief spel gevonden');
+    }
+    
+    return redirect()->route('player.game', $gameId);
+})->name('player.bingo');
 
 
 

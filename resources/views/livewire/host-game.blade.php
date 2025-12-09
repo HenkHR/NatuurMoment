@@ -45,7 +45,7 @@
             @endif
 
             <div class="flex flex-col gap-3 container mx-auto px-4">
-                <h2 class="text-xl font-semibold">Spelers</h2>
+                <div class="flex flex-row gap-2 justify-between"><h2 class="text-xl font-semibold">Spelers</h2> <span class="text-lg text-gray-500">Roomcode: {{ $game->pin }}</span></div>
                 @if(count($players) > 0)
                     <div class="space-y-2">
                         @foreach($players as $player)

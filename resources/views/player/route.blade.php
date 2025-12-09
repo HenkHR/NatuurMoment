@@ -1,18 +1,18 @@
 <html lang="nl">
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bingokaart</title>
+    <title>Route Vragen</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.tailwindcss.com"></script>
     @livewireStyles
 </head>
 <body class="bg-white">
-<main class="relative min-h-screen overflow-hidden">
+<main class="relative min-h-screen overflow-hidden pb-24">
     
     <div class="w-full px-4 pt-6 pb-12 bg-[#2E7D32]"
          style="clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), 0 100%);">
         <div class="container mx-auto px-4 flex flex-col justify-between items-center">
-        <h1 class="text-4xl font-bold text-[#FFFFFF] mb-2 text-left">Foto Bingo</h1>
+        <h1 class="text-4xl font-bold text-[#FFFFFF] mb-2 text-left">Route Vragen</h1>
         <!-- Timer Display (if enabled) -->
         @if($game && $game->timer_enabled && $game->timer_ends_at)
             <div class="flex justify-end px-4 mb-2">
@@ -22,21 +22,12 @@
         </div>
     </div>
 
-    {{--link naar speluitleg--}}
-    <div class="flex justify-end mb-4 mt-2 mx-auto px-">
-        <x-game.game-nav
-            href="speluitleg"
-            class="bg-[#2E7D32] hover:bg-green-600 text-white px-4 py-2 rounded mr-4">
-            Speluitleg
-        </x-game.game-nav>
+    {{-- TODO: Voeg route vragen toe --}}
+    <div class="container mx-auto px-4 mt-6 mb-6">
+        <div class="text-center py-8">
+            <p class="text-gray-600 text-lg">Er zijn nog geen route vragen beschikbaar voor deze locatie.</p>
+        </div>
     </div>
-
-    <!-- Photo Capture Component (includes bingo card) -->
-    @livewire('player-photo-capture', [
-        'gameId' => $gameId,
-        'playerToken' => $playerToken,
-        'bingoItemId' => null
-    ])
 
     <nav class="fixed bottom-0 left-0 right-0 bg-[#0076A8]">
         <div class="mx-auto w-full max-w-lg flex justify-around py-4 sm:py-6">
@@ -59,3 +50,4 @@
 @livewireScripts
 </body>
 </html>
+

@@ -26,5 +26,9 @@ class DatabaseSeeder extends Seeder
             'email' => 'test@example.com',
             'is_admin' => false,
         ]);
+
+        $this->call([
+            LocationBingoItemSeeder::class,
+        ]);
     }
 }

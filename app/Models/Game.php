@@ -16,6 +16,9 @@ class Game extends Model
         'pin',
         'status',
         'host_token',
+        'timer_enabled',
+        'timer_duration_minutes',
+        'timer_ends_at',
         'started_at',
         'finished_at',
     ];
@@ -33,6 +36,8 @@ class Game extends Model
     protected function casts(): array
     {
         return [
+            'timer_enabled' => 'boolean',
+            'timer_ends_at' => 'datetime',
             'started_at' => 'datetime',
             'finished_at' => 'datetime',
         ];

@@ -15,6 +15,8 @@ class GamePlayer extends Model
         'name',
         'token',
         'score',
+        'feedback_rating',
+        'feedback_age',
     ];
 
     public function game()

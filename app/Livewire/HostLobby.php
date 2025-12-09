@@ -12,12 +12,25 @@ use App\Models\LocationBingoItem;
 
 class HostLobby extends Component
 {
+    // ============================================
+    // CONFIG SECTION
+    // ============================================
+
+    public const TIMER_DURATIONS = [15, 30, 45, 60, 90, 120];
+
+    // ============================================
+    // PROPERTIES SECTION
+    // ============================================
+
     #[Locked]
     public $gameId;
 
     public $pin;
     public $playerCount = 0;
     public $players = [];
+
+    public bool $timerEnabled = false;
+    public ?int $timerDuration = null;
 
     //constructor 
     public function mount($gameId)
@@ -63,9 +76,18 @@ class HostLobby extends Component
 
         $this->generateBingoItems($game);
 
+        // Calculate timer_ends_at if timer is enabled
+        $timerEndsAt = null;
+        if ($this->timerEnabled && $this->timerDuration) {
+            $timerEndsAt = now()->addMinutes($this->timerDuration);
+        }
+
         $game->update([
             'status' => 'started',
             'started_at' => now(),
+            'timer_enabled' => $this->timerEnabled,
+            'timer_duration_minutes' => $this->timerEnabled ? $this->timerDuration : null,
+            'timer_ends_at' => $timerEndsAt,
         ]);
         
         // Redirect naar game pagina van de host

@@ -25,7 +25,7 @@
                     <div class="text-pure-white max-w-md">
                         <h1 class="text-2xl md:text-3xl font-semibold">
                             {{ $game['title'] }}
-                        </h1>
+                        </h1>   
                     </div>
 
                     <a

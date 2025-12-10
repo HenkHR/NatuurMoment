@@ -182,4 +182,54 @@ class GameController extends Controller
             'playerToken' => $token,
         ]);
     }
+
+    public function playerFinishedLeaderboard(Request $request, $gameId)
+    {
+        $token = session('playerToken_'.$gameId);
+
+        if (!$token) {
+            return redirect()->route('player.join')->with('error', 'Geen toegang tot het spel');
+        }
+
+        $player = GamePlayer::where('token', $token)
+            ->where('game_id', $gameId)
+            ->firstOrFail();
+
+        $game = Game::findOrFail($gameId);
+        
+        // If game is not finished, redirect to game
+        if ($game->status !== 'finished') {
+            return redirect()->route('player.game', $gameId);
+        }
+
+        return view('player.finished-leaderboard', [
+            'gameId' => $gameId,
+            'playerToken' => $token,
+        ]);
+    }
+
+    public function playerFeedback(Request $request, $gameId)
+    {
+        $token = session('playerToken_'.$gameId);
+
+        if (!$token) {
+            return redirect()->route('player.join')->with('error', 'Geen toegang tot het spel');
+        }
+
+        $player = GamePlayer::where('token', $token)
+            ->where('game_id', $gameId)
+            ->firstOrFail();
+
+        $game = Game::findOrFail($gameId);
+        
+        // If game is not finished, redirect to game
+        if ($game->status !== 'finished') {
+            return redirect()->route('player.game', $gameId);
+        }
+
+        return view('player.feedback', [
+            'gameId' => $gameId,
+            'playerToken' => $token,
+        ]);
+    }
 }

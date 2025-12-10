@@ -2,7 +2,6 @@
 
 namespace App\Livewire;
 
-use App\Livewire\Concerns\LoadsLeaderboard;
 use App\Models\Photo;
 use App\Models\GamePlayer;
 use App\Models\Game;
@@ -17,7 +16,6 @@ use Illuminate\Support\Facades\Log;
 
 class PlayerPhotoCapture extends Component
 {
-    use LoadsLeaderboard;
     #[Locked]
     public int $gameId;
 
@@ -35,13 +33,6 @@ class PlayerPhotoCapture extends Component
 
     // Timer & Game Status properties
     public $game = null;
-    public bool $showLeaderboard = false;
-    public array $leaderboardData = [];
-
-    // Feedback form properties
-    public bool $showFeedback = false;
-    public ?int $rating = null;
-    public ?string $age = null;
     
     // Cached player ID to avoid repeated lookups
     private ?int $cachedPlayerId = null;
@@ -57,11 +48,9 @@ class PlayerPhotoCapture extends Component
         // Load game data first
         $this->game = Game::findOrFail($gameId);
 
-        // Check if game is finished - show leaderboard
+        // Check if game is finished - redirect to finished leaderboard
         if ($this->game->status === 'finished') {
-            $this->loadLeaderboard();
-            $this->showLeaderboard = true;
-            return;
+            return redirect()->route('player.finished-leaderboard', $gameId);
         }
 
         // Validate player token and game access
@@ -115,24 +104,14 @@ class PlayerPhotoCapture extends Component
         // Refresh game data
         $this->game = Game::findOrFail($this->gameId);
 
-        // Check if game has finished
+        // Check if game has finished - redirect to finished leaderboard
         if ($this->game->status === 'finished') {
-            $this->loadLeaderboard();
-            $this->showLeaderboard = true;
-            return;
+            return redirect()->route('player.finished-leaderboard', $this->gameId);
         }
 
         $this->loadBingoItemStatuses();
     }
 
-    /**
-     * Load leaderboard data sorted by score
-     * Uses LoadsLeaderboard trait for shared implementation
-     */
-    private function loadLeaderboard()
-    {
-        $this->leaderboardData = $this->loadLeaderboardData($this->gameId);
-    }
     
     /**
      * Handle clicking a bingo item to open camera
@@ -636,54 +615,6 @@ class PlayerPhotoCapture extends Component
         $this->dispatch('close-camera');
     }
 
-    /**
-     * Show the feedback form after leaderboard
-     */
-    public function showFeedbackForm()
-    {
-        $this->showFeedback = true;
-    }
-
-    /**
-     * Set rating value
-     */
-    public function setRating(int $value)
-    {
-        $this->rating = $value;
-    }
-
-    /**
-     * Submit feedback and redirect to home
-     */
-    public function submitFeedback()
-    {
-        // Validate rating (1-10)
-        if ($this->rating !== null && ($this->rating < 1 || $this->rating > 10)) {
-            return;
-        }
-
-        // Validate age (0-120, must be numeric)
-        if ($this->age !== null && $this->age !== '') {
-            if (!is_numeric($this->age) || (int)$this->age < 0 || (int)$this->age > 120) {
-                return;
-            }
-        }
-
-        // Get player to save feedback
-        $player = GamePlayer::where('token', $this->playerToken)
-            ->where('game_id', $this->gameId)
-            ->first();
-
-        if ($player) {
-            $player->update([
-                'feedback_rating' => $this->rating,
-                'feedback_age' => $this->age !== null && $this->age !== '' ? (int)$this->age : null,
-            ]);
-        }
-
-        // Redirect to home
-        return redirect()->route('home');
-    }
 
     public function render()
     {

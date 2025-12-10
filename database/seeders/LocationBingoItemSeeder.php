@@ -17,6 +17,7 @@ class LocationBingoItemSeeder extends Seeder
             ['name' => 'Veluwezoom'],
             [
                 'description' => 'Een prachtig natuurgebied op de Veluwe met bossen, heide en wilde dieren.',
+                'image_path' => null,
                 'province' => 'Gelderland',
                 'duration' => 90,
             ]
@@ -78,6 +79,7 @@ class LocationBingoItemSeeder extends Seeder
                 ],
                 [
                     'points' => $item['points'],
+                    'icon' => null,
                     'fact' => $item['fact'],
                 ]
             );

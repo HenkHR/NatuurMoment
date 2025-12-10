@@ -1,4 +1,4 @@
-<div class="w-full max-w-md mx-auto px-4 sm:px-0">
+<div class="w-full max-w-md mx-auto px-4 sm:px-0 mt-8 sm:mt-10">
     <section class="bg-sky-500 rounded-card shadow-card px-6 py-7 sm:px-8 sm:py-8 text-pure-white">
 
         <h1 class="text-center text-lg sm:text-2xl font-bold tracking-wide uppercase">
@@ -23,72 +23,57 @@
             </div>
         @endif
 
-        <div class="mt-6 space-y-5">
+        <div class="mt-6 space-y-6">
 
-            {{-- Speelduur-blok --}}
             <div>
-                <div
-                    class="
-                        bg-sky-700/40 rounded-card px-4 py-3
-                        flex flex-col gap-3
-                        sm:flex-row sm:items-center sm:justify-between
-                    "
-                >
+                <div class="bg-sky-700/40 rounded-card px-4 py-4 sm:py-5">
                     <label
                         for="timer-duration"
-                        class="text-sm sm:text-base font-semibold"
+                        class="block text-center text-sm sm:text-base font-semibold tracking-wide"
                     >
                         Speelduur
                     </label>
 
-                    <div
-                        class="
-                            flex flex-col gap-2 w-full
-                            sm:flex-row sm:items-center sm:justify-end sm:w-auto
-                        "
-                    >
-                        <div class="relative w-full sm:w-44">
-                            <select
-                                wire:model="timerDuration"
-                                id="timer-duration"
-                                class="
-                                    w-full
-                                    appearance-none
-                                    bg-sky-100 text-sky-900 font-semibold
-                                    rounded-full px-4 py-1.5
-                                    text-sm sm:text-base
-                                    border-0
-                                    focus:outline-none
-                                    focus:ring-2 focus:ring-offset-2
-                                    focus:ring-sky-300 focus:ring-offset-sky-500
-                                "
-                            >
-                                <option value="">Kies speelduur...</option>
-                                @foreach(\App\Livewire\CreateGame::TIMER_DURATIONS as $duration)
-                                    <option value="{{ $duration }}">{{ $duration }} minuten</option>
-                                @endforeach
-                                <option value="0">Zonder tijdslimiet</option>
-                            </select>
-                        </div>
+                    <div class="mt-4">
+                        <select
+                            wire:model="timerDuration"
+                            id="timer-duration"
+                            aria-describedby="timer-duration-help"
+                            class="
+                                w-full
+                                appearance-none
+                                bg-sky-100 text-sky-900 font-semibold
+                                rounded-full px-4 pr-10 py-1.5
+                                text-sm sm:text-base
+                                border-0
+                                focus:outline-none
+                                focus:ring-2 focus:ring-offset-2
+                                focus:ring-sky-300 focus:ring-offset-sky-500
+                            "
+                        >
+                            <option value="0">Geen tijdslimiet</option>
 
-                        {{-- Extra "minuten" tekst alleen op grotere schermen --}}
-                        <span class="hidden sm:inline text-sm sm:text-base">
-                            minuten
-                        </span>
+                            @foreach(\App\Livewire\CreateGame::TIMER_DURATIONS as $duration)
+                                <option value="{{ $duration }}">{{ $duration }} minuten</option>
+                            @endforeach
+                        </select>
                     </div>
                 </div>
 
-                <p class="mt-2 text-xs sm:text-sm text-sky-100/80">
-                    Het spel eindigt automatisch na deze tijd, of handmatig zonder limiet.
+                <p
+                    id="timer-duration-help"
+                    class="mt-4 text-xs sm:text-sm text-sky-100/80 text-center"
+                >
+                    Kies hoe lang het spel duurt. Zonder tijdslimiet kan het spel handmatig worden beëindigd.
                 </p>
+
             </div>
 
-            {{-- Volgende-knop --}}
             <button
                 type="button"
                 wire:click="createGame"
                 class="
-                    w-full mt-2
+                    w-full
                     bg-pure-white text-sky-700
                     font-semibold text-base sm:text-lg
                     uppercase tracking-wide
@@ -101,11 +86,10 @@
                 Volgende
             </button>
 
-            {{-- Annuleren-link --}}
             <a
                 href="{{ route('home') }}"
                 class="
-                    block text-center text-xs sm:text-sm text-sky-100/90 underline mt-1
+                    block text-center text-xs sm:text-sm text-sky-100/90 underline
                     focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
                     focus-visible:ring-sky-300 focus-visible:ring-offset-sky-500
                 "

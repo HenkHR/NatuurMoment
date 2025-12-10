@@ -21,6 +21,8 @@ class CreateGame extends Component
     {
         $this->locationId = $locationId;
         $this->location = Location::findOrFail($locationId);
+
+        $this->timerDuration = 0;
     }
 
     public function createGame()

@@ -2,7 +2,7 @@
     <div class="grid gap-3 sm:gap-4 sm:grid-cols-2">
         @foreach($locations as $location)
             <article class="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-md flex flex-col" aria-labelledby="loc-{{ $location->id }}-title">
-                <div class="bg-green-700 text-white px-4 py-3">
+                <div class="bg-forest-700 text-white px-4 py-3">
                     <h4 id="loc-{{ $location->id }}-title" class="font-semibold text-base sm:text-lg">{{ $location->name }}</h4>
                 </div>
 

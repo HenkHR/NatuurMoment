@@ -5,12 +5,12 @@
             Lobby aanmaken
         </h1>
 
-        <p class="mt-2 text-center text-sm sm:text-base">
-            Creëer een lobby en deel de code met de groep.
+        <p class="mt-2 text-center text-xs sm:text-sm text-sky-100/90">
+            {{ $location->name }}
         </p>
 
-        <p class="mt-3 text-center text-xs sm:text-sm text-sky-100/90">
-            {{ $location->name }}
+        <p class="mt-2 text-center text-sm sm:text-base">
+            Creëer een lobby en deel de code met de groep.
         </p>
 
         @if(session()->has('error'))
@@ -78,6 +78,8 @@
                     font-semibold text-base sm:text-lg
                     uppercase tracking-wide
                     py-3 rounded-button shadow-card
+                    transition
+                    hover:shadow-lg hover:-translate-y-0.5
                     focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
                     focus-visible:ring-sky-500 focus-visible:ring-offset-sky-500
                 "
@@ -89,7 +91,9 @@
             <a
                 href="{{ route('home') }}"
                 class="
-                    block text-center text-xs sm:text-sm text-sky-100/90 underline
+                    block text-center text-xs sm:text-sm text-pure-white underline underline-offset-2
+                    transition
+                    hover:underline-offset-4 hover:text-sky-100
                     focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
                     focus-visible:ring-sky-300 focus-visible:ring-offset-sky-500
                 "

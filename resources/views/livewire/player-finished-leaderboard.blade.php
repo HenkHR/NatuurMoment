@@ -1,34 +1,40 @@
-<div class="min-h-screen w-full bg-[#e5e5e5] flex flex-col">
+<div class="h-screen w-full bg-white flex flex-col overflow-hidden">
 
     <!-- Header -->
-    <header class="relative bg-[#2E7D32] px-6 pt-8 pb-6 w-full">
-        <h1 class="text-white text-2xl md:text-3xl font-semibold leading-tight">
-            Eindstand
-        </h1>
-    </header>
+    <div class="w-full px-4 pt-6 pb-8 bg-[#2E7D32] flex-shrink-0"
+         style="clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), 0 100%);">
+        <div class="container max-w-md mx-auto px-4 flex flex-col justify-between relative">
+            <h1 class="text-4xl font-bold text-[#FFFFFF] mb-2 text-left">Eindstand</h1>
+        </div>
+    </div>
 
     <!-- Content -->
-    <section class="flex-1 w-full bg-white pt-8 px-4 pb-24 relative z-10">
+    <section class="flex-1 w-full pt-8 px-4 pb-4 relative z-10 overflow-hidden min-h-0">
 
-        <div class="w-full bg-[#f5f5f5] rounded-2xl px-4 py-6 shadow-sm max-w-md mx-auto">
+        <div class="w-full rounded-2xl shadow-sm max-w-md mx-auto h-full flex flex-col">
 
-            <div class="text-xs">
-
+            <div class="flex-1 overflow-hidden min-h-0">
                 <x-leaderboard
                     :players="$leaderboardData"
-                    :showContinueButton="true"
+                    :showContinueButton="false"
                     :isFinished="true"
-                >
-                    <button
-                        wire:click="showFeedbackForm"
-                        class="mt-4 w-full bg-[#2E7D32] hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition shadow-md"
-                    >
-                        Verder
-                    </button>
-                </x-leaderboard>
+                    class="h-full flex flex-col"
+                />
             </div>
 
         </div>
 
     </section>
+
+    <!-- Fixed Continue Button at Bottom -->
+    <div class="flex-shrink-0 bg-white pt-4 pb-4 px-4 z-50 shadow-lg mt-4">
+        <div class="max-w-md mx-auto">
+            <button
+                wire:click="showFeedbackForm"
+                class="w-full bg-[#2E7D32] hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition shadow-md"
+            >
+                Verder
+            </button>
+        </div>
+    </div>
 </div>

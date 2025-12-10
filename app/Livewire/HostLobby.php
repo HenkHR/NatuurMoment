@@ -25,6 +25,7 @@ class HostLobby extends Component
     public $players = [];
     public $timerEnabled = false;
     public $timerDurationMinutes = null;
+    public $locationName = null;
 
     // ============================================
     // LIFECYCLE SECTION
@@ -33,7 +34,7 @@ class HostLobby extends Component
     public function mount($gameId)
     {
         $this->gameId = (int) $gameId;
-        $game = Game::findOrFail($this->gameId);
+        $game = Game::with('location')->findOrFail($this->gameId);
 
         // Redirect to game if already started
         if ($game->status === 'started') {
@@ -44,6 +45,8 @@ class HostLobby extends Component
         $this->pin = $game->pin;
         $this->timerEnabled = (bool) $game->timer_enabled;
         $this->timerDurationMinutes = $game->timer_duration_minutes;
+        $this->locationName = optional($game->location)->name ?? 'Locatie';
+
         $this->loadPlayers();
     }
 

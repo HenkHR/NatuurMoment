@@ -17,10 +17,7 @@
         @endif
         <div>
             <h2>Play</h2>
-            <form action="{{ route('play.create', $location->id) }}" method="POST">
-                @csrf
-                <button type="submit">Start Game (Host)</button>
-            </form>
+            <a href="{{ route('host.create', $location->id) }}">Start Game (Host)</a>
             <a href="{{ route('player.join') }}">
                 Join Game
             </a>

@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\LoadsLeaderboard;
 use App\Models\Game;
 use App\Models\Photo;
 use App\Models\BingoItem;
@@ -10,9 +11,11 @@ use Livewire\Component;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Locked;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class HostGame extends Component
 {
+    use LoadsLeaderboard;
     /**
      * Bingo grid lines for bonus point calculation
      * 
@@ -41,28 +44,110 @@ class HostGame extends Component
         [2, 4, 6],
     ];
 
+    // ============================================
+    // CONFIG SECTION
+    // ============================================
+
+    private const BINGO_ITEM_COUNT = 9;
+    private const FULL_CARD_BONUS = 5;
+
+    // ============================================
+    // PROPERTIES SECTION
+    // ============================================
+
     #[Locked]
-    public $gameId;
+    public int $gameId;
 
     public $players = [];
-    public $expandedPlayerId = null; // Track which player accordion is open (only one at a time)
-    public $selectedPhoto = null; // Currently selected photo for review
-    public $playerBingoItems = []; // Cached bingo items per player [playerId => items]
-    public $loadingBingoItems = false; // Loading state for bingo items
+    public $expandedPlayerId = null;
+    public $selectedPhoto = null;
+    public $playerBingoItems = [];
+    public $loadingBingoItems = false;
 
-    //constructor 
+    // Timer & End Game properties
+    public $game = null;
+    public ?int $timeRemaining = null;
+    public bool $showEndGameModal = false;
+    public bool $showLeaderboard = false;
+    public array $leaderboardData = [];
+
+    // ============================================
+    // LIFECYCLE SECTION
+    // ============================================
+
     public function mount($gameId)
     {
-        $this->gameId = $gameId;
+        $this->gameId = (int) $gameId;
+        $this->loadGame();
         $this->loadPlayers();
     }
 
-    //refresh de lijst van players elke polling interval
+    // ============================================
+    // AUTHORIZATION SECTION
+    // ============================================
+
+    /**
+     * Verify that the current session is the game host
+     * Called before any host-only actions
+     */
+    private function verifyHostAccess(): void
+    {
+        if (!$this->game) {
+            $this->game = Game::findOrFail($this->gameId);
+        }
+
+        // Session key uses 'hostToken_' (set in GameController::store)
+        if (session("hostToken_{$this->gameId}") !== $this->game->host_token) {
+            abort(403, 'Unauthorized: Not the game host');
+        }
+    }
+
+    /**
+     * Load game data including timer info
+     */
+    private function loadGame()
+    {
+        $this->game = Game::findOrFail($this->gameId);
+
+        // If game is finished, show leaderboard
+        if ($this->game->status === 'finished') {
+            $this->loadLeaderboard();
+            $this->showLeaderboard = true;
+        }
+    }
+
+    // ============================================
+    // DATA LOADING SECTION
+    // ============================================
+
+    /**
+     * Refresh players and check auto-end conditions
+     */
     #[On('refresh')]
     public function loadPlayers()
     {
-        $game = Game::with('players')->findOrFail($this->gameId);
-        
+        // Refresh game data
+        $this->game = Game::with('players')->findOrFail($this->gameId);
+
+        // If already finished, just show leaderboard
+        if ($this->game->status === 'finished') {
+            if (!$this->showLeaderboard) {
+                $this->loadLeaderboard();
+                $this->showLeaderboard = true;
+            }
+            return;
+        }
+
+        // Check auto-end conditions
+        if ($this->checkAutoEnd()) {
+            return;
+        }
+
+        // Update time remaining for server sync
+        if ($this->game->timer_enabled && $this->game->timer_ends_at) {
+            $this->timeRemaining = max(0, now()->diffInSeconds($this->game->timer_ends_at, false));
+        }
+
         // Get pending photo counts for each player
         $pendingCounts = Photo::where('game_id', $this->gameId)
             ->where('status', 'pending')
@@ -70,7 +155,7 @@ class HostGame extends Component
             ->groupBy('game_player_id')
             ->pluck('count', 'game_player_id')
             ->toArray();
-        
+
         // Prefetch all approved photos with bingo item data for all players in one query
         $allApprovedPhotos = Photo::where('photos.game_id', $this->gameId)
             ->where('photos.status', 'approved')
@@ -78,28 +163,72 @@ class HostGame extends Component
             ->select('photos.game_player_id', 'bingo_items.points', 'bingo_items.position')
             ->get()
             ->groupBy('game_player_id');
-        
+
         // Pre-calculate scores for all players
         $playerScores = [];
+        $playersCompleted = [];
         foreach ($allApprovedPhotos as $playerId => $photos) {
             $baseScore = $photos->sum('points');
             $approvedPositions = $photos->pluck('position')->toArray();
             $bonusPoints = $this->calculateLineBonuses($approvedPositions);
             $playerScores[$playerId] = (int)(($baseScore ?? 0) + $bonusPoints);
+            $playersCompleted[$playerId] = count($approvedPositions) >= self::BINGO_ITEM_COUNT;
         }
-        
+
         // Calculate scores for each player (includes line bonuses)
-        $this->players = $game->players->map(function($player) use ($pendingCounts, $playerScores) {
-            // Get pre-calculated score or 0 if no approved photos
+        $this->players = $this->game->players->map(function($player) use ($pendingCounts, $playerScores, $playersCompleted) {
             $score = $playerScores[$player->id] ?? 0;
-            
+
             return [
                 'id' => $player->id,
                 'name' => $player->name,
                 'score' => $score,
                 'pending_photos' => $pendingCounts[$player->id] ?? 0,
+                'completed' => $playersCompleted[$player->id] ?? false,
             ];
         })->toArray();
+    }
+
+    /**
+     * Check if game should auto-end (timer expired or all players done)
+     */
+    private function checkAutoEnd(): bool
+    {
+        // Check timer expiry
+        if ($this->game->timer_enabled && $this->game->timer_ends_at) {
+            if (now()->isAfter($this->game->timer_ends_at)) {
+                $this->endGame();
+                return true;
+            }
+        }
+
+        // Check if all players completed (all 9 bingo items approved)
+        if ($this->game->players->count() > 0) {
+            $totalPlayers = $this->game->players->count();
+
+            $completedPlayers = Photo::where('game_id', $this->gameId)
+                ->where('status', 'approved')
+                ->select('game_player_id', DB::raw('count(*) as count'))
+                ->groupBy('game_player_id')
+                ->havingRaw('count(*) >= ?', [self::BINGO_ITEM_COUNT])
+                ->count();
+
+            if ($completedPlayers >= $totalPlayers) {
+                $this->endGame();
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Load leaderboard data sorted by score
+     * Uses LoadsLeaderboard trait for shared implementation
+     */
+    private function loadLeaderboard()
+    {
+        $this->leaderboardData = $this->loadLeaderboardData($this->gameId);
     }
 
     /**
@@ -108,6 +237,8 @@ class HostGame extends Component
      */
     public function togglePlayer($playerId)
     {
+        $this->verifyHostAccess();
+
         // If clicking the same player, close it
         if ($this->expandedPlayerId === $playerId) {
             $this->expandedPlayerId = null;
@@ -195,14 +326,16 @@ class HostGame extends Component
      */
     public function selectPhoto($photoId)
     {
+        $this->verifyHostAccess();
+
         if (!$photoId) {
             return; // No photo to review
         }
-        
+
         $photo = Photo::with('gamePlayer')->findOrFail($photoId);
-        
+
         // Verify photo belongs to this game
-        if ($photo->game_id != $this->gameId) {
+        if ($photo->game_id !== $this->gameId) {
             abort(403, 'Unauthorized');
         }
         
@@ -262,17 +395,18 @@ class HostGame extends Component
     
     /**
      * Calculate bonus points for completed lines in the 3x3 bingo grid
-     * 
+     *
      * Checks all possible winning lines (defined in BINGO_LINES constant)
      * and awards 1 bonus point for each completed line.
-     * 
+     * Also awards FULL_CARD_BONUS points when all 9 positions are filled.
+     *
      * @param array $approvedPositions Array of grid positions (0-8) with approved photos
-     * @return int Total bonus points for completed lines
+     * @return int Total bonus points for completed lines and full card
      */
     private function calculateLineBonuses(array $approvedPositions): int
     {
         $bonusPoints = 0;
-        
+
         foreach (self::BINGO_LINES as $line) {
             // Check if all positions in this line are approved
             $lineCompleted = true;
@@ -282,12 +416,17 @@ class HostGame extends Component
                     break;
                 }
             }
-            
+
             if ($lineCompleted) {
                 $bonusPoints += 1;
             }
         }
-        
+
+        // Full card bonus: award extra points when all 9 positions are filled
+        if (count(array_unique($approvedPositions)) >= self::BINGO_ITEM_COUNT) {
+            $bonusPoints += self::FULL_CARD_BONUS;
+        }
+
         return $bonusPoints;
     }
 
@@ -296,10 +435,12 @@ class HostGame extends Component
      */
     public function approvePhoto($photoId)
     {
+        $this->verifyHostAccess();
+
         $photo = Photo::findOrFail($photoId);
-        
+
         // Verify photo belongs to this game
-        if ($photo->game_id != $this->gameId) {
+        if ($photo->game_id !== $this->gameId) {
             abort(403, 'Unauthorized');
         }
         
@@ -329,10 +470,12 @@ class HostGame extends Component
      */
     public function rejectPhoto($photoId)
     {
+        $this->verifyHostAccess();
+
         $photo = Photo::findOrFail($photoId);
-        
+
         // Verify photo belongs to this game
-        if ($photo->game_id != $this->gameId) {
+        if ($photo->game_id !== $this->gameId) {
             abort(403, 'Unauthorized');
         }
         
@@ -358,6 +501,74 @@ class HostGame extends Component
     {
         $this->selectedPhoto = null;
     }
+
+    // ============================================
+    // END GAME SECTION
+    // ============================================
+
+    /**
+     * Show confirmation modal for ending game
+     */
+    public function confirmEndGame()
+    {
+        $this->verifyHostAccess();
+        $this->showEndGameModal = true;
+    }
+
+    /**
+     * Cancel end game (close modal)
+     */
+    public function cancelEndGame()
+    {
+        $this->showEndGameModal = false;
+    }
+
+    /**
+     * End the game and show leaderboard
+     */
+    public function endGame()
+    {
+        try {
+            // Use transaction for safety
+            DB::transaction(function () {
+                $game = Game::lockForUpdate()->findOrFail($this->gameId);
+
+                // Prevent double-ending
+                if ($game->status === 'finished') {
+                    return;
+                }
+
+                // Update all player scores one final time
+                foreach ($game->players as $player) {
+                    $this->calculatePlayerScore($player->id);
+                }
+
+                // Mark game as finished
+                $game->update([
+                    'status' => 'finished',
+                    'finished_at' => now(),
+                ]);
+            });
+        } catch (\Exception $e) {
+            Log::error('Failed to end game', [
+                'game_id' => $this->gameId,
+                'error' => $e->getMessage(),
+            ]);
+            session()->flash('error', 'Fout bij het afronden van het spel. Probeer opnieuw.');
+            $this->showEndGameModal = false;
+            return;
+        }
+
+        // Load leaderboard and show it
+        $this->loadLeaderboard();
+        $this->showEndGameModal = false;
+        $this->showLeaderboard = true;
+        $this->game = Game::findOrFail($this->gameId);
+    }
+
+    // ============================================
+    // RENDER SECTION
+    // ============================================
 
     public function render()
     {

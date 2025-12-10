@@ -2,6 +2,7 @@
 
 namespace App\Livewire;
 
+use App\Livewire\Concerns\LoadsLeaderboard;
 use App\Models\Photo;
 use App\Models\GamePlayer;
 use App\Models\Game;
@@ -16,12 +17,13 @@ use Illuminate\Support\Facades\Log;
 
 class PlayerPhotoCapture extends Component
 {
+    use LoadsLeaderboard;
     #[Locked]
-    public $gameId;
-    
+    public int $gameId;
+
     #[Locked]
     public $playerToken;
-    
+
     #[Locked]
     public $bingoItemId;
     public $showCamera = false;
@@ -30,6 +32,16 @@ class PlayerPhotoCapture extends Component
     public $bingoItemLabel = '';
     public $bingoItems = [];
     public $bingoItemStatuses = []; // Array of [bingo_item_id => status]
+
+    // Timer & Game Status properties
+    public $game = null;
+    public bool $showLeaderboard = false;
+    public array $leaderboardData = [];
+
+    // Feedback form properties
+    public bool $showFeedback = false;
+    public ?int $rating = null;
+    public ?string $age = null;
     
     // Cached player ID to avoid repeated lookups
     private ?int $cachedPlayerId = null;
@@ -39,24 +51,34 @@ class PlayerPhotoCapture extends Component
     
     public function mount($gameId, $playerToken, $bingoItemId = null)
     {
+        $this->gameId = (int) $gameId;
+        $this->playerToken = $playerToken;
+
+        // Load game data first
+        $this->game = Game::findOrFail($gameId);
+
+        // Check if game is finished - show leaderboard
+        if ($this->game->status === 'finished') {
+            $this->loadLeaderboard();
+            $this->showLeaderboard = true;
+            return;
+        }
+
         // Validate player token and game access
         $this->validatePlayerAccess($gameId, $playerToken);
-        
-        $this->gameId = $gameId;
-        $this->playerToken = $playerToken;
-        
+
         // Load bingo items for this game
         $this->loadBingoItems();
-        
+
         // Load photo statuses for each bingo item
         $this->loadBingoItemStatuses();
-        
+
         // Validate bingo item if provided
         if ($bingoItemId) {
             $this->validateBingoItem($bingoItemId, $gameId);
             $this->bingoItemId = $bingoItemId;
         }
-        
+
         $this->loadOverlayText();
     }
     
@@ -77,23 +99,39 @@ class PlayerPhotoCapture extends Component
     private function loadBingoItemStatuses(): void
     {
         $playerId = $this->getPlayerId();
-        
-        $photos = Photo::where('game_id', $this->gameId)
+
+        // Use pluck() for more efficient query - returns [bingo_item_id => status]
+        $this->bingoItemStatuses = Photo::where('game_id', $this->gameId)
             ->where('game_player_id', $playerId)
-            ->get();
-        
-        $this->bingoItemStatuses = [];
-        foreach ($photos as $photo) {
-            $this->bingoItemStatuses[$photo->bingo_item_id] = $photo->status;
-        }
+            ->pluck('status', 'bingo_item_id')
+            ->toArray();
     }
     
     /**
-     * Refresh photo statuses (called by polling)
+     * Refresh photo statuses and check game status (called by polling)
      */
     public function refreshStatuses()
     {
+        // Refresh game data
+        $this->game = Game::findOrFail($this->gameId);
+
+        // Check if game has finished
+        if ($this->game->status === 'finished') {
+            $this->loadLeaderboard();
+            $this->showLeaderboard = true;
+            return;
+        }
+
         $this->loadBingoItemStatuses();
+    }
+
+    /**
+     * Load leaderboard data sorted by score
+     * Uses LoadsLeaderboard trait for shared implementation
+     */
+    private function loadLeaderboard()
+    {
+        $this->leaderboardData = $this->loadLeaderboardData($this->gameId);
     }
     
     /**
@@ -355,6 +393,7 @@ class PlayerPhotoCapture extends Component
         Storage::disk('public')->put($filename, $compressedData);
 
         // Also store on cloud disk (R2) if configured
+        $cloudUploadFailed = false;
         if (config("filesystems.disks.photos.driver") === 's3') {
             try {
                 Storage::disk('photos')->put($filename, $compressedData);
@@ -365,6 +404,7 @@ class PlayerPhotoCapture extends Component
                     'path' => $filename,
                     'error' => $e->getMessage()
                 ]);
+                $cloudUploadFailed = true;
             }
         }
 
@@ -395,7 +435,12 @@ class PlayerPhotoCapture extends Component
         $this->showCamera = false;
         $this->capturedImage = null;
 
-        session()->flash('photo-message', 'Foto opgeslagen!');
+        // Show success message, with warning if cloud upload failed
+        if ($cloudUploadFailed) {
+            session()->flash('photo-message', 'Foto verzonden!');
+        } else {
+            session()->flash('photo-message', 'Foto verzonden!');
+        }
         $this->dispatch('photo-saved');
     }
 
@@ -590,7 +635,56 @@ class PlayerPhotoCapture extends Component
         $this->capturedImage = null;
         $this->dispatch('close-camera');
     }
-    
+
+    /**
+     * Show the feedback form after leaderboard
+     */
+    public function showFeedbackForm()
+    {
+        $this->showFeedback = true;
+    }
+
+    /**
+     * Set rating value
+     */
+    public function setRating(int $value)
+    {
+        $this->rating = $value;
+    }
+
+    /**
+     * Submit feedback and redirect to home
+     */
+    public function submitFeedback()
+    {
+        // Validate rating (1-10)
+        if ($this->rating !== null && ($this->rating < 1 || $this->rating > 10)) {
+            return;
+        }
+
+        // Validate age (0-120, must be numeric)
+        if ($this->age !== null && $this->age !== '') {
+            if (!is_numeric($this->age) || (int)$this->age < 0 || (int)$this->age > 120) {
+                return;
+            }
+        }
+
+        // Get player to save feedback
+        $player = GamePlayer::where('token', $this->playerToken)
+            ->where('game_id', $this->gameId)
+            ->first();
+
+        if ($player) {
+            $player->update([
+                'feedback_rating' => $this->rating,
+                'feedback_age' => $this->age !== null && $this->age !== '' ? (int)$this->age : null,
+            ]);
+        }
+
+        // Redirect to home
+        return redirect()->route('home');
+    }
+
     public function render()
     {
         return view('livewire.player-photo-capture');

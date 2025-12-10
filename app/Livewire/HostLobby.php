@@ -4,6 +4,7 @@ namespace App\Livewire;
 
 use App\Models\Game;
 use App\Models\BingoItem;
+use App\Models\GamePlayer;
 use Livewire\Component;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Locked;
@@ -12,35 +13,68 @@ use App\Models\LocationBingoItem;
 
 class HostLobby extends Component
 {
+    // ============================================
+    // PROPERTIES SECTION
+    // ============================================
+
     #[Locked]
-    public $gameId;
+    public int $gameId;
 
     public $pin;
     public $playerCount = 0;
     public $players = [];
+    public $timerEnabled = false;
+    public $timerDurationMinutes = null;
 
-    //constructor 
+    // ============================================
+    // LIFECYCLE SECTION
+    // ============================================
+
     public function mount($gameId)
     {
-        $this->gameId = $gameId;
-        $game = Game::findOrFail($gameId);
-        
+        $this->gameId = (int) $gameId;
+        $game = Game::findOrFail($this->gameId);
+
         // Redirect to game if already started
         if ($game->status === 'started') {
             $this->redirect(route('host.game', $gameId), navigate: true);
             return;
         }
-        
+
         $this->pin = $game->pin;
+        $this->timerEnabled = (bool) $game->timer_enabled;
+        $this->timerDurationMinutes = $game->timer_duration_minutes;
         $this->loadPlayers();
     }
 
-    //refresh de lijst van players in de lobby elke polling interval
+    // ============================================
+    // AUTHORIZATION SECTION
+    // ============================================
+
+    /**
+     * Verify that the current session is the game host
+     */
+    private function verifyHostAccess(): void
+    {
+        $game = Game::findOrFail($this->gameId);
+
+        if (session("hostToken_{$this->gameId}") !== $game->host_token) {
+            abort(403, 'Unauthorized: Not the game host');
+        }
+    }
+
+    // ============================================
+    // DATA LOADING SECTION
+    // ============================================
+
+    /**
+     * Refresh players list (called by polling)
+     */
     #[On('refresh')]
     public function loadPlayers()
     {
         $game = Game::with('players')->findOrFail($this->gameId);
-        $this->players = $game->players->map(function($player) {
+        $this->players = $game->players->map(function ($player) {
             return [
                 'id' => $player->id,
                 'name' => $player->name,
@@ -49,9 +83,41 @@ class HostLobby extends Component
         $this->playerCount = count($this->players);
     }
 
-    //start het spel als er minstens 1 player in de lobby is, spel functionaliteit komt nog
+    // ============================================
+    // PLAYER MANAGEMENT SECTION
+    // ============================================
+
+    /**
+     * Remove a player from the lobby
+     */
+    public function removePlayer($playerId)
+    {
+        $this->verifyHostAccess();
+
+        $player = GamePlayer::findOrFail($playerId);
+
+        // Verify player belongs to this game
+        if ($player->game_id !== $this->gameId) {
+            abort(403, 'Unauthorized: Player does not belong to this game');
+        }
+
+        $player->delete();
+        $this->loadPlayers();
+
+        session()->flash('message', 'Speler verwijderd');
+    }
+
+    // ============================================
+    // GAME START SECTION
+    // ============================================
+
+    /**
+     * Start the game (requires at least 1 player, timer already configured at game creation)
+     */
     public function startGame()
     {
+        $this->verifyHostAccess();
+
         $game = Game::withCount('players')->findOrFail($this->gameId);
 
         $freshPlayerCount = $game->players_count;
@@ -61,22 +127,38 @@ class HostLobby extends Component
             return;
         }
 
-        $this->generateBingoItems($game);
+        // Generate bingo items - halt if it fails
+        if (!$this->generateBingoItems($game)) {
+            return;
+        }
 
-        $game->update([
+        // Calculate timer_ends_at only if timer is enabled
+        $updateData = [
             'status' => 'started',
             'started_at' => now(),
-        ]);
-        
+        ];
+
+        if ($game->timer_enabled && $game->timer_duration_minutes) {
+            $updateData['timer_ends_at'] = now()->addMinutes($game->timer_duration_minutes);
+        }
+
+        $game->update($updateData);
+
         // Redirect naar game pagina van de host
         return redirect()->route('host.game', $game->id);
     }
 
-    private function generateBingoItems(Game $game): void
+    /**
+     * Generate bingo items for the game
+     *
+     * @param Game $game The game to generate items for
+     * @return bool True if successful, false if failed
+     */
+    private function generateBingoItems(Game $game): bool
     {
         // Check if bingo items already exist (prevent duplicates)
         if (BingoItem::where('game_id', $game->id)->exists()) {
-            return;
+            return true; // Already exists, not an error
         }
 
         // Get all location bingo items for this game's location
@@ -85,7 +167,7 @@ class HostLobby extends Component
 
         if ($locationBingoItems->count() < 9) {
             session()->flash('error', 'Er zijn niet genoeg bingo items voor deze locatie (minimaal 9 nodig)');
-            return;
+            return false;
         }
 
         // Randomly select 9 items
@@ -104,6 +186,8 @@ class HostLobby extends Component
                 'icon_path' => $locationItem->icon,
             ]);
         }
+
+        return true;
     }
 
     public function render()

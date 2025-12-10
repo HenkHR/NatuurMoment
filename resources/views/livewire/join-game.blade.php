@@ -1,76 +1,193 @@
-<div class="min-h-screen flex flex-col justify-between">
+<div class="w-full max-w-md mx-auto px-4 sm:px-0 mt-8 sm:mt-10">
 
-    <x-nav.join-nav/>
+    {{-- STAP 1: Roomcode invoeren --}}
+    @if($step === 1)
+        <section
+            class="bg-sky-500 rounded-card shadow-card px-6 py-7 sm:px-8 sm:py-8 text-pure-white"
+        >
+            <h1 class="text-center text-lg sm:text-2xl font-bold tracking-wide">
+                Roomcode
+            </h1>
 
-    <div class="flex flex-col gap-2 justify-center items-center container mx-auto">
-        
-        @if($step === 1)
-            <form wire:submit="checkPin" class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col gap-6 bg-sky-500 rounded-card p-4 h-fit w-full max-w-72 justify-center items-center">
-                <div class="flex flex-col content-center items-center text-white">
+            <p class="mt-2 text-center text-sm sm:text-base">
+                Vul hier de roomcode in die je van de organisator hebt gekregen.
+            </p>
 
-                    <label for="pin" class="text-center text-xl font-bold">Roomcode</label>
-                    <p class="w-full text-center text-sm">Vul hier de roomcode in die je van de organisator hebt gekregen</p>
+            @if(session()->has('error'))
+                <div
+                    class="mt-4 bg-pure-white/95 text-red-700 text-sm font-medium px-4 py-3 rounded-card"
+                    role="alert"
+                    aria-live="assertive"
+                >
+                    {{ session('error') }}
+                </div>
+            @endif
 
-                    <input 
-                        type="text" 
-                        id="pin" 
-                        wire:model="pin" 
+            <form
+                wire:submit="checkPin"
+                class="mt-6 space-y-6"
+            >
+                <div>
+                    <label
+                        for="pin"
+                        class="block text-center text-sm sm:text-base font-semibold tracking-wide"
+                    >
+                        Voer je 6-cijferige code in
+                    </label>
+
+                    <input
+                        type="text"
+                        id="pin"
+                        wire:model="pin"
                         maxlength="6"
-                        autocomplete="off"  
+                        autocomplete="off"
                         placeholder="6-cijferige code"
                         autofocus
                         inputmode="numeric"
-                        class="bg-sky-300 text-white rounded-card p-2 mt-4 w-full placeholder:text-white border-white"
+                        class="
+                            mt-3
+                            w-full
+                            bg-sky-100 text-sky-900 font-semibold
+                            rounded-full px-4 py-2
+                            text-sm sm:text-base
+                            border-0
+                            placeholder:text-sky-500
+                            focus:outline-none
+                            focus:ring-2 focus:ring-offset-2
+                            focus:ring-sky-300 focus:ring-offset-sky-500
+                        "
                     >
 
-                    @error('pin') <span>{{ $message }}</span> @enderror
+                    @error('pin')
+                        <p class="mt-2 text-xs sm:text-sm text-sky-100/90 text-center">
+                            {{ $message }}
+                        </p>
+                    @enderror
                 </div>
-                
-                <button type="submit" class="bg-white text-sky-500 font-semibold text-small py-2 px-3 w-1/2 rounded-button text-center shadow-card transition">
+
+                <button
+                    type="submit"
+                    class="
+                        w-full
+                        bg-pure-white text-sky-700
+                        font-semibold text-base sm:text-lg
+                        uppercase tracking-wide
+                        py-3 rounded-button shadow-card
+                        transition
+                        hover:shadow-lg hover:-translate-y-0.5
+                        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
+                        focus-visible:ring-sky-500 focus-visible:ring-offset-sky-500
+                    "
+                >
                     Volgende
                 </button>
             </form>
-        @endif
+        </section>
+    @endif
 
-        @if($step === 2)
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex flex-col justify-center items-center content-center gap-8 w-full">
-            <div class="flex flex-col bg-sky-500 rounded-card p-4 gap-2 justify-center items-center text-white max-w-72 w-full">
-                <p>Game PIN: <strong>{{ $pin }}</strong></p>
-                <button wire:click="backToPin" type="button" class="bg-white text-sky-500 font-semibold text-small py-2 px-3 rounded-button text-center shadow-card transition">
+    {{-- STAP 2: PIN tonen + gebruikersnaam invoeren --}}
+    @if($step === 2)
+        <div class="space-y-6">
+
+            {{-- Game PIN kaart --}}
+            <section
+                class="bg-sky-500 rounded-card shadow-card px-6 py-5 sm:px-8 sm:py-6 text-pure-white"
+            >
+                <p class="text-center text-sm sm:text-base">
+                    Game PIN:
+                    <span class="font-bold">{{ $pin }}</span>
+                </p>
+
+                <button
+                    type="button"
+                    wire:click="backToPin"
+                    class="
+                        mt-4 w-full
+                        bg-pure-white text-sky-700
+                        font-semibold text-sm sm:text-base
+                        py-2.5 rounded-button shadow-card
+                        transition
+                        hover:shadow-lg hover:-translate-y-0.5
+                        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
+                        focus-visible:ring-sky-500 focus-visible:ring-offset-sky-500
+                    "
+                >
                     Andere PIN gebruiken
                 </button>
-            </div>
+            </section>
 
-            <form wire:submit="join" class="flex flex-col gap-2 bg-sky-500 rounded-card p-4 justify-center max-w-72 w-full items-center">
-                <div class="flex flex-col gap-2 content-center items-center text-white">
-                    <label for="name" class="text-center text-xl font-bold">Gebruikersnaam</label>
-                    <p class="w-full text-center text-sm">Voer hier je gebruikersnaam in</p>
-                    <input 
-                        type="text" 
-                        id="name"
-                        wire:model="name" 
-                        maxlength="20" 
-                        placeholder="Gebruikersnaam"
-                        inputmode="text"
-                        autocomplete="name" 
-                        autofocus
-                        class="bg-sky-300 text-white rounded-card p-2 w-full placeholder:text-white border-white"
+            {{-- Gebruikersnaam kaart --}}
+            <section
+                class="bg-sky-500 rounded-card shadow-card px-6 py-7 sm:px-8 sm:py-8 text-pure-white"
+            >
+                <h2 class="text-center text-lg sm:text-2xl font-bold tracking-wide">
+                    Gebruikersnaam
+                </h2>
+
+                <p class="mt-2 text-center text-sm sm:text-base">
+                    Voer hier je gebruikersnaam in om mee te doen met het spel.
+                </p>
+
+                <form
+                    wire:submit="join"
+                    class="mt-6 space-y-6"
+                >
+                    <div>
+                        <label
+                            for="name"
+                            class="block text-center text-sm sm:text-base font-semibold tracking-wide"
                         >
-                    @error('name') <span>{{ $message }}</span> @enderror
-                </div>
-                
-                <button type="submit" class="bg-white text-sky-500 font-semibold text-small py-2 px-3 mt-4 rounded-button text-center shadow-card transition">
-                    Meedoen met het spel
-                </button>
-            </form>
+                            Gebruikersnaam
+                        </label>
 
+                        <input
+                            type="text"
+                            id="name"
+                            wire:model="name"
+                            maxlength="20"
+                            placeholder="Gebruikersnaam"
+                            inputmode="text"
+                            autocomplete="name"
+                            autofocus
+                            class="
+                                mt-3
+                                w-full
+                                bg-sky-100 text-sky-900 font-semibold
+                                rounded-full px-4 py-2
+                                text-sm sm:text-base
+                                border-0
+                                placeholder:text-sky-500
+                                focus:outline-none
+                                focus:ring-2 focus:ring-offset-2
+                                focus:ring-sky-300 focus:ring-offset-sky-500
+                            "
+                        >
+
+                        @error('name')
+                            <p class="mt-2 text-xs sm:text-sm text-sky-100/90 text-center">
+                                {{ $message }}
+                            </p>
+                        @enderror
+                    </div>
+
+                    <button
+                        type="submit"
+                        class="
+                            w-full
+                            bg-pure-white text-sky-700
+                            font-semibold text-base sm:text-lg
+                            py-3 rounded-button shadow-card
+                            transition
+                            hover:shadow-lg hover:-translate-y-0.5
+                            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
+                            focus-visible:ring-sky-500 focus-visible:ring-offset-sky-500
+                        "
+                    >
+                        Meedoen met het spel
+                    </button>
+                </form>
+            </section>
         </div>
-        @endif
+    @endif
 
-        @if(session()->has('error'))
-            <div>{{ session('error') }}</div>
-        @endif
-    </div>
-
-    <x-homeFooter/>
 </div>

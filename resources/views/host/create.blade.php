@@ -1,14 +1,11 @@
-<!DOCTYPE html>
-<html lang="nl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spel Aanmaken</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @livewireStyles
-</head>
-<body class="bg-gray-50">
-    <livewire:create-game :locationId="$locationId" />
-    @livewireScripts
-</body>
-</html>
+@extends('layouts.lobby')
+
+@section('title', 'Spel aanmaken')
+
+@section('content')
+    <x-nav.join-nav />
+
+    <main class="flex-1 flex justify-center px-4 pb-10">
+        <livewire:create-game :locationId="$locationId" />
+    </main>
+@endsection

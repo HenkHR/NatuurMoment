@@ -16,10 +16,13 @@
     >
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
 </head>
 <body class="font-sans antialiased bg-surface-light">
     <div class="min-h-screen flex flex-col">
         @yield('content')
     </div>
+
+    @livewireScripts
 </body>
 </html>

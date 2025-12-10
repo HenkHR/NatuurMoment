@@ -49,16 +49,16 @@
     <div class="px-4 py-5 flex flex-col items-center gap-3 bg-pure-white">
         <a
             href="{{ route('host.create', $locationId) }}"
-            class="w-full max-w-xs bg-action-500 hover:bg-action-600 text-pure-white font-semibold text-small py-3 rounded-button text-center shadow-card transition"
+            class="w-full max-w-xs bg-sky-500 hover:bg-sky-600 text-pure-white font-semibold text-small py-3 rounded-button text-center shadow-card transition"
         >
             Spel aanmaken
         </a>
 
         <a
             href="{{ route('player.join') }}"
-            class="w-full max-w-xs bg-sky-500 hover:bg-sky-600 text-pure-white font-semibold text-small py-3 rounded-button text-center shadow-card transition"
+            class="w-full max-w-xs  bg-action-500 hover:bg-action-600  text-pure-white font-semibold text-small py-3 rounded-button text-center shadow-card transition"
         >
-            Meedoen met een spel
+            Meedoen met een spel!
         </a>
     </div>
 </section>

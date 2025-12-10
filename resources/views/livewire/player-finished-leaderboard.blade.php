@@ -31,4 +31,13 @@
 
     </section>
 
+    <div class="max-w-md mx-auto">
+        <x-leaderboard :players="$leaderboardData" :showContinueButton="true" :isFinished="true">
+            <button
+                wire:click="showFeedbackForm"
+                class="inline-block px-6 py-3 bg-[#2E7D32] hover:bg-green-700 text-white rounded-lg font-semibold transition">
+                Verder
+            </button>
+        </x-leaderboard>
+    </div>
 </div>

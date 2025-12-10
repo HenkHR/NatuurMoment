@@ -11,9 +11,10 @@
         Ga naar hoofdinhoud
     </a>
 
-    <div class="flex-1 bg-surface-light min-h-screen">
+    {{-- Dit is de “content”-kolom, die mag flex-1 zijn maar hoeft geen min-h-screen meer --}}
+    <div class="flex-1 bg-surface-light">
 
-        {{-- Header / navigatie landmark --}}
+        {{-- Header / navigatie --}}
         <header role="banner">
             <x-homeNav aria-label="Hoofd navigatie" />
         </header>
@@ -74,10 +75,10 @@
                 />
             </main>
         </div>
-
-        {{-- Footer landmark --}}
-        <footer role="contentinfo" class="mt-6">
-            <x-homeFooter />
-        </footer>
     </div>
+
+    {{-- Footer als sibling van de flex-1 content, niet erin --}}
+    <footer role="contentinfo" class="mt-6">
+        <x-homeFooter />
+    </footer>
 @endsection

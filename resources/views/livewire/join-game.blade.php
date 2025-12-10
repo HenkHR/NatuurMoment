@@ -88,8 +88,7 @@
     {{-- STAP 2: PIN tonen + gebruikersnaam invoeren --}}
     @if($step === 2)
         <div class="space-y-6">
-
-            {{-- Game PIN kaart --}}
+            
             <section
                 class="bg-sky-500 rounded-card shadow-card px-6 py-5 sm:px-8 sm:py-6 text-pure-white"
             >
@@ -116,7 +115,6 @@
                 </button>
             </section>
 
-            {{-- Gebruikersnaam kaart --}}
             <section
                 class="bg-sky-500 rounded-card shadow-card px-6 py-7 sm:px-8 sm:py-8 text-pure-white"
             >

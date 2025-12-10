@@ -144,7 +144,7 @@
         <!-- Photo Review Modal -->
         @if($selectedPhoto)
             <div class="fixed inset-0 z-50 bg-black bg-opacity-75 flex items-center justify-center p-4" wire:click="closePhotoModal">
-                <div class="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-auto" wire:click.stop>
+                <div class="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-auto" @click.stop>
                     <div class="p-6">
                         <div class="flex justify-between items-center mb-4">
                             <h2 class="text-2xl font-bold">Foto Review - {{ $selectedPhoto['player_name'] }}</h2>

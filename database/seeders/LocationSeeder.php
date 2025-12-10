@@ -15,7 +15,7 @@ class LocationSeeder extends Seeder
                 'description' => 'Historische buitenplaats omringd door natuur, ideaal voor een natuuravontuur.',
                 'image_path' => null,
                 'province' => 'Gelderland',
-                'duration' => 60,
+                'distance' => 60.0,
             ]
         );
     }

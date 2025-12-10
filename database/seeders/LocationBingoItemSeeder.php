@@ -19,7 +19,7 @@ class LocationBingoItemSeeder extends Seeder
                 'description' => 'Een prachtig natuurgebied op de Veluwe met bossen, heide en wilde dieren.',
                 'image_path' => null,
                 'province' => 'Gelderland',
-                'duration' => 90,
+                'distance' => 90.0,
             ]
         );
 

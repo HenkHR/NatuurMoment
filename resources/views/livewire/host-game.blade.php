@@ -1,15 +1,7 @@
 <div
     wire:poll.10s.visible="loadPlayers">
 
-    @if($showLeaderboard)
-        <!-- Leaderboard View -->
-        <x-leaderboard :players="$leaderboardData" :showContinueButton="true" :isFinished="true">
-            <a href="{{ route('home') }}" class="inline-block px-6 py-3 bg-forest-500 hover:bg-forest-600 text-white rounded-lg font-semibold transition">
-                Terug naar Home
-            </a>
-        </x-leaderboard>
-    @else
-        <!-- Game View -->
+    <!-- Game View -->
         <div class="flex flex-col gap-4">
 
             <div class="w-full px-4 pt-6 pb-12 bg-[#2E7D32]" style="clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), 0 100%);">
@@ -55,7 +47,7 @@
                                 <!-- Player Header (Accordion Toggle) -->
                                 <button
                                     wire:click="togglePlayer({{ $player['id'] }})"
-                                    class="w-full text-left flex flex-row justify-between items-center {{ $expandedPlayerId === $player['id'] ? 'bg-sky-500 text-white' : 'bg-gray-200 text-slate-700' }} p-4 focus:outline-none focus:ring-2 focus:ring-green-400 transition">
+                                    class="w-full text-left flex flex-row justify-between items-center {{ $expandedPlayerId === $player['id'] ? 'bg-sky-500 text-white' : 'bg-gray-200 text-black' }} p-4 focus:outline-none focus:ring-2 focus:ring-green-400 transition">
 
                                     <div class="flex items-center gap-3">
                                         <span class="font-semibold text-lg">{{ $player['name'] }}</span>
@@ -215,5 +207,4 @@
 
         <!-- End Game Confirmation Modal -->
         <x-end-game-modal :show="$showEndGameModal" />
-    @endif
 </div>

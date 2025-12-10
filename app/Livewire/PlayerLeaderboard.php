@@ -30,6 +30,12 @@ class PlayerLeaderboard extends Component
         
         $this->game = Game::findOrFail($gameId);
         
+        // Redirect if game is finished
+        if ($this->game->status === 'finished') {
+            $this->redirect(route('player.finished-leaderboard', $gameId), navigate: true);
+            return;
+        }
+        
         if ($this->game->status !== 'started') {
             $this->redirect(route('player.lobby', $gameId), navigate: true);
             return;
@@ -40,6 +46,15 @@ class PlayerLeaderboard extends Component
 
     public function refreshLeaderboard()
     {
+        // Refresh game data
+        $this->game = Game::findOrFail($this->gameId);
+        
+        // Redirect if game is finished
+        if ($this->game->status === 'finished') {
+            $this->redirect(route('player.finished-leaderboard', $this->gameId), navigate: true);
+            return;
+        }
+        
         $this->loadLeaderboard();
     }
 

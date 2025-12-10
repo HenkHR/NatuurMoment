@@ -21,9 +21,9 @@ class UpdateLocationRequest extends FormRequest
                 'max:255',
                 Rule::unique('locations')->ignore($this->route('location')),
             ],
-            'description' => ['nullable', 'string'],
+            'description' => ['required', 'string'],
             'province' => ['required', 'string', 'max:255'],
-            'duration' => ['required', 'integer', 'min:1'],
+            'distance' => ['required', 'numeric', 'min:0.1'],
             'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
         ];
     }

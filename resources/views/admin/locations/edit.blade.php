@@ -23,7 +23,7 @@
 
             <div class="mb-4">
                 <x-input-label for="description" value="Beschrijving" />
-                <textarea id="description" name="description" rows="4" class="mt-1 block w-full border-surface-medium bg-pure-white text-deep-black focus:border-action focus:ring-action rounded-input shadow-sm">{{ old('description', $location->description) }}</textarea>
+                <textarea id="description" name="description" rows="4" class="mt-1 block w-full border-surface-medium bg-pure-white text-deep-black focus:border-action focus:ring-action rounded-input shadow-sm" required>{{ old('description', $location->description) }}</textarea>
                 <x-input-error :messages="$errors->get('description')" class="mt-2" />
             </div>
 
@@ -39,9 +39,9 @@
             </div>
 
             <div class="mb-4">
-                <x-input-label for="duration" value="Duur (minuten)" />
-                <x-text-input id="duration" name="duration" type="number" min="1" class="mt-1 block w-full" :value="old('duration', $location->duration)" required />
-                <x-input-error :messages="$errors->get('duration')" class="mt-2" />
+                <x-input-label for="distance" value="Afstand (km)" />
+                <x-text-input id="distance" name="distance" type="number" min="0.1" step="0.1" class="mt-1 block w-full" :value="old('distance', $location->distance)" required />
+                <x-input-error :messages="$errors->get('distance')" class="mt-2" />
             </div>
 
             <div class="mb-6">

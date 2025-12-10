@@ -15,9 +15,9 @@ class StoreLocationRequest extends FormRequest
     {
         return [
             'name' => ['required', 'string', 'max:255', 'unique:locations'],
-            'description' => ['nullable', 'string'],
+            'description' => ['required', 'string'],
             'province' => ['required', 'string', 'max:255'],
-            'duration' => ['required', 'integer', 'min:1'],
+            'distance' => ['required', 'numeric', 'min:0.1'],
             'image' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
         ];
     }

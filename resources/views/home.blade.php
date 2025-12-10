@@ -78,7 +78,7 @@
                     </div>
 
                     {{-- Titel sectie --}}
-                    <div class="mb-3 sm:mb-4 mt-1">
+                    <div class="mb-3 sm:mb-4 mt-4 sm:mt-6">
                         <h3 class="text-base sm:text-lg font-semibold text-gray-900">
                             Locaties waar je spellen kunt spelen
                         </h3>

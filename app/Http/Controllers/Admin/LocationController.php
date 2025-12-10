@@ -29,7 +29,7 @@ class LocationController extends Controller
 
     public function store(StoreLocationRequest $request): RedirectResponse
     {
-        $data = $request->safe()->only(['name', 'description', 'province', 'duration']);
+        $data = $request->safe()->only(['name', 'description', 'province', 'distance']);
 
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('location-images', 'public');
@@ -53,7 +53,7 @@ class LocationController extends Controller
 
     public function update(UpdateLocationRequest $request, Location $location): RedirectResponse
     {
-        $data = $request->safe()->only(['name', 'description', 'province', 'duration']);
+        $data = $request->safe()->only(['name', 'description', 'province', 'distance']);
 
         if ($request->boolean('remove_image')) {
             if ($location->image_path && Storage::disk('public')->exists($location->image_path)) {

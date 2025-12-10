@@ -9,8 +9,8 @@
         <section class="relative bg-forest-700 overflow-hidden mt-6 md:mt-8">
             <div class="h-56 md:h-72 lg:h-80 overflow-hidden">
                 <img
-                    src="{{ asset('images/locatie.png') }}"
-                    alt="Natuurgebied Buitenplaats de Tempel"
+                    src="{{ $location->image_path ? Storage::url($location->image_path) : asset('images/locatie.png') }}"
+                    alt="{{ $location->name }}"
                     class="w-full h-full object-cover"
                 >
             </div>

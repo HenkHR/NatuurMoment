@@ -11,7 +11,7 @@
     
     <div class="w-full px-4 pt-6 pb-12 bg-[#2E7D32]"
          style="clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), 0 100%);">
-        <div class="container mx-auto px-4 flex flex-col justify-between items-center relative">
+        <div class="container max-w-md mx-auto px-4 flex flex-col justify-between relative">
         <h1 class="text-4xl font-bold text-[#FFFFFF] mb-2 text-left">Route Vragen</h1>
         <!-- Timer Display (if enabled) -->
         @if($game && $game->timer_enabled && $game->timer_ends_at)
@@ -21,6 +21,9 @@
         @endif
         </div>
     </div>
+
+    {{-- Game Status Check (polling for finished games) --}}
+    @livewire('player-route-check', ['gameId' => $gameId])
 
     {{-- TODO: Voeg route vragen toe --}}
     <div class="container mx-auto px-4 mt-6 mb-6">
@@ -34,14 +37,11 @@
             <a href="{{ route('player.game', $gameId) }}" class="flex items-center justify-center p-2 rounded {{ request()->routeIs('player.game') ? 'bg-sky-500' : '' }}">
                 <x-bi-grid alt="Bingo" class="w-8 h-8 sm:w-10 sm:h-10 text-white" />
             </a>
-            <a href="{{ route('home') }}" class="flex items-center justify-center p-2 rounded">
-                <x-lucide-home alt="Home" class="w-8 h-8 sm:w-10 sm:h-10 text-white"/>
+            <a href="{{ route('player.leaderboard', $gameId) }}" class="flex items-center justify-center p-2 rounded {{ request()->routeIs('player.leaderboard') ? 'bg-sky-500' : '' }}">
+                <x-lucide-trophy alt="Ranglijst" class="w-8 h-8 sm:w-10 sm:h-10 text-white"/>
             </a>
             <a href="{{ route('player.route', $gameId) }}" class="flex items-center justify-center p-2 rounded {{ request()->routeIs('player.route') ? 'bg-sky-500' : '' }}">
                 <x-lucide-route alt="Route" class="w-8 h-8 sm:w-10 sm:h-10 text-white"/>
-            </a>
-            <a href="{{ route('player.leaderboard', $gameId) }}" class="flex items-center justify-center p-2 rounded {{ request()->routeIs('player.leaderboard') ? 'bg-sky-500' : '' }}">
-                <x-lucide-trophy alt="Ranglijst" class="w-8 h-8 sm:w-10 sm:h-10 text-white"/>
             </a>
         </div>
     </nav>

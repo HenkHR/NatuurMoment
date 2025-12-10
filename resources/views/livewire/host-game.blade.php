@@ -13,8 +13,8 @@
         <div class="flex flex-col gap-4">
 
             <div class="w-full px-4 pt-6 pb-12 bg-[#2E7D32]" style="clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), 0 100%);">
-                <div class="container mx-auto px-4 flex flex-col justify-between relative">
-                    <h1 class="text-2xl font-bold text-[#FFFFFF] mb-2 text-left">Spelers overzicht</h1>
+                <div class="container max-w-md mx-auto px-4 flex flex-col justify-between relative">
+                    <h1 class="text-4xl font-bold text-[#FFFFFF] mb-2 text-left">Spelers</h1>
                     <!-- Timer (right) -->
                     @if($game && $game->timer_enabled && $game->timer_ends_at)
                         <div class="absolute top-[-5px] right-0">

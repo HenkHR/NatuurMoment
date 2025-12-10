@@ -15,7 +15,7 @@ class Location extends Model
         'description',
         'image_path',
         'province',
-        'duration',
+        'distance',
     ];
 
     public function bingoItems(): HasMany

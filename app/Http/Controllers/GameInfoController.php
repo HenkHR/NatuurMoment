@@ -70,6 +70,7 @@ class GameInfoController extends Controller
             'game'       => $game,
             'rules'      => $rules,
             'locationId' => $location->id,
+            'location'   => $location,
             'breadcrumbs'=> $breadcrumbs,
         ]);
     }

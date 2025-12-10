@@ -5,8 +5,8 @@
             <div class="flex">
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('admin.locations.index') }}" class="h-12 overflow-hidden flex items-center">
-                        <img src="{{ asset('images/logoNM.png') }}" alt="Natuurmonumenten" class="h-24 w-auto max-w-none -ml-1">
+                    <a href="{{ route('admin.locations.index') }}" class="flex items-center">
+                        <img src="{{ asset('images/logoNM.png') }}" alt="Natuurmonumenten" class="h-10 w-auto">
                     </a>
                 </div>
 

@@ -21,6 +21,7 @@ class LocationRouteStop extends Model
         'correct_option',
         'points',
         'sequence',
+        'image_path',
     ];
 
     protected function casts(): array

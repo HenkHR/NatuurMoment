@@ -50,13 +50,15 @@
                     </div>
                 @endif
 
-                <input id="icon" name="icon" type="file" accept="image/*" class="mt-1 block w-full text-sm text-deep-black
+                <input id="icon" name="icon" type="file" accept="image/*" class="mt-2 block w-full text-sm text-deep-black
                     file:mr-4 file:py-2 file:px-4
                     file:rounded-button file:border-0
                     file:text-sm file:font-semibold
                     file:bg-sky-50 file:text-sky-700
                     hover:file:bg-sky-100" />
-                <p class="mt-1 text-small text-deep-black">Max 2MB. Toegestane formaten: jpeg, png, jpg, gif, svg, webp</p>
+                <p class="mt-1.5 text-sm text-gray-500">
+                    Formaat: JPEG, PNG, GIF, SVG of WebP. Max 2MB. Aanbevolen: vierkante afbeelding (bijv. 200x200 pixels).
+                </p>
                 <x-input-error :messages="$errors->get('icon')" class="mt-2" />
             </div>
 

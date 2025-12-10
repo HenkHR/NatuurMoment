@@ -12,7 +12,7 @@
         <h2 class="text-h2 text-deep-black mb-2">Nieuwe vraag</h2>
         <p class="text-body text-deep-black mb-6">Locatie: {{ $location->name }}</p>
 
-        <form method="POST" action="{{ route('admin.locations.route-stops.store', $location) }}">
+        <form method="POST" action="{{ route('admin.locations.route-stops.store', $location) }}" enctype="multipart/form-data">
             @csrf
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -61,7 +61,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <x-input-label for="correct_option" value="Correct antwoord" />
                     <select id="correct_option" name="correct_option" class="mt-1 block w-full border-surface-medium bg-pure-white text-deep-black focus:border-action focus:ring-action rounded-input shadow-sm" required>
@@ -79,6 +79,20 @@
                     <x-text-input id="points" name="points" type="number" min="1" class="mt-1 block w-full" :value="old('points', 1)" required />
                     <x-input-error :messages="$errors->get('points')" class="mt-2" />
                 </div>
+            </div>
+
+            <div class="mb-6">
+                <x-input-label for="image" value="Vraag afbeelding" />
+                <input id="image" name="image" type="file" accept="image/*" class="mt-2 block w-full text-sm text-deep-black
+                    file:mr-4 file:py-2 file:px-4
+                    file:rounded-button file:border-0
+                    file:text-sm file:font-semibold
+                    file:bg-sky-50 file:text-sky-700
+                    hover:file:bg-sky-100" required />
+                <p class="mt-1.5 text-sm text-gray-500">
+                    Formaat: JPEG, PNG, GIF of WebP. Max 2MB. Aanbevolen: vierkante afbeelding (bijv. 400x400 pixels).
+                </p>
+                <x-input-error :messages="$errors->get('image')" class="mt-2" />
             </div>
 
             <div class="flex justify-end gap-3">

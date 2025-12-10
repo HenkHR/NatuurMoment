@@ -27,8 +27,13 @@
             </div>
 
             <div class="mb-4">
-                <x-input-label for="province" value="Provincie/Regio" />
-                <x-text-input id="province" name="province" type="text" class="mt-1 block w-full" :value="old('province')" required />
+                <x-input-label for="province" value="Provincie" />
+                <select id="province" name="province" class="mt-1 block w-full border-surface-medium bg-pure-white text-deep-black focus:border-action focus:ring-action rounded-input shadow-sm" required>
+                    <option value="">Selecteer een provincie</option>
+                    @foreach(config('provinces') as $province)
+                        <option value="{{ $province }}" {{ old('province') == $province ? 'selected' : '' }}>{{ $province }}</option>
+                    @endforeach
+                </select>
                 <x-input-error :messages="$errors->get('province')" class="mt-2" />
             </div>
 

@@ -1,72 +1,80 @@
-@props(['players' => [], 'showContinueButton' => false])
+@props(['players' => [], 'showContinueButton' => false, 'isFinished' => false])
 
-<div {{ $attributes->merge(['class' => 'bg-white rounded-lg shadow-lg p-6']) }}>
-    <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Eindstand</h2>
+<div {{ $attributes->merge(['class' => 'bg-white rounded-lg shadow-lg p-2']) }}>
+    @if($isFinished)
+        <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Eindstand</h2>
+    @endif
 
     @if(count($players) >= 1)
-        <!-- Podium for Top 3 -->
-        <div class="flex justify-center items-end gap-4 mb-8 h-48">
-            <!-- 2nd Place (left) -->
-            @if(count($players) >= 2)
-                <div class="flex flex-col items-center">
-                    <div class="w-16 h-16 rounded-full bg-gray-300 flex items-center justify-center mb-2 shadow-lg">
-                        <span class="text-2xl">🥈</span>
+        @if($isFinished)
+            <!-- Podium for Top 3 -->
+            <div class="flex justify-center items-end gap-4 mb-8 h-48">
+                <!-- 2nd Place (left) -->
+                @if(count($players) >= 2)
+                    <div class="flex flex-col items-center">
+                        <div class="w-16 h-16 rounded-full bg-gray-300 flex items-center justify-center mb-2 shadow-lg">
+                            <span class="text-2xl">🥈</span>
+                        </div>
+                        <div class="bg-gray-200 w-24 h-24 rounded-t-lg flex flex-col items-center justify-center">
+                            <span class="font-bold text-gray-800 text-sm truncate w-20 text-center">{{ $players[1]['name'] }}</span>
+                            <span class="text-gray-600 font-semibold">{{ $players[1]['score'] }} pt</span>
+                        </div>
                     </div>
-                    <div class="bg-gray-200 w-24 h-24 rounded-t-lg flex flex-col items-center justify-center">
-                        <span class="font-bold text-gray-800 text-sm truncate w-20 text-center">{{ $players[1]['name'] }}</span>
-                        <span class="text-gray-600 font-semibold">{{ $players[1]['score'] }} pt</span>
-                    </div>
-                </div>
-            @else
-                <div class="w-24"></div>
-            @endif
+                @else
+                    <div class="w-24"></div>
+                @endif
 
-            <!-- 1st Place (center, tallest) -->
-            <div class="flex flex-col items-center">
-                <div class="w-20 h-20 rounded-full bg-yellow-400 flex items-center justify-center mb-2 shadow-lg ring-4 ring-yellow-300">
-                    <span class="text-3xl">🥇</span>
+                <!-- 1st Place (center, tallest) -->
+                <div class="flex flex-col items-center">
+                    <div class="w-20 h-20 rounded-full bg-yellow-400 flex items-center justify-center mb-2 shadow-lg ring-4 ring-yellow-300">
+                        <span class="text-3xl">🥇</span>
+                    </div>
+                    <div class="bg-yellow-100 w-28 h-32 rounded-t-lg flex flex-col items-center justify-center border-2 border-yellow-400">
+                        <span class="font-bold text-gray-800 truncate w-24 text-center">{{ $players[0]['name'] }}</span>
+                        <span class="text-yellow-700 font-bold text-lg">{{ $players[0]['score'] }} pt</span>
+                    </div>
                 </div>
-                <div class="bg-yellow-100 w-28 h-32 rounded-t-lg flex flex-col items-center justify-center border-2 border-yellow-400">
-                    <span class="font-bold text-gray-800 truncate w-24 text-center">{{ $players[0]['name'] }}</span>
-                    <span class="text-yellow-700 font-bold text-lg">{{ $players[0]['score'] }} pt</span>
-                </div>
+
+                <!-- 3rd Place (right) -->
+                @if(count($players) >= 3)
+                    <div class="flex flex-col items-center">
+                        <div class="w-14 h-14 rounded-full bg-amber-600 flex items-center justify-center mb-2 shadow-lg">
+                            <span class="text-xl">🥉</span>
+                        </div>
+                        <div class="bg-amber-100 w-20 h-16 rounded-t-lg flex flex-col items-center justify-center">
+                            <span class="font-bold text-gray-800 text-xs truncate w-16 text-center">{{ $players[2]['name'] }}</span>
+                            <span class="text-amber-700 font-semibold text-sm">{{ $players[2]['score'] }} pt</span>
+                        </div>
+                    </div>
+                @else
+                    <div class="w-20"></div>
+                @endif
             </div>
-
-            <!-- 3rd Place (right) -->
-            @if(count($players) >= 3)
-                <div class="flex flex-col items-center">
-                    <div class="w-14 h-14 rounded-full bg-amber-600 flex items-center justify-center mb-2 shadow-lg">
-                        <span class="text-xl">🥉</span>
-                    </div>
-                    <div class="bg-amber-100 w-20 h-16 rounded-t-lg flex flex-col items-center justify-center">
-                        <span class="font-bold text-gray-800 text-xs truncate w-16 text-center">{{ $players[2]['name'] }}</span>
-                        <span class="text-amber-700 font-semibold text-sm">{{ $players[2]['score'] }} pt</span>
-                    </div>
-                </div>
-            @else
-                <div class="w-20"></div>
-            @endif
-        </div>
+        @endif
     @endif
 
     <!-- Full Ranking List -->
     @if(count($players) > 0)
-        <div class="border-t border-gray-200 pt-4">
-            <h3 class="text-lg font-semibold text-gray-700 mb-3">Volledige ranglijst</h3>
-            <div class="space-y-2">
+        <div>
+            @if($isFinished)
+                <h3 class="text-lg font-semibold text-gray-700 mb-3">Volledige ranglijst</h3>
+            @endif
+            <div class="space-y-3">
                 @foreach($players as $index => $player)
-                    <div class="flex items-center justify-between p-3 rounded-lg {{ $index < 3 ? 'bg-gray-50' : 'bg-white border border-gray-100' }}">
-                        <div class="flex items-center gap-3">
-                            <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold
-                                {{ $index === 0 ? 'bg-yellow-400 text-yellow-900' : '' }}
-                                {{ $index === 1 ? 'bg-gray-300 text-gray-700' : '' }}
-                                {{ $index === 2 ? 'bg-amber-600 text-white' : '' }}
-                                {{ $index >= 3 ? 'bg-gray-200 text-gray-600' : '' }}">
-                                {{ $player['rank'] }}
-                            </span>
-                            <span class="font-medium text-gray-800">{{ $player['name'] }}</span>
+                    <div class="border border-gray-300 rounded-lg overflow-hidden {{ $index < 3 ? 'bg-gray-50' : 'bg-white' }}">
+                        <div class="flex items-center justify-between py-3 px-3">
+                            <div class="flex items-center gap-3">
+                                <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold
+                                    {{ $index === 0 ? 'bg-yellow-400 text-yellow-900' : '' }}
+                                    {{ $index === 1 ? 'bg-gray-300 text-gray-700' : '' }}
+                                    {{ $index === 2 ? 'bg-amber-600 text-white' : '' }}
+                                    {{ $index >= 3 ? 'bg-gray-200 text-gray-600' : '' }}">
+                                    {{ $player['rank'] }}
+                                </span>
+                                <span class="font-semibold text-md text-gray-800">{{ $player['name'] }}</span>
+                            </div>
+                            <span class="font-bold text-gray-700">{{ $player['score'] }} punten</span>
                         </div>
-                        <span class="font-bold text-gray-700">{{ $player['score'] }} punten</span>
                     </div>
                 @endforeach
             </div>

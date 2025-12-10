@@ -3,7 +3,7 @@
 
     @if($showLeaderboard)
         <!-- Leaderboard View -->
-        <x-leaderboard :players="$leaderboardData" :showContinueButton="true">
+        <x-leaderboard :players="$leaderboardData" :showContinueButton="true" :isFinished="true">
             <a href="{{ route('home') }}" class="inline-block px-6 py-3 bg-forest-500 hover:bg-forest-600 text-white rounded-lg font-semibold transition">
                 Terug naar Home
             </a>

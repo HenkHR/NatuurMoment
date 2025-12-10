@@ -109,15 +109,25 @@
                                             confirmDelete = true;
                                         "
                                         class="
+                                            w-9 h-9 sm:w-10 sm:h-10
                                             bg-red-500 hover:bg-red-600
-                                            text-pure-white text-xs font-semibold
-                                            px-3 py-1 rounded-button shadow-card
+                                            text-pure-white
+                                            rounded-full shadow-card
+                                            flex items-center justify-center
+                                            transition
+                                            hover:shadow-lg hover:-translate-y-0.5
                                             focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
                                             focus-visible:ring-red-500 focus-visible:ring-offset-pure-white
                                         "
                                     >
-                                        Verwijderen
+                                        <x-solar-trash-bin-minimalistic-bold
+                                            class="w-6 h-6"
+                                            aria-hidden="true"
+                                        />
+
+                                        <span class="sr-only">Speler verwijderen</span>
                                     </button>
+
                                 </li>
                             @endforeach
                         </ul>

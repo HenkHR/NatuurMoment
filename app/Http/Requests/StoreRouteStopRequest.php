@@ -34,6 +34,7 @@ class StoreRouteStopRequest extends FormRequest
             ],
             'points' => ['required', 'integer', 'min:1'],
             'sequence' => ['required', 'integer', 'min:0'],
+            'image' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
         ];
     }
 
@@ -50,6 +51,10 @@ class StoreRouteStopRequest extends FormRequest
             'points.min' => 'Punten moet minimaal 1 zijn.',
             'sequence.required' => 'Volgorde is verplicht.',
             'sequence.min' => 'Volgorde moet minimaal 0 zijn.',
+            'image.required' => 'Afbeelding is verplicht.',
+            'image.image' => 'Het bestand moet een afbeelding zijn.',
+            'image.mimes' => 'Toegestane formaten: jpeg, png, jpg, gif, webp.',
+            'image.max' => 'Afbeelding mag maximaal 2MB zijn.',
         ];
     }
 }

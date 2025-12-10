@@ -8,6 +8,7 @@ use App\Http\Requests\UpdateRouteStopRequest;
 use App\Models\Location;
 use App\Models\LocationRouteStop;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class RouteStopController extends Controller
@@ -30,7 +31,14 @@ class RouteStopController extends Controller
 
     public function store(StoreRouteStopRequest $request, Location $location): RedirectResponse
     {
-        $location->routeStops()->create($request->validated());
+        $data = $request->validated();
+
+        if ($request->hasFile('image')) {
+            $data['image_path'] = $request->file('image')->store('route-stops', 'public');
+        }
+
+        unset($data['image']);
+        $location->routeStops()->create($data);
 
         return redirect()
             ->route('admin.locations.route-stops.index', $location)
@@ -46,7 +54,17 @@ class RouteStopController extends Controller
 
     public function update(UpdateRouteStopRequest $request, LocationRouteStop $routeStop): RedirectResponse
     {
-        $routeStop->update($request->validated());
+        $data = $request->validated();
+
+        if ($request->hasFile('image')) {
+            if ($routeStop->image_path) {
+                Storage::disk('public')->delete($routeStop->image_path);
+            }
+            $data['image_path'] = $request->file('image')->store('route-stops', 'public');
+        }
+
+        unset($data['image']);
+        $routeStop->update($data);
 
         return redirect()
             ->route('admin.locations.route-stops.index', $routeStop->location)
@@ -56,6 +74,11 @@ class RouteStopController extends Controller
     public function destroy(LocationRouteStop $routeStop): RedirectResponse
     {
         $location = $routeStop->location;
+
+        if ($routeStop->image_path) {
+            Storage::disk('public')->delete($routeStop->image_path);
+        }
+
         $routeStop->delete();
 
         return redirect()

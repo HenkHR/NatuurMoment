@@ -25,7 +25,6 @@ class UpdateLocationRequest extends FormRequest
             'province' => ['required', 'string', 'max:255'],
             'duration' => ['required', 'integer', 'min:1'],
             'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
-            'remove_image' => ['nullable', 'boolean'],
         ];
     }
 
@@ -35,6 +34,9 @@ class UpdateLocationRequest extends FormRequest
             'name.required' => 'Naam is verplicht.',
             'name.max' => 'Naam mag maximaal 255 tekens zijn.',
             'name.unique' => 'Deze locatie naam bestaat al.',
+            'image.image' => 'Het bestand moet een afbeelding zijn.',
+            'image.mimes' => 'Toegestane formaten: jpeg, png, jpg, gif, webp.',
+            'image.max' => 'Afbeelding mag maximaal 2MB zijn.',
         ];
     }
 }

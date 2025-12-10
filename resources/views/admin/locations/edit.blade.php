@@ -45,28 +45,24 @@
             </div>
 
             <div class="mb-6">
-                <x-input-label for="image" value="Locatie afbeelding (optioneel)" />
+                <x-input-label for="image" value="Locatie afbeelding" />
 
                 @if($location->image_path)
                     <div class="mt-2 mb-3">
                         <p class="text-small text-deep-black mb-2">Huidige afbeelding:</p>
-                        <div class="flex items-center gap-4">
-                            <img src="{{ Storage::url($location->image_path) }}" alt="Huidige afbeelding" class="h-24 w-32 object-cover rounded-lg border border-surface-medium">
-                            <label class="flex items-center gap-2 text-sm text-red-600 cursor-pointer">
-                                <input type="checkbox" name="remove_image" value="1" class="rounded border-surface-medium text-red-600 focus:ring-red-500">
-                                Verwijder huidige afbeelding
-                            </label>
-                        </div>
+                        <img src="{{ Storage::url($location->image_path) }}" alt="Huidige afbeelding" class="h-24 w-32 object-cover rounded-lg border border-surface-medium">
                     </div>
                 @endif
 
-                <input id="image" name="image" type="file" accept="image/*" class="mt-1 block w-full text-sm text-deep-black
+                <input id="image" name="image" type="file" accept="image/*" class="mt-2 block w-full text-sm text-deep-black
                     file:mr-4 file:py-2 file:px-4
                     file:rounded-button file:border-0
                     file:text-sm file:font-semibold
                     file:bg-sky-50 file:text-sky-700
-                    hover:file:bg-sky-100" />
-                <p class="mt-1 text-small text-deep-black">Max 2MB. Toegestane formaten: jpeg, png, jpg, gif, webp</p>
+                    hover:file:bg-sky-100" {{ $location->image_path ? '' : 'required' }} />
+                <p class="mt-1.5 text-sm text-gray-500">
+                    Formaat: JPEG, PNG, GIF of WebP. Max 2MB. Aanbevolen: minimaal 1200x400 pixels.
+                </p>
                 <x-input-error :messages="$errors->get('image')" class="mt-2" />
             </div>
 

@@ -19,6 +19,7 @@
             <thead class="bg-sky-50">
                 <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium text-sky-700 uppercase tracking-wider">#</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-sky-700 uppercase tracking-wider">Afbeelding</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-sky-700 uppercase tracking-wider">Naam</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-sky-700 uppercase tracking-wider">Vraag</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-sky-700 uppercase tracking-wider">Correct</th>
@@ -31,6 +32,17 @@
                     <tr class="hover:bg-sky-50/50 transition-colors cursor-pointer" onclick="window.location='{{ route('admin.route-stops.edit', $routeStop) }}'">
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-deep-black">
                             {{ $routeStop->sequence }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            @if($routeStop->image_path)
+                                <img src="{{ Storage::url($routeStop->image_path) }}" alt="{{ $routeStop->name }}" class="h-12 w-16 object-cover rounded-lg">
+                            @else
+                                <div class="h-12 w-16 bg-surface-light rounded-lg flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-surface-medium" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                            @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-base font-medium text-deep-black">
                             {{ $routeStop->name }}
@@ -61,7 +73,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-4 text-center text-sm text-deep-black">
+                        <td colspan="7" class="px-6 py-4 text-center text-sm text-deep-black">
                             Geen vragen gevonden.
                         </td>
                     </tr>
@@ -74,20 +86,12 @@
     <div class="md:hidden space-y-4">
         @forelse ($routeStops as $routeStop)
             <div class="bg-pure-white rounded-card shadow-card p-4 flex justify-between items-center cursor-pointer hover:bg-sky-50/50 transition-colors" onclick="window.location='{{ route('admin.route-stops.edit', $routeStop) }}'">
-                <div class="flex-1 min-w-0">
-                    <div class="flex items-center gap-2">
-                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-forest-100 text-forest-700 text-xs font-medium">
-                            {{ $routeStop->sequence }}
-                        </span>
-                        <h3 class="text-base font-medium text-deep-black truncate">{{ $routeStop->name }}</h3>
-                    </div>
-                    <p class="mt-2 text-sm text-deep-black line-clamp-2">{{ $routeStop->question_text }}</p>
-                    <div class="mt-2 flex gap-4 text-xs text-deep-black">
-                        <span>Correct: {{ $routeStop->correct_option }}</span>
-                        <span>{{ $routeStop->points }} punten</span>
-                    </div>
+                <div class="min-w-0 flex-1">
+                    <h3 class="text-base font-medium text-deep-black truncate">{{ $routeStop->name }}</h3>
+                    <p class="text-sm text-deep-black line-clamp-1 mt-1">{{ $routeStop->question_text }}</p>
+                    <p class="text-xs text-surface-dark mt-2">Antwoord <span class="font-semibold">{{ $routeStop->correct_option }}</span> · <span class="font-semibold">{{ $routeStop->points }}</span> {{ $routeStop->points === 1 ? 'punt' : 'punten' }}</p>
                 </div>
-                <div class="flex gap-1 ml-2">
+                <div class="flex gap-1 flex-shrink-0 ml-2">
                     <a href="{{ route('admin.route-stops.edit', $routeStop) }}" onclick="event.stopPropagation()" class="p-2 text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100 rounded-button transition-colors" title="Bewerken">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />

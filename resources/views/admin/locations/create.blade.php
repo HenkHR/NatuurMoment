@@ -44,14 +44,16 @@
             </div>
 
             <div class="mb-6">
-                <x-input-label for="image" value="Locatie afbeelding (optioneel)" />
-                <input id="image" name="image" type="file" accept="image/*" class="mt-1 block w-full text-sm text-deep-black
+                <x-input-label for="image" value="Locatie afbeelding" />
+                <input id="image" name="image" type="file" accept="image/*" class="mt-2 block w-full text-sm text-deep-black
                     file:mr-4 file:py-2 file:px-4
                     file:rounded-button file:border-0
                     file:text-sm file:font-semibold
                     file:bg-sky-50 file:text-sky-700
-                    hover:file:bg-sky-100" />
-                <p class="mt-1 text-small text-deep-black">Max 2MB. Toegestane formaten: jpeg, png, jpg, gif, webp</p>
+                    hover:file:bg-sky-100" required />
+                <p class="mt-1.5 text-sm text-gray-500">
+                    Formaat: JPEG, PNG, GIF of WebP. Max 2MB. Aanbevolen: minimaal 1200x400 pixels.
+                </p>
                 <x-input-error :messages="$errors->get('image')" class="mt-2" />
             </div>
 

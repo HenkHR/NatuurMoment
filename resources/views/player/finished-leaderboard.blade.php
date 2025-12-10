@@ -16,4 +16,3 @@
 @livewireScripts
 </body>
 </html>
-

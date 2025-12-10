@@ -332,7 +332,7 @@ class HostGame extends Component
             return; // No photo to review
         }
 
-        $photo = Photo::with('gamePlayer')->findOrFail($photoId);
+        $photo = Photo::with(['gamePlayer', 'bingoItem'])->findOrFail($photoId);
 
         // Verify photo belongs to this game
         if ($photo->game_id !== $this->gameId) {
@@ -343,6 +343,7 @@ class HostGame extends Component
             'id' => $photo->id,
             'player_name' => $photo->gamePlayer->name,
             'bingo_item_id' => $photo->bingo_item_id,
+            'bingo_item_label' => $photo->bingoItem->label ?? '',
             'status' => $photo->status,
             'url' => $photo->url, // Use the accessor from Photo model
             'taken_at' => $photo->taken_at,
@@ -437,7 +438,7 @@ class HostGame extends Component
     {
         $this->verifyHostAccess();
 
-        $photo = Photo::findOrFail($photoId);
+        $photo = Photo::with(['gamePlayer', 'bingoItem'])->findOrFail($photoId);
 
         // Verify photo belongs to this game
         if ($photo->game_id !== $this->gameId) {
@@ -450,12 +451,13 @@ class HostGame extends Component
         $newScore = $this->calculatePlayerScore($photo->game_player_id);
         
         // Get bingo item for message
-        $bingoItem = BingoItem::find($photo->bingo_item_id);
+        $bingoItem = $photo->bingoItem;
         
-        // Close photo modal and refresh
+        // Close photo modal
         $this->selectedPhoto = null;
+        
+        // Refresh players and bingo items
         $this->loadPlayers();
-        // Refresh bingo items if a player is expanded
         $this->refreshBingoItems();
         
         $message = 'Foto goedgekeurd!';
@@ -472,7 +474,7 @@ class HostGame extends Component
     {
         $this->verifyHostAccess();
 
-        $photo = Photo::findOrFail($photoId);
+        $photo = Photo::with(['gamePlayer', 'bingoItem'])->findOrFail($photoId);
 
         // Verify photo belongs to this game
         if ($photo->game_id !== $this->gameId) {
@@ -485,10 +487,11 @@ class HostGame extends Component
         // This will remove points if the photo was previously approved
         $this->calculatePlayerScore($photo->game_player_id);
         
-        // Close photo modal and refresh
+        // Close photo modal
         $this->selectedPhoto = null;
+        
+        // Refresh players and bingo items
         $this->loadPlayers();
-        // Refresh bingo items if a player is expanded
         $this->refreshBingoItems();
         
         session()->flash('photo-message', 'Foto afgewezen.');

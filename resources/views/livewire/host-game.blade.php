@@ -13,11 +13,13 @@
         <div class="flex flex-col gap-4">
 
             <div class="w-full px-4 pt-6 pb-12 bg-[#2E7D32]" style="clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), 0 100%);">
-                <div class="container mx-auto px-4 flex flex-col justify-between items-center">
-                    <h1 class="text-3xl font-bold text-[#FFFFFF] mb-2 text-center">Spelers overzicht</h1>
+                <div class="container mx-auto px-4 flex flex-col justify-between relative">
+                    <h1 class="text-2xl font-bold text-[#FFFFFF] mb-2 text-left">Spelers overzicht</h1>
                     <!-- Timer (right) -->
                     @if($game && $game->timer_enabled && $game->timer_ends_at)
-                        <x-game-timer :timerEndsAt="$game->timer_ends_at->toIso8601String()" />
+                        <div class="absolute top-[-5px] right-0">
+                            <x-game-timer :timerEndsAt="$game->timer_ends_at->toIso8601String()" />
+                        </div>
                     @else
                         <div class="w-24"></div>
                     @endif
@@ -27,7 +29,7 @@
             <div class="flex flex-row justify-between items-center mb-4 container mx-auto px-4 max-w-lg">
                 <button
                     wire:click="confirmEndGame"
-                    class="px-4 py-2 bg-red-600 hover:bg-blue-700 text-white rounded-lg font-medium transition flex items-center gap-2">
+                    class="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg font-medium transition flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path>
@@ -53,7 +55,7 @@
                                 <!-- Player Header (Accordion Toggle) -->
                                 <button
                                     wire:click="togglePlayer({{ $player['id'] }})"
-                                    class="w-full text-left flex flex-row justify-between items-center {{ $expandedPlayerId === $player['id'] ? 'bg-sky-500' : 'bg-gray-200 text-slate-700' }} text-white p-4 focus:outline-none focus:ring-2 focus:ring-green-400 transition">
+                                    class="w-full text-left flex flex-row justify-between items-center {{ $expandedPlayerId === $player['id'] ? 'bg-sky-500 text-white' : 'bg-gray-200 text-slate-700' }} p-4 focus:outline-none focus:ring-2 focus:ring-green-400 transition">
 
                                     <div class="flex items-center gap-3">
                                         <span class="font-semibold text-lg">{{ $player['name'] }}</span>
@@ -115,7 +117,7 @@
                                                                 wire:click="selectPhoto({{ $item['photo']['id'] }})"
                                                                 class="{{ $statusClass }} rounded-lg shadow w-auto aspect-square
                                                                    text-green-700 font-semibold flex flex-col justify-center items-center text-center
-                                                                   hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-500 relative cursor-pointer">
+                                                                   hover:opacity-75 focus:outline-none focus:ring-2 focus:ring-gray-300 relative cursor-pointer">
                                                                 @if($statusIcon)
                                                                     <span class="absolute top-1 right-1 text-lg">{{ $statusIcon }}</span>
                                                                 @endif
@@ -151,13 +153,19 @@
         <!-- Photo Review Modal -->
         @if($selectedPhoto)
             <div class="fixed inset-0 z-50 bg-black bg-opacity-75 flex items-center justify-center p-4" wire:click="closePhotoModal">
-                <div class="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-auto" @click.stop>
+                <div class="bg-white rounded-lg w-full max-w-md max-h-[90vh] overflow-auto" @click.stop>
                     <div class="p-6">
-                        <div class="flex justify-between items-center mb-4">
-                            <h2 class="text-2xl font-bold">Foto Review - {{ $selectedPhoto['player_name'] }}</h2>
+                        <div class="flex flex-row justify-between items-center mb-4 relative">
+                            <div class="flex flex-col justify-between w-full">
+                                <h2 class="text-2xl font-bold">Foto Review</h2>
+                                <p class="text-md text-gray-500">{{ $selectedPhoto['bingo_item_label'] }}</p>
+                            </div>
                             <button
                                 wire:click="closePhotoModal"
-                                class="text-gray-500 hover:text-gray-700 text-2xl">&times;</button>
+                                class="absolute top-2 right-0 text-white text-2xl bg-red-500 hover:bg-red-600 rounded-full p-2"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
                         </div>
 
                         <div class="mb-4">
@@ -184,36 +192,22 @@
                                     @endif
                                 </span>
                             </div>
-                            @if($selectedPhoto['taken_at'])
-                                <div>
-                                    <span class="font-semibold">Genomen op:</span>
-                                    <span>{{ $selectedPhoto['taken_at']->format('d-m-Y H:i') }}</span>
-                                </div>
-                            @endif
                         </div>
 
-                        @if($selectedPhoto['status'] === 'pending')
-                            <div class="flex gap-3 justify-end">
-                                <button
-                                    wire:click="rejectPhoto({{ $selectedPhoto['id'] }})"
-                                    class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold">
-                                    Afwijzen
-                                </button>
-                                <button
-                                    wire:click="approvePhoto({{ $selectedPhoto['id'] }})"
-                                    class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold">
-                                    Goedkeuren
-                                </button>
-                            </div>
-                        @else
-                            <div class="flex gap-3 justify-end">
-                                <button
-                                    wire:click="closePhotoModal"
-                                    class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold">
-                                    Sluiten
-                                </button>
-                            </div>
-                        @endif
+                        <div class="flex gap-3 justify-between w-full">
+                            <button
+                                wire:click="approvePhoto({{ $selectedPhoto['id'] }})"
+                                @if($selectedPhoto['status'] === 'approved') disabled @endif
+                                class="bg-green-500 hover:bg-green-600 disabled:bg-green-300 disabled:cursor-not-allowed disabled:opacity-50 text-white px-4 py-2 flex-1 rounded-lg font-semibold transition">
+                                Goedkeuren
+                            </button>
+                            <button
+                                wire:click="rejectPhoto({{ $selectedPhoto['id'] }})"
+                                @if($selectedPhoto['status'] === 'rejected') disabled @endif
+                                class="bg-red-500 hover:bg-red-600 disabled:bg-red-300 disabled:cursor-not-allowed disabled:opacity-50 text-white px-4 py-2 flex-1 rounded-lg font-semibold transition">
+                                Afwijzen
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

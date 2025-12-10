@@ -32,31 +32,28 @@
         formatTime() {
             // Show only minutes (rounded up)
             const minutes = Math.ceil(this.timeRemaining / 60);
-            return `${minutes} min`;
+            return `${minutes}`;
         },
 
         getColorClass() {
             if (this.timeRemaining <= 60) {
                 return 'text-red-600 animate-pulse';
             } else if (this.timeRemaining <= 300) {
-                return 'text-action-500';
+                return 'text-orange-600';
             }
-            return 'text-white';
+            return 'text-black';
         }
     }"
     x-on:destroy.window="destroy()"
-    {{ $attributes->merge(['class' => 'flex items-center gap-2']) }}>
+    {{ $attributes->merge(['class' => 'flex items-center justify-center']) }}>
 
-    <!-- Timer Icon -->
-    <svg class="w-5 h-5" :class="getColorClass()" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-    </svg>
-
-    <!-- Timer Display -->
-    <span
-        class="font-bold text-lg tabular-nums"
-        :class="getColorClass()"
-        x-text="formatTime()">
-    </span>
+    <!-- Timer Display with Circular Background -->
+    <div class="w-12 h-12 rounded-full bg-gray-100 bg-opacity-90 flex items-center justify-center shadow-lg">
+        <span
+            class="font-bold text-lg tabular-num text-black text-center"
+            :class="getColorClass()"
+            x-text="formatTime()">
+        </span>
+    </div>
 </div>
 @endif

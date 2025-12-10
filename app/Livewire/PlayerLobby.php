@@ -37,6 +37,12 @@ class PlayerLobby extends Component
         $this->playerName = $player->name;
         
         $game = Game::with('location')->findOrFail($gameId);
+        
+        // Redirect if game is finished
+        if ($game->status === 'finished') {
+            return redirect()->route('player.finished-leaderboard', $gameId)->with('error', 'Het spel is al beëindigd');
+        }
+        
         $this->pin = $game->pin;
         
         $this->locationName = optional($game->location)->name ?? 'Locatie';
@@ -62,6 +68,12 @@ class PlayerLobby extends Component
         }
 
         $game = Game::with('players')->findOrFail($this->gameId);
+        
+        // Redirect if game is finished
+        if ($game->status === 'finished') {
+            return redirect()->route('player.finished-leaderboard', $this->gameId)->with('error', 'Het spel is al beëindigd');
+        }
+        
         $this->players = $game->players->map(function($player) {
             return [
                 'id' => $player->id,

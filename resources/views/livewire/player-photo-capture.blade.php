@@ -74,8 +74,15 @@
                     <!-- Bingo Item Name (Top) -->
                     @if($bingoItemLabel)
                     <div class="absolute top-0 left-0 right-0 px-4 pt-6 pb-8 bg-[#2E7D32] z-30" style="clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), 0 100%); z-index: 31;">
-                        <div class="container mx-auto px-4 flex flex-col justify-between items-center">
+                        <div class="container mx-auto px-4 flex flex-col justify-between items-center relative">
                             <h1 class="text-3xl font-bold text-[#FFFFFF] mb-2 text-center">{{ $bingoItemLabel }}</h1>
+                            @if($game && $game->timer_enabled && $game->timer_ends_at)
+                                <div class="absolute top-[-5px] right-0">
+                                    <x-game-timer :timerEndsAt="$game->timer_ends_at->toIso8601String()" />
+                                </div>
+                            @else
+                                <div class="w-24"></div>
+                            @endif
                         </div>
                     </div>
                     @endif
@@ -93,18 +100,18 @@
 
                     <!-- Preview Image (shown after capture) -->
                     @if($capturedImage)
-                        <div class="absolute inset-0 flex items-center justify-center z-0 bg-black">
+                        <div class="w-full max-w-[500px] aspect-square mt-40 overflow-hidden">
                             <img
                                 id="preview-image"
                                 src="{{ $capturedImage }}"
-                                class="w-full max-w-[500px] aspect-square object-cover"
+                                class="w-full h-full object-cover"
                                 alt="Preview">
                         </div>
                     @endif
                 </div>
 
                 <!-- Controls -->
-                <div id="camera-controls" class="bg-black bg-opacity-90 p-4 flex justify-center gap-4 z-30 relative flex-shrink-0" style="z-index: 30; display: flex !important; visibility: visible !important;">
+                <div id="camera-controls" class="bg-black bg-opacity-90 p-4 flex justify-center gap-12 z-30 relative flex-shrink-0" style="z-index: 30; display: flex !important; visibility: visible !important;">
                     @if(!$capturedImage)
                         <!-- Capture Button -->
                         <button
@@ -117,7 +124,7 @@
                         <!-- Retake Button -->
                         <button
                             wire:click="retakePhoto"
-                            class="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg font-semibold relative z-40"
+                            class="bg-red-500 hover:bg-red-600 h-20 w-20 flex items-center justify-center text-white p-2 rounded-lg font-semibold relative z-40"
                             style="z-index: 40;">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -127,7 +134,7 @@
                         <!-- Submit Button -->  
                         <button
                             onclick="submitPhoto(event)"
-                            class="bg-green-500 hover:bg-green-600 text-white p-2 rounded-lg font-semibold relative z-40"
+                            class="bg-green-500 hover:bg-green-600 h-20 w-20 flex items-center justify-center   text-white p-2 rounded-lg font-semibold relative z-40"
                             style="z-index: 40;">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -139,10 +146,10 @@
                     <!-- Close Button -->
                     <button
                         wire:click="closeCamera"
-                        class="absolute top-6 right-4 bg-gray-500 hover:bg-gray-600 text-white p-2 rounded-lg font-semibold z-40"
+                        class="absolute top-5 left-4 text-white p-2 font-extrabold z-40"
                         style="z-index: 40;">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                         </svg>
                     </button>
             </div>

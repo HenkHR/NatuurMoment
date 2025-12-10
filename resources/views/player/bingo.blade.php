@@ -11,11 +11,11 @@
     
     <div class="w-full px-4 pt-6 pb-12 bg-[#2E7D32]"
          style="clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), 0 100%);">
-        <div class="container mx-auto px-4 flex flex-col justify-between items-center">
+        <div class="container mx-auto px-4 flex flex-col justify-between items-center relative">
         <h1 class="text-4xl font-bold text-[#FFFFFF] mb-2 text-left">Foto Bingo</h1>
         <!-- Timer Display (if enabled) -->
         @if($game && $game->timer_enabled && $game->timer_ends_at)
-            <div class="flex justify-end px-4 mb-2">
+            <div class="absolute top-0 right-0">
                 <x-game-timer :timerEndsAt="$game->timer_ends_at->toIso8601String()" />
             </div>
         @endif

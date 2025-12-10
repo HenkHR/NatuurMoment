@@ -35,6 +35,12 @@ class HostLobby extends Component
         $this->gameId = (int) $gameId;
         $game = Game::findOrFail($this->gameId);
 
+        // Redirect if game is finished
+        if ($game->status === 'finished') {
+            $this->redirect(route('host.game', $gameId), navigate: true);
+            return;
+        }
+
         // Redirect to game if already started
         if ($game->status === 'started') {
             $this->redirect(route('host.game', $gameId), navigate: true);
@@ -74,6 +80,13 @@ class HostLobby extends Component
     public function loadPlayers()
     {
         $game = Game::with('players')->findOrFail($this->gameId);
+        
+        // Redirect if game is finished
+        if ($game->status === 'finished') {
+            $this->redirect(route('host.game', $this->gameId), navigate: true);
+            return;
+        }
+        
         $this->players = $game->players->map(function ($player) {
             return [
                 'id' => $player->id,

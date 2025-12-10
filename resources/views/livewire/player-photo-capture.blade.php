@@ -73,7 +73,7 @@
 
                     <!-- Bingo Item Name (Top) -->
                     @if($bingoItemLabel)
-                    <div class="absolute top-0 left-0 right-0 px-4 pt-6 pb-8 bg-forest-700 z-30" style="clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), 0 100%); z-index: 31;">
+                    <div class="absolute top-0 left-0 right-0 px-4 pt-6 pb-8 bg-[#2E7D32] z-30" style="clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), 0 100%); z-index: 31;">
                         <div class="container mx-auto px-4 flex flex-col justify-between items-center relative">
                             <h1 class="text-3xl font-bold text-[#FFFFFF] mb-2 text-center">{{ $bingoItemLabel }}</h1>
                             @if($game && $game->timer_enabled && $game->timer_ends_at)

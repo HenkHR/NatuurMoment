@@ -1,7 +1,7 @@
 <div class="h-screen w-full bg-white flex flex-col overflow-hidden" wire:poll.5s.visible="refreshLeaderboard">
 
     <!-- Header -->
-    <div class="w-full px-4 pt-6 pb-8 bg-forest-700 flex-shrink-0"
+    <div class="w-full px-4 pt-6 pb-8 bg-[#2E7D32] flex-shrink-0"
          style="clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), 0 100%);">
         <div class="container max-w-md mx-auto px-4 flex flex-col justify-between relative">
             <h1 class="text-4xl font-bold text-[#FFFFFF] mb-2 text-left">Eindstand</h1>
@@ -31,7 +31,7 @@
         <div class="max-w-md mx-auto">
             <button
                 wire:click="goHome"
-                class="w-full bg-forest-700 hover:bg-forest-600 text-white py-3 rounded-lg font-semibold transition shadow-md"
+                class="w-full bg-[#2E7D32] hover:bg-green-700 text-white py-3 rounded-lg font-semibold transition shadow-md"
             >
                 Terug naar Home
             </button>

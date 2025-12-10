@@ -11,34 +11,35 @@
             <x-homeNav aria-label="Hoofd navigatie" />
         </header>
 
-        <section class="relative w-full" aria-labelledby="page-title">
-            <div class="h-40 sm:h-52 md:h-64 w-full overflow-hidden brightness-[70%]">
-                <img src="{{ asset('images/heroImage.jpg') }}" alt="Wandelend stel in een groen natuurgebied" class="w-full h-full object-cover"/>
+        <section class="w-full bg-white" aria-labelledby="page-title">
+            {{-- Hero image --}}
+            <div class="h-48 sm:h-56 md:h-64 w-full overflow-hidden">
+                <img src="{{ asset('images/heroImage.jpg') }}" alt="Natuurgebied" class="w-full h-full object-cover"/>
             </div>
 
-            <div class="absolute inset-0 flex items-center justify-center px-4">
-                <div class="text-center text-white max-w-xl">
-                    <h1 id="page-title" class="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight">Spellen</h1>
-                    <p class="mt-2 text-sm sm:text-base leading-relaxed">
-                        De leukste spellen voor tijdens je wandeltocht in één van de natuurgebieden van Natuur Monumenten.
+            {{-- Content card die over image en content valt, rechts uitgelijnd met login button --}}
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 sm:-mt-20 mb-4 relative z-20 md:flex md:justify-end md:pr-36 lg:pr-64">
+                <div class="bg-sky-600 text-white rounded-xl shadow-xl md:shadow-none px-6 py-5 md:px-8 md:py-6 md:max-w-sm">
+                    <h1 id="page-title" class="text-2xl sm:text-3xl md:text-4xl font-bold">Tijd om te spelen!</h1>
+                    <p class="mt-2 text-sm sm:text-base text-sky-100">
+                        Selecteer een natuurgebied en start jouw ontdekkingstocht.
                     </p>
                 </div>
             </div>
         </section>
 
-        <main id="maincontent" role="main" class="flex-1 w-full">
+        <main id="maincontent" role="main" class="flex-1 w-full relative z-5 -mt-4 sm:-mt-6 md:-mt-16">
             <div class="max-w-4xl mx-auto w-full">
-                <div class="bg-white px-4 sm:px-6 py-5 sm:py-6">
-                    <x-ui.breadcrumbs :items="$breadcrumbs" class="hidden md:block mt-4 mb-2 md:mb-4"/>
+                <div class="bg-white px-4 sm:px-6 pt-4 sm:pt-6 pb-5 sm:pb-6">
 
                     {{-- Zoek + filter rij --}}
-                    <div class="flex flex-col gap-4 mb-5 sm:mb-6">
+                    <div class="flex flex-col gap-3 mb-3 sm:mb-4">
                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
                             <h2 class="text-lg sm:text-xl font-semibold text-gray-900">Zoek een locatie</h2>
                         </div>
 
                         {{-- AJAX Formulier --}}
-                        <div id="location-filter-form" class="flex flex-col gap-3 sm:flex-row sm:items-center" aria-label="Zoek en filter locaties">
+                        <div id="location-filter-form" class="flex flex-col gap-4 sm:flex-row sm:items-center" aria-label="Zoek en filter locaties">
                             {{-- Zoekveld --}}
                             <div class="relative flex-1">
                                 <label for="search" class="sr-only">Zoeken</label>
@@ -48,11 +49,11 @@
                                     name="search"
                                     value="{{ $search }}"
                                     placeholder="Zoeken"
-                                    class="w-full rounded-full border border-gray-300 py-2.5 pl-10 pr-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent"
+                                    class="w-full rounded-full border border-gray-300 py-2.5 pl-10 pr-3 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-action-500 focus:border-transparent"
                                     aria-describedby="search-help"
                                 >
                                 <span id="search-help" class="sr-only">Typ trefwoorden om locaties te zoeken</span>
-                                <span class="absolute left-3 top-2.5 sm:top-2.5 text-gray-400" aria-hidden="true">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden="true">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-5 sm:w-5" fill="none"
                                      viewBox="0 0 24 24" stroke="currentColor" focusable="false" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -64,7 +65,7 @@
                             {{-- Dropdown --}}
                             <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:w-56">
                                 <label for="location" class="sr-only">Filter op locatie</label>
-                                <select id="location" name="location" class="w-full rounded-full border border-gray-300 py-2.5 px-4 text-sm sm:text-base bg-white focus:outline-none focus:ring-2 focus:ring-green-600 focus:border-transparent">
+                                <select id="location" name="location" class="w-full rounded-full border border-gray-300 py-2.5 px-4 text-sm sm:text-base bg-white focus:outline-none focus:ring-2 focus:ring-action-500 focus:border-transparent">
                                     <option value="">Alle locaties</option>
                                     @foreach($locationOptions as $province)
                                         <option value="{{ $province }}" @selected(isset($selectedProvince) && $selectedProvince === $province)>{{ $province }}</option>
@@ -78,8 +79,8 @@
                     </div>
 
                     {{-- Titel sectie --}}
-                    <div class="mb-3 sm:mb-4 mt-4 sm:mt-6">
-                        <h3 class="text-base sm:text-lg font-semibold text-gray-900">
+                    <div class="mb-2 sm:mb-3 mt-1 sm:mt-2">
+                        <h3 class="text-lg sm:text-xl font-semibold text-gray-900">
                             Locaties waar je spellen kunt spelen
                         </h3>
                         <p class="text-xs sm:text-sm text-gray-500 mt-1">

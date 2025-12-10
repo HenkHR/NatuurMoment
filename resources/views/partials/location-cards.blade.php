@@ -16,10 +16,10 @@
                     </div>
                 @endif
 
-                <div class="flex-1 px-4 pt-3 pb-3 text-xs sm:text-sm">
-                    <p class="text-gray-700 leading-relaxed">{{ $location->description }}</p>
+                <div class="flex-1 px-4 pt-3 pb-3 text-xs sm:text-sm flex flex-col">
+                    <p class="text-gray-700 leading-relaxed line-clamp-2 min-h-[2.5rem] sm:min-h-[2.75rem]">{{ $location->description }}</p>
 
-                    <div class="flex items-center gap-3 mt-2 text-gray-500">
+                    <div class="flex items-center gap-3 mt-auto pt-2 text-gray-500">
                         @if($location->distance)
                             <span class="inline-flex items-center gap-1">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -73,7 +73,12 @@ class GameController extends Controller
 
         $player = GamePlayer::where('token', $token)
         ->where('game_id', $gameId)
-        ->firstOrFail();
+        ->first();
+
+        // Check if player was removed
+        if (!$player) {
+            return redirect()->route('player.join')->with('error', 'Je bent uit het spel verwijderd');
+        }
 
         $game = Game::findOrFail($gameId);
 

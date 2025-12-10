@@ -32,7 +32,12 @@ class PlayerLobby extends Component
         //Kijk of de lokaal opgeslagen token bij de game id hoort
         $player = GamePlayer::where('token', $playerToken)
         ->where('game_id', $gameId)  
-        ->firstOrFail();
+        ->first();
+
+        // Check if player was removed
+        if (!$player) {
+            return redirect()->route('player.join')->with('error', 'Je bent uit het spel verwijderd');
+        }
 
         $this->playerName = $player->name;
         
@@ -62,9 +67,8 @@ class PlayerLobby extends Component
             ->first();
 
         if (!$player) {
-            // Player was removed by host, redirect to home
-            session()->flash('message', 'Je bent verwijderd uit de lobby door de host.');
-            return redirect()->route('home');
+            // Player was removed by host, redirect to join page
+            return redirect()->route('player.join')->with('error', 'Je bent uit het spel verwijderd');
         }
 
         $game = Game::with('players')->findOrFail($this->gameId);

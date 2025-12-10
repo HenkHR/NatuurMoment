@@ -54,22 +54,18 @@
             </x-leaderboard>
         </div>
     @else
-        <!-- Timer Display (if enabled) -->
-        @if($game && $game->timer_enabled && $game->timer_ends_at)
-            <div class="flex justify-end px-4 mb-2">
-                <x-game-timer :timerEndsAt="$game->timer_ends_at->toIso8601String()" />
-            </div>
-        @endif
+        
 
         <!-- Flash message -->
         @if (session('photo-message'))
-            <div class="bg-green-500 text-white px-4 py-2 rounded mb-4 mx-4">
+            <div class="absolute top-32 bg-sky-500 text-white px-4 py-2 rounded mb-4 mx-4">
                 {{ session('photo-message') }}
             </div>
         @endif
 
         <!-- Bingo Card Grid -->
         @if(!$showCamera)
+        <div class="container mx-auto px-4 absolute transform -translate-y-1/2 top-1/2 left-0 right-0 mt-10">
             <div wire:poll.5s.visible="refreshStatuses" class="grid grid-cols-3 gap-3 max-w-md mx-auto px-4 mt-6 mb-6 bg-[#e0e0e0] p-2 rounded-lg">
                 @if(count($bingoItems) > 0)
                     @foreach ($bingoItems as $bingoItem)
@@ -93,14 +89,14 @@
                             wire:key="player-bingo-item-{{ $bingoItem['id'] }}"
                             wire:click="openPhotoCapture({{ $bingoItem['id'] }})"
                             @if($isApproved) disabled @endif
-                            class="{{ $statusClass }} rounded-lg shadow w-28 h-28
+                            class="{{ $statusClass }} rounded-lg shadow w-full aspect-square
                                text-green-700 font-semibold flex flex-col justify-center items-center text-center
                                focus:outline-none focus:ring-2 focus:ring-green-500 relative
                                {{ $isApproved ? 'opacity-75 cursor-not-allowed' : 'hover:bg-green-100 cursor-pointer' }}">
                             @if($statusIcon)
                                 <span class="absolute top-1 right-1 text-lg">{{ $statusIcon }}</span>
                             @endif
-                            <span class="text-sm">{{ $bingoItem['label'] }}</span>
+                            <span class="text-xs">{{ $bingoItem['label'] }}</span>
                         </button>
                     @endforeach
                 @else
@@ -109,37 +105,42 @@
                     </div>
                 @endif
             </div>
+        </div>
         @endif
 
         <!-- Camera View -->
         @if ($showCamera)
             <div class="fixed inset-0 z-50 bg-black flex flex-col" style="z-index: 9999;">
                 <!-- Camera Container -->
-                <div class="relative flex-1 flex items-center justify-center overflow-hidden" style="min-height: 0;">
+                <div class="relative flex-1 flex items-center justify-center overflow-hidden bg-black" style="min-height: 0;">
                     <!-- Video Element (hidden when preview is shown) -->
-                    <video
-                        id="camera-video"
-                        autoplay
-                        playsinline
-                        class="w-full h-full object-cover {{ $capturedImage ? 'hidden' : '' }}">
-                    </video>
+                    <div class="w-full max-w-[500px] aspect-square mt-40 overflow-hidden {{ $capturedImage ? 'hidden' : '' }}">
+                        <video
+                            id="camera-video"
+                            autoplay
+                            playsinline
+                            class="w-full h-full object-cover">
+                        </video>
+                    </div>
 
                     <!-- Canvas for capture -->
                     <canvas id="camera-canvas" class="hidden"></canvas>
 
                     <!-- Bingo Item Name (Top) -->
                     @if($bingoItemLabel)
-                        <div class="absolute top-4 left-0 right-0 text-center z-20 pointer-events-none">
-                            <div class="bg-[#2E7D32] text-white px-6 py-3 rounded-lg inline-block text-xl font-bold max-w-[90%] shadow-lg">
-                                {{ $bingoItemLabel }}
-                            </div>
+                    <div class="absolute top-0 left-0 right-0 px-4 pt-6 pb-8 bg-[#2E7D32] z-30" style="clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), 0 100%); z-index: 31;">
+                        <div class="container mx-auto px-4 flex flex-col justify-between items-center">
+                            <h1 class="text-3xl font-bold text-[#FFFFFF] mb-2 text-center">{{ $bingoItemLabel }}</h1>
                         </div>
+                    </div>
                     @endif
 
                     <!-- Overlay Text (Fact) -->
                     @if($overlayText)
-                        <div class="absolute top-24 left-0 right-0 text-center z-20 pointer-events-none">
-                            <div class="bg-black bg-opacity-70 text-white px-4 py-2 rounded-lg inline-block text-lg font-bold max-w-[90%]">
+                        <div class="w-full bg-sky-700 h-24 absolute top-0 left-0 right-0 z-30" style="z-index: 30;">
+                        </div>
+                        <div class="absolute top-24 left-0 right-0 text-center z-30 pointer-events-none" style="z-index: 30;">
+                            <div class="bg-sky-700 text-white inline-block text-sm w-full px-4 py-2">
                                 {{ $overlayText }}
                             </div>
                         </div>
@@ -147,11 +148,13 @@
 
                     <!-- Preview Image (shown after capture) -->
                     @if($capturedImage)
-                        <img
-                            id="preview-image"
-                            src="{{ $capturedImage }}"
-                            class="absolute inset-0 w-full h-full object-cover z-0"
-                            alt="Preview">
+                        <div class="absolute inset-0 flex items-center justify-center z-0 bg-black">
+                            <img
+                                id="preview-image"
+                                src="{{ $capturedImage }}"
+                                class="w-full max-w-[500px] aspect-square object-cover"
+                                alt="Preview">
+                        </div>
                     @endif
                 </div>
 
@@ -169,28 +172,34 @@
                         <!-- Retake Button -->
                         <button
                             wire:click="retakePhoto"
-                            class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-semibold relative z-40"
+                            class="bg-red-500 hover:bg-red-600 text-white p-2 rounded-lg font-semibold relative z-40"
                             style="z-index: 40;">
-                            Opnieuw
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
                         </button>
 
-                        <!-- Submit Button -->
+                        <!-- Submit Button -->  
                         <button
                             onclick="submitPhoto(event)"
-                            class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-semibold relative z-40"
+                            class="bg-green-500 hover:bg-green-600 text-white p-2 rounded-lg font-semibold relative z-40"
                             style="z-index: 40;">
-                            Verzenden
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
                         </button>
-                    @endif
-
+                        @endif
+                        
+                    </div>
                     <!-- Close Button -->
                     <button
                         wire:click="closeCamera"
-                        class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold relative z-40"
+                        class="absolute top-6 right-4 bg-gray-500 hover:bg-gray-600 text-white p-2 rounded-lg font-semibold z-40"
                         style="z-index: 40;">
-                        Sluiten
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
                     </button>
-                </div>
             </div>
         @endif
     @endif
@@ -252,8 +261,12 @@ async function startCamera() {
         video = document.getElementById('camera-video');
         canvas = document.getElementById('camera-canvas');
 
-        // Make sure video is visible
+        // Make sure video wrapper is visible
         if (video) {
+            const videoWrapper = video.parentElement;
+            if (videoWrapper && videoWrapper.classList.contains('aspect-square')) {
+                videoWrapper.style.display = 'block';
+            }
             video.style.display = 'block';
             video.style.visibility = 'visible';
         }
@@ -293,13 +306,26 @@ async function startCamera() {
 async function capturePhoto() {
     if (!video || !canvas) return;
 
-    // Set canvas dimensions to match video
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
+    // Calculate square dimensions (use the smaller dimension)
+    const videoWidth = video.videoWidth;
+    const videoHeight = video.videoHeight;
+    const size = Math.min(videoWidth, videoHeight);
 
-    // Draw video frame to canvas
+    // Set canvas to square dimensions
+    canvas.width = size;
+    canvas.height = size;
+
+    // Calculate source crop position (center the crop)
+    const sourceX = (videoWidth - size) / 2;
+    const sourceY = (videoHeight - size) / 2;
+
+    // Draw video frame to canvas (cropped to square)
     const ctx = canvas.getContext('2d');
-    ctx.drawImage(video, 0, 0);
+    ctx.drawImage(
+        video,
+        sourceX, sourceY, size, size,  // Source rectangle (crop from video)
+        0, 0, size, size               // Destination rectangle (draw to canvas)
+    );
 
     // Convert to base64
     const imageData = canvas.toDataURL('image/jpeg', 0.85);
@@ -315,9 +341,10 @@ async function capturePhoto() {
             previewImg.style.display = 'block';
         }
 
-        // Hide video element
-        if (video) {
-            video.style.display = 'none';
+        // Hide video wrapper (Livewire will handle this via $capturedImage, but this is a fallback)
+        const videoWrapper = video ? video.parentElement : null;
+        if (videoWrapper && videoWrapper.classList.contains('aspect-square')) {
+            videoWrapper.style.display = 'none';
         }
 
         // Stop camera stream after property is updated

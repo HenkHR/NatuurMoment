@@ -1,6 +1,5 @@
 <div
-    wire:poll.10s.visible="loadPlayers"
-    class="container mx-auto p-4">
+    wire:poll.10s.visible="loadPlayers">
 
     @if($showLeaderboard)
         <!-- Leaderboard View -->
@@ -12,12 +11,23 @@
     @else
         <!-- Game View -->
         <div class="flex flex-col gap-4">
-            <!-- Header with Timer and End Game Button -->
-            <div class="flex flex-row justify-between items-center mb-4">
-                <!-- End Game Button (left) -->
+
+            <div class="w-full px-4 pt-6 pb-12 bg-[#2E7D32]" style="clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), 0 100%);">
+                <div class="container mx-auto px-4 flex flex-col justify-between items-center">
+                    <h1 class="text-3xl font-bold text-[#FFFFFF] mb-2 text-center">Spelers overzicht</h1>
+                    <!-- Timer (right) -->
+                    @if($game && $game->timer_enabled && $game->timer_ends_at)
+                        <x-game-timer :timerEndsAt="$game->timer_ends_at->toIso8601String()" />
+                    @else
+                        <div class="w-24"></div>
+                    @endif
+                </div>
+            </div>
+
+            <div class="flex flex-row justify-between items-center mb-4 container mx-auto px-4 max-w-lg">
                 <button
                     wire:click="confirmEndGame"
-                    class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition flex items-center gap-2">
+                    class="px-4 py-2 bg-red-600 hover:bg-blue-700 text-white rounded-lg font-medium transition flex items-center gap-2">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path>
@@ -25,15 +35,7 @@
                     Spel afronden
                 </button>
 
-                <!-- Title (center) -->
-                <h1 class="text-3xl font-bold text-center">Host Dashboard</h1>
-
-                <!-- Timer (right) -->
-                @if($game && $game->timer_enabled && $game->timer_ends_at)
-                    <x-game-timer :timerEndsAt="$game->timer_ends_at->toIso8601String()" />
-                @else
-                    <div class="w-24"></div>
-                @endif
+                <a href="{{ url('/speluitleg') }}" class="text-center bg-forest-700 hover:bg-forest-600 text-white rounded-lg font-semibold transition px-4 py-2">Speluitleg</a>
             </div>
 
             @if (session('photo-message'))
@@ -42,8 +44,8 @@
                 </div>
             @endif
 
-            <div class="flex flex-col gap-3">
-                <h2 class="text-xl font-semibold">Spelers</h2>
+            <div class="flex flex-col gap-3 container mx-auto px-4 max-w-lg">
+                <div class="flex flex-row gap-2 justify-between"><h2 class="text-xl font-semibold">Spelers</h2> <span class="text-lg text-gray-500">Roomcode: {{ $game->pin }}</span></div>
                 @if(count($players) > 0)
                     <div class="space-y-2">
                         @foreach($players as $player)
@@ -51,7 +53,8 @@
                                 <!-- Player Header (Accordion Toggle) -->
                                 <button
                                     wire:click="togglePlayer({{ $player['id'] }})"
-                                    class="w-full text-left flex flex-row justify-between items-center bg-[#2E7D32] text-white p-4 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-400 transition">
+                                    class="w-full text-left flex flex-row justify-between items-center {{ $expandedPlayerId === $player['id'] ? 'bg-sky-500' : 'bg-gray-200 text-slate-700' }} text-white p-4 focus:outline-none focus:ring-2 focus:ring-green-400 transition">
+
                                     <div class="flex items-center gap-3">
                                         <span class="font-semibold text-lg">{{ $player['name'] }}</span>
                                         @if($player['pending_photos'] > 0)
@@ -63,18 +66,20 @@
                                             <span class="bg-green-300 text-green-800 px-2 py-0.5 rounded-full text-xs font-bold">Klaar</span>
                                         @endif
                                     </div>
+
                                     <div class="flex items-center gap-3">
-                                        <span class="text-sm">Score: {{ $player['score'] }}</span>
+                                        <span class="text-md {{ $expandedPlayerId === $player['id'] ? 'text-white' : 'bg-sky-500' }} text-white rounded-lg px-2 py-1">Score: {{ $player['score'] }}</span>
                                         <svg class="w-5 h-5 transform transition-transform {{ $expandedPlayerId === $player['id'] ? 'rotate-180' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                         </svg>
                                     </div>
+
                                 </button>
 
-                                <!-- Player Bingo Card (Accordion Content) -->
+                                <!-- Player Bingo Card (Accordion Content) -->  
                                 @if($expandedPlayerId === $player['id'])
-                                    <div class="p-4 bg-gray-50" wire:poll.5s.visible="refreshBingoItems">
-                                        <h3 class="text-lg font-semibold mb-3">Bingokaart</h3>
+                                    <div class="p-4 bg-gray-50 flex flex-col items-center justify-center" wire:poll.5s.visible="refreshBingoItems">
+                                        <h3 class="text-lg font-semibold mb-3 text-center">Bingokaart</h3>
 
                                         @if($loadingBingoItems)
                                             <div class="flex justify-center items-center py-8">
@@ -87,7 +92,8 @@
                                             @endphp
 
                                             @if($bingoItems->count() > 0)
-                                                <div class="grid grid-cols-3 gap-3 max-w-md mx-auto bg-[#e0e0e0] p-2 rounded-lg">
+                                            <div class="flex flex-col content-center items-center justify-center w-full max-w-md">
+                                                <div class="grid grid-cols-3 gap-3 mx-auto bg-[#e0e0e0] p-2 rounded-lg w-full max-w-md">
                                                     @foreach($bingoItems as $item)
                                                         @php
                                                             $statusClass = match($item['photo']['status'] ?? null) {
@@ -101,31 +107,32 @@
                                                                 'rejected' => '✕',
                                                                 'pending' => '⏳',
                                                                 default => ''
-                                                            };
+                                                            };  
                                                         @endphp
                                                         @if($item['photo'])
                                                             <button
                                                                 wire:key="bingo-item-{{ $item['id'] }}-photo-{{ $item['photo']['id'] }}"
                                                                 wire:click="selectPhoto({{ $item['photo']['id'] }})"
-                                                                class="{{ $statusClass }} rounded-lg shadow w-28 h-28
+                                                                class="{{ $statusClass }} rounded-lg shadow w-auto aspect-square
                                                                    text-green-700 font-semibold flex flex-col justify-center items-center text-center
                                                                    hover:bg-green-100 focus:outline-none focus:ring-2 focus:ring-green-500 relative cursor-pointer">
                                                                 @if($statusIcon)
                                                                     <span class="absolute top-1 right-1 text-lg">{{ $statusIcon }}</span>
                                                                 @endif
-                                                                <span class="text-sm">{{ $item['label'] }}</span>
+                                                                <span class="text-xs">{{ $item['label'] }}</span>
                                                             </button>
                                                         @else
                                                             <div
                                                                 wire:key="bingo-item-{{ $item['id'] }}-no-photo"
-                                                                class="{{ $statusClass }} rounded-lg shadow w-28 h-28
+                                                                class="{{ $statusClass }} rounded-lg shadow w-auto aspect-square
                                                                text-green-700 font-semibold flex flex-col justify-center items-center text-center
                                                                opacity-50 cursor-not-allowed relative">
-                                                                <span class="text-sm">{{ $item['label'] }}</span>
+                                                                <span class="text-xs">{{ $item['label'] }}</span>
                                                             </div>
                                                         @endif
                                                     @endforeach
                                                 </div>
+                                            </div>
                                             @else
                                                 <p class="text-gray-600">Geen bingo items gevonden.</p>
                                             @endif

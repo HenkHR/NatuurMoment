@@ -41,7 +41,7 @@
             } else if (this.timeRemaining <= 300) {
                 return 'text-action-500';
             }
-            return 'text-forest-700';
+            return 'text-white';
         }
     }"
     x-on:destroy.window="destroy()"

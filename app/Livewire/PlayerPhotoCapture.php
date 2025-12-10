@@ -437,9 +437,9 @@ class PlayerPhotoCapture extends Component
 
         // Show success message, with warning if cloud upload failed
         if ($cloudUploadFailed) {
-            session()->flash('photo-message', 'Foto opgeslagen (cloud backup mislukt).');
+            session()->flash('photo-message', 'Foto verzonden!');
         } else {
-            session()->flash('photo-message', 'Foto opgeslagen!');
+            session()->flash('photo-message', 'Foto verzonden!');
         }
         $this->dispatch('photo-saved');
     }

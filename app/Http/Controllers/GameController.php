@@ -127,6 +127,59 @@ class GameController extends Controller
         return view('player.bingo', [
             'gameId' => $gameId,
             'playerToken' => $token,
+            'game' => $game,
+        ]);
+    }
+
+    public function playerRoute(Request $request, $gameId)
+    {
+        $token = session('playerToken_'.$gameId);
+
+        if (!$token) {
+            return redirect()->route('player.join')->with('error', 'Geen toegang tot het spel');
+        }
+
+        $player = GamePlayer::where('token', $token)
+            ->where('game_id', $gameId)
+            ->firstOrFail();
+
+        $game = Game::with('location.routeStops')->findOrFail($gameId);
+        
+        if ($game->status !== 'started') {
+            return redirect()->route('player.lobby', $gameId)->with('error', 'Het spel is nog niet gestart');
+        }
+
+        $routeStops = $game->location->routeStops;
+
+        return view('player.route', [
+            'gameId' => $gameId,
+            'playerToken' => $token,
+            'game' => $game,
+            'routeStops' => $routeStops,
+        ]);
+    }
+
+    public function playerLeaderboard(Request $request, $gameId)
+    {
+        $token = session('playerToken_'.$gameId);
+
+        if (!$token) {
+            return redirect()->route('player.join')->with('error', 'Geen toegang tot het spel');
+        }
+
+        $player = GamePlayer::where('token', $token)
+            ->where('game_id', $gameId)
+            ->firstOrFail();
+
+        $game = Game::findOrFail($gameId);
+        
+        if ($game->status !== 'started') {
+            return redirect()->route('player.lobby', $gameId)->with('error', 'Het spel is nog niet gestart');
+        }
+
+        return view('player.leaderboard', [
+            'gameId' => $gameId,
+            'playerToken' => $token,
         ]);
     }
 }

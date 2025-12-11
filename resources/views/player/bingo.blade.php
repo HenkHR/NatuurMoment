@@ -30,11 +30,11 @@
 
     {{--link naar speluitleg--}}
     <div class="flex justify-end mb-4 mt-2 mx-auto max-w-md">
-        <x-game.game-nav
-            href="speluitleg"
-            class="bg-forest-700 hover:bg-forest-600 text-white px-4 py-2 rounded mr-4">
+        <a
+            href="{{ url('/speluitleg') }}"
+            class="text-center bg-forest-700 hover:bg-forest-600 text-white rounded-lg font-semibold transition px-4 py-2 mr-4">
             Speluitleg
-        </x-game.game-nav>
+        </a>
     </div>
 
     <!-- Photo Capture Component (includes bingo card) -->

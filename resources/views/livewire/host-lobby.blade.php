@@ -67,19 +67,16 @@
                     Code: {{ $pin }}
                 </button>
 
-                <button
-                    type="button"
+                <a
+                    href="{{ url('/speluitleg') }}"
                     class="
                         w-[45%] sm:w-[180px] md:w-[190px]
-                        bg-forest-700 text-pure-white text-sm font-semibold
-                        rounded-button px-4 py-2 shadow-card
+                        text-center bg-forest-700 hover:bg-forest-600 text-white rounded-lg font-semibold transition px-4 py-2
                         flex items-center justify-center
-                        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
-                        focus-visible:ring-forest-500 focus-visible:ring-offset-surface-light
                     "
                 >
                     Speluitleg
-                </button>
+                </a>
             </div>
 
             <section class="bg-pure-white shadow-card rounded-card overflow-hidden flex-1 flex flex-col min-h-0">

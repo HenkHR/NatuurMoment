@@ -11,7 +11,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
-<body class="font-sans antialiased">
+<body class="font-sans antialiased overflow-hidden">
     <livewire:host-game :gameId="$gameId" />
     @livewireScripts
 </body>

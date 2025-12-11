@@ -39,18 +39,18 @@
             @endif
 
             <div class="flex flex-col gap-3 container mx-auto px-4 max-w-lg">
-                <div class="flex flex-row gap-2 justify-between"><h2 class="text-xl font-semibold">Spelers</h2> <span class="text-lg text-gray-500">Roomcode: {{ $game->pin }}</span></div>
+                <div class="flex flex-row gap-2 justify-between border-b border-gray-300 pb-2"><h2 class="text-xl font-semibold">Spelers</h2> <span class="text-lg text-gray-500">Roomcode: {{ $game->pin }}</span></div>
                 @if(count($players) > 0)
-                    <div class="space-y-2">
+                    <div class="space-y-3">
                         @foreach($players as $player)
-                            <div wire:key="player-{{ $player['id'] }}" class="border border-gray-300 rounded-lg overflow-hidden">
+                            <div wire:key="player-{{ $player['id'] }}" class="bg-pure-white shadow-card rounded-card overflow-hidden">
                                 <!-- Player Header (Accordion Toggle) -->
                                 <button
                                     wire:click="togglePlayer({{ $player['id'] }})"
-                                    class="w-full text-left flex flex-row justify-between items-center {{ $expandedPlayerId === $player['id'] ? 'bg-sky-500 text-white' : 'bg-gray-200 text-black' }} p-4 focus:outline-none focus:ring-2 focus:ring-green-400 transition">
+                                    class="w-full text-left flex flex-row justify-between items-center {{ $expandedPlayerId === $player['id'] ? 'bg-sky-500 text-white' : 'bg-surface-medium text-deep-black' }} px-4 py-3 rounded-card focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-pure-white transition">
 
                                     <div class="flex items-center gap-3">
-                                        <span class="font-semibold text-lg">{{ $player['name'] }}</span>
+                                        <span class="font-semibold {{ $expandedPlayerId === $player['id'] ? 'text-white' : 'text-deep-black' }}">{{ $player['name'] }}</span>
                                         @if($player['pending_photos'] > 0)
                                             <span class="bg-yellow-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold" title="{{ $player['pending_photos'] }} foto(s) wachten op goedkeuring">
                                                 {{ $player['pending_photos'] }}
@@ -62,7 +62,7 @@
                                     </div>
 
                                     <div class="flex items-center gap-3">
-                                        <span class="text-md {{ $expandedPlayerId === $player['id'] ? 'text-white' : 'bg-sky-500' }} text-white rounded-lg px-2 py-1">Score: {{ $player['score'] }}</span>
+                                        <span class="text-sm font-semibold {{ $expandedPlayerId === $player['id'] ? 'text-white shadow-none' : 'bg-sky-500 text-white' }} rounded-badge px-2 py-1 shadow-card">Score: {{ $player['score'] }}</span>
                                         <svg class="w-5 h-5 transform transition-transform {{ $expandedPlayerId === $player['id'] ? 'rotate-180' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                         </svg>
@@ -72,7 +72,7 @@
 
                                 <!-- Player Bingo Card (Accordion Content) -->  
                                 @if($expandedPlayerId === $player['id'])
-                                    <div class="p-4 bg-gray-50 flex flex-col items-center justify-center" wire:poll.5s.visible="refreshBingoItems">
+                                    <div class="p-4 bg-surface-light flex flex-col items-center justify-center" wire:poll.5s.visible="refreshBingoItems">
                                         <h3 class="text-lg font-semibold mb-3 text-center">Bingokaart</h3>
 
                                         @if($loadingBingoItems)

@@ -1,24 +1,25 @@
 <div
-    wire:poll.10s.visible="loadPlayers">
+    wire:poll.5s.visible="loadPlayers"
+    class="h-screen w-full bg-white flex flex-col overflow-hidden">
 
         <!-- Game View -->
-        <div class="flex flex-col gap-4">
+        <div class="flex flex-col flex-1 overflow-hidden min-h-0">
 
-            <div class="w-full px-4 pt-6 pb-12 bg-forest-700" style="clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), 0 100%);">
+            <!-- Header -->
+            <div class="w-full px-4 pt-6 pb-8 bg-forest-700 flex-shrink-0" style="clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), 0 100%);">
                 <div class="container max-w-md mx-auto px-4 flex flex-col justify-between relative">
                     <h1 class="text-4xl font-bold text-[#FFFFFF] mb-2 text-left">Spelers</h1>
                     <!-- Timer (right) -->
                     @if($game && $game->timer_enabled && $game->timer_ends_at)
-                        <div class="absolute top-[-5px] right-0">
-                        <x-game-timer :timerEndsAt="$game->timer_ends_at->toIso8601String()" />
+                        <div class="absolute top-0 right-0">
+                            <x-game-timer :timerEndsAt="$game->timer_ends_at->toIso8601String()" />
                         </div>
-                    @else
-                        <div class="w-24"></div>
                     @endif
                 </div>
             </div>
 
-            <div class="flex flex-row justify-between items-center mb-4 container mx-auto px-4 max-w-lg">
+            <!-- Action Buttons -->
+            <div class="flex flex-row justify-between items-center px-4 py-4 flex-shrink-0 container mx-auto max-w-lg">
                 <button
                     wire:click="confirmEndGame"
                     class="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg font-medium transition flex items-center gap-2">
@@ -33,15 +34,22 @@
             </div>
 
             @if (session('photo-message'))
-                <div class="bg-green-500 text-white px-4 py-2 rounded mb-4">
+                <div class="bg-green-500 text-white px-4 py-2 rounded mb-4 mx-4 flex-shrink-0">
                     {{ session('photo-message') }}
                 </div>
             @endif
 
-            <div class="flex flex-col gap-3 container mx-auto px-4 max-w-lg">
-                <div class="flex flex-row gap-2 justify-between border-b border-gray-300 pb-2"><h2 class="text-xl font-semibold">Spelers</h2> <span class="text-lg text-gray-500">Roomcode: {{ $game->pin }}</span></div>
-                @if(count($players) > 0)
-                    <div class="space-y-3">
+            <!-- Content Section -->
+            <section class="flex-1 overflow-hidden min-h-0 px-4 pb-4">
+                <div class="container mx-auto max-w-lg h-full flex flex-col">
+                    <div class="flex flex-row gap-2 justify-between border-b border-gray-300 pb-2 flex-shrink-0 mb-3">
+                        <h2 class="text-xl font-semibold">Spelers</h2>
+                        <span class="text-lg text-gray-500">Roomcode: {{ $game->pin }}</span>
+                    </div>
+                    
+                    @if(count($players) > 0)
+                        <div class="flex-1 overflow-y-auto min-h-0 pr-2">
+                            <div class="space-y-3 pt-2 pb-2">
                         @foreach($players as $player)
                             <div wire:key="player-{{ $player['id'] }}" class="bg-pure-white shadow-card rounded-card overflow-hidden">
                                 <!-- Player Header (Accordion Toggle) -->
@@ -134,12 +142,16 @@
                                     </div>
                                 @endif
                             </div>
-                        @endforeach
-                    </div>
-                @else
-                    <p class="text-gray-600">Geen spelers in het spel.</p>
-                @endif
-            </div>
+                            @endforeach
+                            </div>
+                        </div>
+                    @else
+                        <div class="flex-shrink-0">
+                            <p class="text-gray-600">Geen spelers in het spel.</p>
+                        </div>
+                    @endif
+                </div>
+            </section>
         </div>
 
         <!-- Photo Review Modal -->

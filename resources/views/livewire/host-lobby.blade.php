@@ -86,7 +86,7 @@
                     </p>
                 </div>
 
-                @if(count($players) > 0)
+                    @if(count($players) > 0)
                     <div class="flex-1 overflow-y-auto min-h-0 px-4 pb-4">
                         <ul class="space-y-3 pr-2 pt-3 pb-3">
                             @foreach($players as $player)
@@ -131,13 +131,13 @@
                             @endforeach
                         </ul>
                     </div>
-                @else
+                    @else
                     <div class="px-4 pb-4 flex-shrink-0">
                         <p class="text-sm text-deep-black/70 py-4">
                             Nog geen spelers. Deel de PIN met de spelers!
                         </p>
                     </div>
-                @endif
+                    @endif
             </section>
         </div>
     </main>

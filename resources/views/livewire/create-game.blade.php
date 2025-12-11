@@ -1,4 +1,4 @@
-<div class="w-full max-w-md mx-auto px-4 sm:px-0 mt-8 sm:mt-10">
+<div class="w-full max-w-md mx-auto px-4 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 -mt-8">
     <section class="bg-sky-500 rounded-card shadow-card px-6 py-7 sm:px-8 sm:py-8 text-pure-white">
 
         <h1 class="text-center text-lg sm:text-2xl font-bold tracking-wide uppercase">

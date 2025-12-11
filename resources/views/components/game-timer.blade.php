@@ -49,11 +49,11 @@
 
     <!-- Timer Display with Circular Background -->
     <div class="w-12 h-12 rounded-full bg-gray-100 bg-opacity-90 flex items-center justify-center shadow-lg">
-        <span
+    <span
             class="font-bold text-lg tabular-num text-black text-center"
-            :class="getColorClass()"
-            x-text="formatTime()">
-        </span>
+        :class="getColorClass()"
+        x-text="formatTime()">
+    </span>
     </div>
 </div>
 @endif

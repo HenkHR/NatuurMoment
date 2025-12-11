@@ -1,16 +1,16 @@
 <div
     wire:poll.10s.visible="loadPlayers">
 
-    <!-- Game View -->
+        <!-- Game View -->
         <div class="flex flex-col gap-4">
 
-            <div class="w-full px-4 pt-6 pb-12 bg-[#2E7D32]" style="clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), 0 100%);">
+            <div class="w-full px-4 pt-6 pb-12 bg-forest-700" style="clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), 0 100%);">
                 <div class="container max-w-md mx-auto px-4 flex flex-col justify-between relative">
                     <h1 class="text-4xl font-bold text-[#FFFFFF] mb-2 text-left">Spelers</h1>
                     <!-- Timer (right) -->
                     @if($game && $game->timer_enabled && $game->timer_ends_at)
                         <div class="absolute top-[-5px] right-0">
-                            <x-game-timer :timerEndsAt="$game->timer_ends_at->toIso8601String()" />
+                        <x-game-timer :timerEndsAt="$game->timer_ends_at->toIso8601String()" />
                         </div>
                     @else
                         <div class="w-24"></div>
@@ -187,19 +187,19 @@
                         </div>
 
                         <div class="flex gap-3 justify-between w-full">
-                            <button
-                                wire:click="approvePhoto({{ $selectedPhoto['id'] }})"
+                                <button
+                                    wire:click="approvePhoto({{ $selectedPhoto['id'] }})"
                                 @if($selectedPhoto['status'] === 'approved') disabled @endif
                                 class="bg-green-500 hover:bg-green-600 disabled:bg-green-300 disabled:cursor-not-allowed disabled:opacity-50 text-white px-4 py-2 flex-1 rounded-lg font-semibold transition">
-                                Goedkeuren
-                            </button>
-                            <button
+                                    Goedkeuren
+                                </button>
+                                <button
                                 wire:click="rejectPhoto({{ $selectedPhoto['id'] }})"
                                 @if($selectedPhoto['status'] === 'rejected') disabled @endif
                                 class="bg-red-500 hover:bg-red-600 disabled:bg-red-300 disabled:cursor-not-allowed disabled:opacity-50 text-white px-4 py-2 flex-1 rounded-lg font-semibold transition">
                                 Afwijzen
-                            </button>
-                        </div>
+                                </button>
+                            </div>
                     </div>
                 </div>
             </div>

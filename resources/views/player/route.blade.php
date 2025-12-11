@@ -9,7 +9,7 @@
 <body class="bg-white">
 <main class="relative min-h-screen overflow-hidden pb-24">
     
-    <div class="w-full px-4 pt-6 pb-12 bg-[#2E7D32]"
+    <div class="w-full px-4 pt-6 pb-12 bg-forest-700"
          style="clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), 0 100%);">
         <div class="container max-w-md mx-auto px-4 flex flex-col justify-between relative">
         <h1 class="text-4xl font-bold text-[#FFFFFF] mb-2 text-left">Route Vragen</h1>

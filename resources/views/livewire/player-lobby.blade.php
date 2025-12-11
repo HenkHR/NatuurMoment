@@ -25,7 +25,7 @@
                     type="button"
                     class="
                         w-[45%] sm:w-[180px] md:w-[190px]
-                        bg-forest-500 text-pure-white text-sm font-semibold
+                        bg-forest-700 text-pure-white text-sm font-semibold
                         rounded-button px-4 py-2 shadow-card
                         flex items-center justify-center
                         focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2

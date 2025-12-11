@@ -1,15 +1,21 @@
+<!DOCTYPE html>
 <html lang="nl">
 <head>
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Bingokaart</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
-<body class="bg-white">
+<body class="bg-white font-sans antialiased">
 <main class="relative min-h-screen overflow-hidden">
     
-    <div class="w-full px-4 pt-6 pb-12 bg-[#388E3C]"
+    <div class="w-full px-4 pt-6 pb-12 bg-forest-700"
          style="clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), 0 100%);">
         <div class="container max-w-md mx-auto px-4 flex flex-col justify-between relative">
         <h1 class="text-4xl font-bold text-[#FFFFFF] mb-2 text-left">Foto Bingo</h1>
@@ -26,7 +32,7 @@
     <div class="flex justify-end mb-4 mt-2 mx-auto max-w-md">
         <x-game.game-nav
             href="speluitleg"
-            class="bg-[#388E3C] hover:bg-[#43A047] text-white px-4 py-2 rounded mr-4">
+            class="bg-forest-700 hover:bg-forest-600 text-white px-4 py-2 rounded mr-4">
             Speluitleg
         </x-game.game-nav>
     </div>

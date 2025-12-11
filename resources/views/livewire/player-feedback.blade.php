@@ -1,7 +1,7 @@
 <div class="min-h-screen bg-[#f2f2f2] flex flex-col">
 
     {{-- Header --}}
-    <header class="relative bg-[#388E3C] text-white text-center px-4 py-5 sm:py-6">
+    <header class="relative bg-forest-700 text-white text-center px-4 py-5 sm:py-6">
         <h1 class="text-xl sm:text-2xl font-bold">
             Bedankt voor het spelen!
         </h1>

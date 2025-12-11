@@ -15,7 +15,7 @@
     </div>
 
     <!-- Content -->
-    <section class="flex-1 w-full pt-4 px-4 pb-4 relative z-10 overflow-hidden min-h-0">
+    <section class="flex-1 w-full pt-4 px-4 pb-24 relative z-10 overflow-hidden min-h-0">
         <div class="container max-w-md mx-auto px-4 h-full flex flex-col">
             <x-leaderboard 
                 :players="$leaderboardData" 
@@ -26,7 +26,7 @@
     </section>
 
     <!-- Navigation -->
-    <nav class="flex-shrink-0 bg-[#0076A8] mt-4">
+    <nav class="fixed bottom-0 left-0 right-0 bg-[#0076A8] mt-4 pb-safe">
         <div class="mx-auto w-full max-w-lg flex justify-around py-4 sm:py-6">
             <a href="{{ route('player.game', $gameId) }}" class="flex items-center justify-center p-2 rounded {{ request()->routeIs('player.game') ? 'bg-sky-500' : '' }}">
                 <x-bi-grid alt="Bingo" class="w-8 h-8 sm:w-10 sm:h-10 text-white" />

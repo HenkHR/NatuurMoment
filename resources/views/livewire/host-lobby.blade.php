@@ -25,7 +25,7 @@
 >
     <x-nav.lobby :title="'Host Lobby'" :subtitle="$headerSubtitle" />
 
-    <main class="flex-1 overflow-hidden min-h-0">
+    <main class="flex-1 overflow-hidden min-h-0 pb-24">
         <div class="max-w-5xl mx-auto px-4 lg:px-8 pt-6 pb-4 h-full flex flex-col">
 
             @if(session()->has('error'))
@@ -142,7 +142,7 @@
         </div>
     </main>
 
-    <footer class="bg-sky-500 py-6 mt-4 flex-shrink-0">
+    <footer class="fixed bottom-0 left-0 right-0 bg-sky-500 py-6 mt-4 pb-safe">
         <div class="max-w-5xl mx-auto px-4 lg:px-8">
             <button
                 type="button"

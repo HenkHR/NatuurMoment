@@ -2,7 +2,7 @@
 
     <x-nav.lobby :title="'Game Lobby'" :subtitle="$locationName" />
 
-    <main class="flex-1 overflow-hidden min-h-0">
+    <main class="flex-1 overflow-hidden min-h-0 pb-24">
         <div class="max-w-5xl mx-auto px-4 lg:px-8 pt-6 pb-4 h-full flex flex-col">
 
             <div class="flex flex-row items-center justify-between gap-3 mb-5">
@@ -84,7 +84,7 @@
         </div>
     </main>
 
-    <footer class="bg-sky-500 py-6 mt-4 flex-shrink-0">
+    <footer class="fixed bottom-0 left-0 right-0 bg-sky-500 py-6 mt-4 pb-safe">
         <div class="max-w-5xl mx-auto px-4 lg:px-8">
             <div class="bg-pure-white text-sky-700 font-semibold text-sm md:text-base px-6 py-3 rounded-card shadow-card text-center">
                 Wachten tot spel is gestart...

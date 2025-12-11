@@ -9,7 +9,7 @@
     </div>
 
     <!-- Content -->
-    <section class="flex-1 w-full pt-8 px-4 pb-24 relative z-10 overflow-hidden min-h-0">
+    <section class="flex-1 w-full pt-8 px-4 pb-20 relative z-10 overflow-hidden min-h-0">
 
         <div class="w-full rounded-2xl shadow-sm max-w-md mx-auto h-full flex flex-col">
 
@@ -27,8 +27,8 @@
     </section>
 
     <!-- Fixed Continue Button at Bottom -->
-    <div class="fixed bottom-0 left-0 right-0 bg-white pt-4 pb-4 px-4 z-50 shadow-lg mt-4 pb-safe">
-        <div class="max-w-md mx-auto">
+    <div class="fixed bottom-0 left-0 right-0 bg-white pt-4 px-4 z-50 shadow-lg pb-safe">
+        <div class="max-w-md mx-auto pb-4">
             <button
                 wire:click="goHome"
                 class="w-full bg-forest-700 hover:bg-forest-600 text-white py-3 rounded-lg font-semibold transition shadow-md"

@@ -44,8 +44,8 @@
         'bingoItemId' => null
     ])
 
-    <nav class="fixed bottom-0 left-0 right-0 bg-[#0076A8]">
-        <div class="mx-auto w-full max-w-lg flex justify-around py-4 sm:py-6">
+    <nav class="fixed bottom-0 left-0 right-0 bg-[#0076A8] pb-safe">
+        <div class="mx-auto w-full max-w-lg flex justify-around py-3 sm:py-5">
             <a href="{{ route('player.game', $gameId) }}" class="flex items-center justify-center p-2 rounded {{ request()->routeIs('player.game') ? 'bg-sky-500' : '' }}">
                 <x-bi-grid alt="Bingo" class="w-8 h-8 sm:w-10 sm:h-10 text-white" />
             </a>

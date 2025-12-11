@@ -40,7 +40,7 @@
             @endif
 
             <!-- Content Section -->
-            <section class="flex-1 overflow-hidden min-h-0 px-4 pb-32">
+            <section class="flex-1 overflow-hidden min-h-0 px-4 pb-4">
                 <div class="container mx-auto max-w-lg h-full flex flex-col">
                     <div class="flex flex-row gap-2 justify-between border-b border-gray-300 pb-2 flex-shrink-0 mb-3">
                         <h2 class="text-xl font-semibold">Spelers</h2>

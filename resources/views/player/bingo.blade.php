@@ -9,7 +9,7 @@
 <body class="bg-white">
 <main class="relative min-h-screen overflow-hidden">
     
-    <div class="w-full px-4 pt-6 pb-12 bg-forest-700"
+    <div class="w-full px-4 pt-6 pb-12 bg-[#388E3C]"
          style="clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), 0 100%);">
         <div class="container max-w-md mx-auto px-4 flex flex-col justify-between relative">
         <h1 class="text-4xl font-bold text-[#FFFFFF] mb-2 text-left">Foto Bingo</h1>
@@ -26,7 +26,7 @@
     <div class="flex justify-end mb-4 mt-2 mx-auto max-w-md">
         <x-game.game-nav
             href="speluitleg"
-            class="bg-forest-700 hover:bg-forest-600 text-white px-4 py-2 rounded mr-4">
+            class="bg-[#388E3C] hover:bg-[#43A047] text-white px-4 py-2 rounded mr-4">
             Speluitleg
         </x-game.game-nav>
     </div>

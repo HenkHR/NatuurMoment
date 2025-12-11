@@ -18,7 +18,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
-<body class="font-sans antialiased bg-surface-light">
+<body class="font-sans antialiased bg-surface-light overflow-hidden">
     <div class="min-h-screen flex flex-col">
         @yield('content')
     </div>

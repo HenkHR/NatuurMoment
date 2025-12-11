@@ -12,7 +12,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
-<body class="bg-white font-sans antialiased">
+<body class="bg-white font-sans antialiased overflow-hidden">
 <main>
     @livewire('player-leaderboard', [
         'gameId' => $gameId,

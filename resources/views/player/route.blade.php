@@ -1,15 +1,21 @@
+<!DOCTYPE html>
 <html lang="nl">
 <head>
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Route Vragen</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&display=swap" rel="stylesheet">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
-<body class="bg-white">
+<body class="bg-white font-sans antialiased overflow-hidden">
 <main class="relative min-h-screen overflow-hidden pb-24">
     
-    <div class="w-full px-4 pt-6 pb-12 bg-[#2E7D32]"
+    <div class="w-full px-4 pt-6 pb-12 bg-forest-700"
          style="clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), 0 100%);">
         <div class="container max-w-md mx-auto px-4 flex flex-col justify-between relative">
         <h1 class="text-4xl font-bold text-[#FFFFFF] mb-2 text-left">Route Vragen</h1>
@@ -32,8 +38,8 @@
         </div>
     </div>
 
-    <nav class="fixed bottom-0 left-0 right-0 bg-[#0076A8]">
-        <div class="mx-auto w-full max-w-lg flex justify-around py-4 sm:py-6">
+    <nav class="fixed bottom-0 left-0 right-0 bg-[#0076A8] pb-safe">
+        <div class="mx-auto w-full max-w-lg flex justify-around py-3 sm:py-5">
             <a href="{{ route('player.game', $gameId) }}" class="flex items-center justify-center p-2 rounded {{ request()->routeIs('player.game') ? 'bg-sky-500' : '' }}">
                 <x-bi-grid alt="Bingo" class="w-8 h-8 sm:w-10 sm:h-10 text-white" />
             </a>

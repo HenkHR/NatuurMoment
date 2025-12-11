@@ -68,8 +68,6 @@ class HostGame extends Component
     public $game = null;
     public ?int $timeRemaining = null;
     public bool $showEndGameModal = false;
-    public bool $showLeaderboard = false;
-    public array $leaderboardData = [];
 
     // ============================================
     // LIFECYCLE SECTION
@@ -109,10 +107,9 @@ class HostGame extends Component
     {
         $this->game = Game::findOrFail($this->gameId);
 
-        // If game is finished, show leaderboard
+        // If game is finished, redirect to finished leaderboard
         if ($this->game->status === 'finished') {
-            $this->loadLeaderboard();
-            $this->showLeaderboard = true;
+            return redirect()->route('host.finished-leaderboard', $this->gameId);
         }
     }
 
@@ -129,13 +126,9 @@ class HostGame extends Component
         // Refresh game data
         $this->game = Game::with('players')->findOrFail($this->gameId);
 
-        // If already finished, just show leaderboard
+        // If already finished, redirect to finished leaderboard
         if ($this->game->status === 'finished') {
-            if (!$this->showLeaderboard) {
-                $this->loadLeaderboard();
-                $this->showLeaderboard = true;
-            }
-            return;
+            return redirect()->route('host.finished-leaderboard', $this->gameId);
         }
 
         // Check auto-end conditions
@@ -220,15 +213,6 @@ class HostGame extends Component
         }
 
         return false;
-    }
-
-    /**
-     * Load leaderboard data sorted by score
-     * Uses LoadsLeaderboard trait for shared implementation
-     */
-    private function loadLeaderboard()
-    {
-        $this->leaderboardData = $this->loadLeaderboardData($this->gameId);
     }
 
     /**
@@ -562,11 +546,10 @@ class HostGame extends Component
             return;
         }
 
-        // Load leaderboard and show it
-        $this->loadLeaderboard();
+        // Redirect to finished leaderboard
         $this->showEndGameModal = false;
-        $this->showLeaderboard = true;
         $this->game = Game::findOrFail($this->gameId);
+        return redirect()->route('host.finished-leaderboard', $this->gameId);
     }
 
     // ============================================

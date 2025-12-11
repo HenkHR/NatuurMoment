@@ -50,7 +50,7 @@ class GameController extends Controller
 
         // Redirect if game is finished
         if ($game->status === 'finished') {
-            return redirect()->route('host.game', $gameId)->with('error', 'Het spel is al beëindigd');
+            return redirect()->route('host.finished-leaderboard', $gameId)->with('error', 'Het spel is al beëindigd');
         }
 
         // Redirect to game if already started
@@ -73,7 +73,12 @@ class GameController extends Controller
 
         $player = GamePlayer::where('token', $token)
         ->where('game_id', $gameId)
-        ->firstOrFail();
+        ->first();
+
+        // Check if player was removed
+        if (!$player) {
+            return redirect()->route('player.join')->with('error', 'Je bent uit het spel verwijderd');
+        }
 
         $game = Game::findOrFail($gameId);
 
@@ -111,13 +116,40 @@ class GameController extends Controller
             ->where('host_token', $hostToken)
             ->firstOrFail();
 
-        // Redirect to lobby if game is not started or finished
+        // Redirect to lobby if game is not started
         if ($game->status === 'lobby') {
             return redirect()->route('host.lobby', $gameId)->with('error', 'Het spel is nog niet gestart');
         }
 
-        // Allow access if game is started or finished (finished shows leaderboard)
+        // Redirect to finished leaderboard if game is finished
+        if ($game->status === 'finished') {
+            return redirect()->route('host.finished-leaderboard', $gameId)->with('error', 'Het spel is al beëindigd');
+        }
+
+        // Allow access if game is started
         return view('host.hostdashboard', ['gameId' => $gameId]);
+    }
+
+    public function hostFinishedLeaderboard(Request $request, $gameId)
+    {
+        $hostToken = session('hostToken_'.$gameId);
+
+        if (!$hostToken) {
+            return redirect()->route('home')->with('error', 'Geen toegang tot het spel');
+        }
+
+        $game = Game::where('id', $gameId)
+            ->where('host_token', $hostToken)
+            ->firstOrFail();
+        
+        // If game is not finished, redirect to game
+        if ($game->status !== 'finished') {
+            return redirect()->route('host.game', $gameId);
+        }
+
+        return view('host.finished-leaderboard', [
+            'gameId' => $gameId,
+        ]);
     }
 
 

@@ -1,4 +1,4 @@
-<div class="w-full max-w-md mx-auto px-4 sm:px-0 mt-8 sm:mt-10">
+<div class="w-full max-w-md mx-auto px-4 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 -mt-8">
 
     {{-- STAP 1: Roomcode invoeren --}}
     @if($step === 1)

@@ -5,7 +5,7 @@
 @section('content')
     <x-nav.join-nav />
 
-    <main class="flex-1 flex justify-center px-4 pb-10">
+    <main class="flex-1 flex justify-center px-4 pb-10 relative">
         <livewire:create-game :locationId="$locationId" />
     </main>
 @endsection

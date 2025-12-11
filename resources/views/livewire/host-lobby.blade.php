@@ -8,7 +8,7 @@
 
 <div
     wire:poll.2s.visible="loadPlayers"
-    class="flex-1 flex flex-col"
+    class="h-screen w-full bg-surface-light flex flex-col overflow-hidden"
     x-data="{
         showRoomCodePopup: true,
         copied: false,
@@ -25,8 +25,8 @@
 >
     <x-nav.lobby :title="'Host Lobby'" :subtitle="$headerSubtitle" />
 
-    <main class="flex-1">
-        <div class="max-w-5xl mx-auto px-4 lg:px-8 pt-6 pb-16">
+    <main class="flex-1 overflow-hidden min-h-0 pb-28">
+        <div class="max-w-5xl mx-auto px-4 lg:px-8 pt-6 pb-4 h-full flex flex-col">
 
             @if(session()->has('error'))
                 <div
@@ -67,29 +67,28 @@
                     Code: {{ $pin }}
                 </button>
 
-                <button
-                    type="button"
+                <a
+                    href="{{ url('/speluitleg') }}"
                     class="
                         w-[45%] sm:w-[180px] md:w-[190px]
-                        bg-forest-500 text-pure-white text-sm font-semibold
-                        rounded-button px-4 py-2 shadow-card
+                        text-center bg-forest-700 hover:bg-forest-600 text-white rounded-lg font-semibold transition px-4 py-2
                         flex items-center justify-center
-                        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
-                        focus-visible:ring-forest-500 focus-visible:ring-offset-surface-light
                     "
                 >
                     Speluitleg
-                </button>
+                </a>
             </div>
 
-            <section class="bg-pure-white shadow-card rounded-card overflow-hidden">
-                <div class="px-4 pt-4 pb-5">
+            <section class="bg-pure-white shadow-card rounded-card overflow-hidden flex-1 flex flex-col min-h-0">
+                <div class="px-4 pt-4 pb-2 flex-shrink-0">
                     <p class="text-sm font-semibold text-deep-black mb-3">
                         Aantal spelers: {{ $playerCount }}
                     </p>
+                </div>
 
                     @if(count($players) > 0)
-                        <ul class="space-y-3">
+                    <div class="flex-1 overflow-y-auto min-h-0 px-4 pb-4">
+                        <ul class="space-y-3 pr-2 pt-3 pb-3">
                             @foreach($players as $player)
                                 <li
                                     wire:key="player-{{ $player['id'] }}"
@@ -131,17 +130,19 @@
                                 </li>
                             @endforeach
                         </ul>
+                    </div>
                     @else
+                    <div class="px-4 pb-4 flex-shrink-0">
                         <p class="text-sm text-deep-black/70 py-4">
                             Nog geen spelers. Deel de PIN met de spelers!
                         </p>
+                    </div>
                     @endif
-                </div>
             </section>
         </div>
     </main>
 
-    <footer class="bg-sky-500 py-6 mt-auto">
+    <footer class="fixed bottom-0 left-0 right-0 bg-sky-500 py-6 pb-safe">
         <div class="max-w-5xl mx-auto px-4 lg:px-8">
             <button
                 type="button"

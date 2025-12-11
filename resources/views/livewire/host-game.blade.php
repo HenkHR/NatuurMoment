@@ -1,32 +1,25 @@
 <div
-    wire:poll.10s.visible="loadPlayers">
+    wire:poll.5s.visible="loadPlayers"
+    class="h-screen w-full bg-white flex flex-col overflow-hidden">
 
-    @if($showLeaderboard)
-        <!-- Leaderboard View -->
-        <x-leaderboard :players="$leaderboardData" :showContinueButton="true" :isFinished="true">
-            <a href="{{ route('home') }}" class="inline-block px-6 py-3 bg-forest-500 hover:bg-forest-600 text-white rounded-lg font-semibold transition">
-                Terug naar Home
-            </a>
-        </x-leaderboard>
-    @else
         <!-- Game View -->
-        <div class="flex flex-col gap-4">
+        <div class="flex flex-col flex-1 overflow-hidden min-h-0">
 
-            <div class="w-full px-4 pt-6 pb-12 bg-[#2E7D32]" style="clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), 0 100%);">
+            <!-- Header -->
+            <div class="w-full px-4 pt-6 pb-8 bg-forest-700 flex-shrink-0" style="clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), 0 100%);">
                 <div class="container max-w-md mx-auto px-4 flex flex-col justify-between relative">
                     <h1 class="text-4xl font-bold text-[#FFFFFF] mb-2 text-left">Spelers</h1>
                     <!-- Timer (right) -->
                     @if($game && $game->timer_enabled && $game->timer_ends_at)
-                        <div class="absolute top-[-5px] right-0">
+                        <div class="absolute top-0 right-0">
                             <x-game-timer :timerEndsAt="$game->timer_ends_at->toIso8601String()" />
                         </div>
-                    @else
-                        <div class="w-24"></div>
                     @endif
                 </div>
             </div>
 
-            <div class="flex flex-row justify-between items-center mb-4 container mx-auto px-4 max-w-lg">
+            <!-- Action Buttons -->
+            <div class="flex flex-row justify-between items-center px-4 py-4 flex-shrink-0 container mx-auto max-w-lg">
                 <button
                     wire:click="confirmEndGame"
                     class="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg font-medium transition flex items-center gap-2">
@@ -41,24 +34,31 @@
             </div>
 
             @if (session('photo-message'))
-                <div class="bg-green-500 text-white px-4 py-2 rounded mb-4">
+                <div class="bg-green-500 text-white px-4 py-2 rounded mb-4 mx-4 flex-shrink-0">
                     {{ session('photo-message') }}
                 </div>
             @endif
 
-            <div class="flex flex-col gap-3 container mx-auto px-4 max-w-lg">
-                <div class="flex flex-row gap-2 justify-between"><h2 class="text-xl font-semibold">Spelers</h2> <span class="text-lg text-gray-500">Roomcode: {{ $game->pin }}</span></div>
-                @if(count($players) > 0)
-                    <div class="space-y-2">
+            <!-- Content Section -->
+            <section class="flex-1 overflow-hidden min-h-0 px-4 pb-4">
+                <div class="container mx-auto max-w-lg h-full flex flex-col">
+                    <div class="flex flex-row gap-2 justify-between border-b border-gray-300 pb-2 flex-shrink-0 mb-3">
+                        <h2 class="text-xl font-semibold">Spelers</h2>
+                        <span class="text-lg text-gray-500">Roomcode: {{ $game->pin }}</span>
+                    </div>
+                    
+                    @if(count($players) > 0)
+                        <div class="flex-1 overflow-y-auto min-h-0 pr-2">
+                            <div class="space-y-3 pt-2 pb-2">
                         @foreach($players as $player)
-                            <div wire:key="player-{{ $player['id'] }}" class="border border-gray-300 rounded-lg overflow-hidden">
+                            <div wire:key="player-{{ $player['id'] }}" class="bg-pure-white shadow-card rounded-card overflow-hidden">
                                 <!-- Player Header (Accordion Toggle) -->
                                 <button
                                     wire:click="togglePlayer({{ $player['id'] }})"
-                                    class="w-full text-left flex flex-row justify-between items-center {{ $expandedPlayerId === $player['id'] ? 'bg-sky-500 text-white' : 'bg-gray-200 text-slate-700' }} p-4 focus:outline-none focus:ring-2 focus:ring-green-400 transition">
+                                    class="w-full text-left flex flex-row justify-between items-center {{ $expandedPlayerId === $player['id'] ? 'bg-sky-500 text-white' : 'bg-surface-medium text-deep-black' }} px-4 py-3 rounded-card focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-pure-white transition">
 
                                     <div class="flex items-center gap-3">
-                                        <span class="font-semibold text-lg">{{ $player['name'] }}</span>
+                                        <span class="font-semibold {{ $expandedPlayerId === $player['id'] ? 'text-white' : 'text-deep-black' }}">{{ $player['name'] }}</span>
                                         @if($player['pending_photos'] > 0)
                                             <span class="bg-yellow-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold" title="{{ $player['pending_photos'] }} foto(s) wachten op goedkeuring">
                                                 {{ $player['pending_photos'] }}
@@ -70,7 +70,7 @@
                                     </div>
 
                                     <div class="flex items-center gap-3">
-                                        <span class="text-md {{ $expandedPlayerId === $player['id'] ? 'text-white' : 'bg-sky-500' }} text-white rounded-lg px-2 py-1">Score: {{ $player['score'] }}</span>
+                                        <span class="text-sm font-semibold {{ $expandedPlayerId === $player['id'] ? 'text-white shadow-none' : 'bg-sky-500 text-white' }} rounded-badge px-2 py-1 shadow-card">Score: {{ $player['score'] }}</span>
                                         <svg class="w-5 h-5 transform transition-transform {{ $expandedPlayerId === $player['id'] ? 'rotate-180' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                                         </svg>
@@ -80,7 +80,7 @@
 
                                 <!-- Player Bingo Card (Accordion Content) -->  
                                 @if($expandedPlayerId === $player['id'])
-                                    <div class="p-4 bg-gray-50 flex flex-col items-center justify-center" wire:poll.5s.visible="refreshBingoItems">
+                                    <div class="p-4 bg-surface-light flex flex-col items-center justify-center" wire:poll.5s.visible="refreshBingoItems">
                                         <h3 class="text-lg font-semibold mb-3 text-center">Bingokaart</h3>
 
                                         @if($loadingBingoItems)
@@ -142,12 +142,16 @@
                                     </div>
                                 @endif
                             </div>
-                        @endforeach
-                    </div>
-                @else
-                    <p class="text-gray-600">Geen spelers in het spel.</p>
-                @endif
-            </div>
+                            @endforeach
+                            </div>
+                        </div>
+                    @else
+                        <div class="flex-shrink-0">
+                            <p class="text-gray-600">Geen spelers in het spel.</p>
+                        </div>
+                    @endif
+                </div>
+            </section>
         </div>
 
         <!-- Photo Review Modal -->
@@ -195,19 +199,19 @@
                         </div>
 
                         <div class="flex gap-3 justify-between w-full">
-                            <button
-                                wire:click="approvePhoto({{ $selectedPhoto['id'] }})"
+                                <button
+                                    wire:click="approvePhoto({{ $selectedPhoto['id'] }})"
                                 @if($selectedPhoto['status'] === 'approved') disabled @endif
                                 class="bg-green-500 hover:bg-green-600 disabled:bg-green-300 disabled:cursor-not-allowed disabled:opacity-50 text-white px-4 py-2 flex-1 rounded-lg font-semibold transition">
-                                Goedkeuren
-                            </button>
-                            <button
+                                    Goedkeuren
+                                </button>
+                                <button
                                 wire:click="rejectPhoto({{ $selectedPhoto['id'] }})"
                                 @if($selectedPhoto['status'] === 'rejected') disabled @endif
                                 class="bg-red-500 hover:bg-red-600 disabled:bg-red-300 disabled:cursor-not-allowed disabled:opacity-50 text-white px-4 py-2 flex-1 rounded-lg font-semibold transition">
                                 Afwijzen
-                            </button>
-                        </div>
+                                </button>
+                            </div>
                     </div>
                 </div>
             </div>
@@ -215,5 +219,4 @@
 
         <!-- End Game Confirmation Modal -->
         <x-end-game-modal :show="$showEndGameModal" />
-    @endif
 </div>

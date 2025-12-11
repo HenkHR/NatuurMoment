@@ -22,6 +22,7 @@ Route::get('/host/lobby/{game}', [GameController::class, 'hostLobby'])->name('ho
 Route::get('/player/lobby/{game}', [GameController::class, 'playerLobby'])->name('player.lobby');
 
 Route::get('/host/game/{game}', [GameController::class, 'hostGame'])->name('host.game');
+Route::get('/host/finished-leaderboard/{game}', [GameController::class, 'hostFinishedLeaderboard'])->name('host.finished-leaderboard');
 Route::get('/player/game/{game}', [GameController::class, 'playerGame'])->name('player.game');
 Route::get('/player/route/{game}', [GameController::class, 'playerRoute'])->name('player.route');
 Route::get('/player/leaderboard/{game}', [GameController::class, 'playerLeaderboard'])->name('player.leaderboard');

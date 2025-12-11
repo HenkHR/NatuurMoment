@@ -25,7 +25,6 @@
     </a>
 
     <div class="min-h-screen bg-surface-light">
-            @include('layouts.navigation')
 
             <!-- Page Heading -->
             @isset($header)

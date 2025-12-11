@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Feedback</title>
+    <title>Eindstand - Host</title>
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,14 +11,9 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
-<body class="bg-white font-sans antialiased overflow-hidden">
-<main>
-    @livewire('player-feedback', [
-        'gameId' => $gameId,
-        'playerToken' => $playerToken,
-    ])
-</main>
-@livewireScripts
+<body class="font-sans antialiased overflow-hidden">
+    <livewire:host-finished-leaderboard :gameId="$gameId" />
+    @livewireScripts
 </body>
 </html>
 

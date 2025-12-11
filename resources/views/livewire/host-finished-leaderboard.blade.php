@@ -1,4 +1,4 @@
-<div class="h-screen w-full bg-white flex flex-col overflow-hidden">
+<div class="h-screen w-full bg-white flex flex-col overflow-hidden" wire:poll.5s.visible="refreshLeaderboard">
 
     <!-- Header -->
     <div class="w-full px-4 pt-6 pb-8 bg-forest-700 flex-shrink-0"
@@ -30,11 +30,12 @@
     <div class="fixed bottom-0 left-0 right-0 bg-white pt-4 px-4 z-50 shadow-lg pb-safe">
         <div class="max-w-md mx-auto pb-4">
             <button
-                wire:click="showFeedbackForm"
+                wire:click="goHome"
                 class="w-full bg-forest-700 hover:bg-forest-600 text-white py-3 rounded-lg font-semibold transition shadow-md"
             >
-                Verder
+                Terug naar Home
             </button>
         </div>
     </div>
 </div>
+

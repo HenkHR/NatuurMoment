@@ -110,10 +110,11 @@
             const resultsContainer = document.getElementById('results');
             const filtersContainer = document.getElementById('active-filters');
 
-            const updateResults = () => {
+            const updateResults = (page = 1) => {
                 const params = new URLSearchParams();
-                if(searchInput.value) params.set('search', searchInput.value);
-                if(locationSelect.value) params.set('location', locationSelect.value);
+                if (searchInput.value) params.set('search', searchInput.value);
+                if (locationSelect.value) params.set('location', locationSelect.value);
+                if (page) params.set('page', page);
 
                 fetch(`{{ route('home') }}?${params.toString()}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                     .then(res => res.text())
@@ -122,7 +123,7 @@
 
                         // Update active filter chips
                         filtersContainer.innerHTML = '';
-                        if(locationSelect.value) {
+                        if (locationSelect.value) {
                             const chip = document.createElement('div');
                             chip.className = "inline-flex items-center gap-2 bg-gray-100 border border-gray-200 rounded-full px-3 py-1 text-xs text-gray-700";
                             chip.innerHTML = `
@@ -133,7 +134,7 @@
 
                             chip.querySelector('button').addEventListener('click', () => {
                                 locationSelect.value = '';
-                                updateResults();
+                                updateResults(1);
                             });
                         }
 
@@ -146,11 +147,27 @@
                     });
             };
 
-            searchInput.addEventListener('input', () => updateResults());
-            locationSelect.addEventListener('change', () => updateResults());
+            // Typen of filter wijzigen => altijd terug naar pagina 1
+            searchInput.addEventListener('input', () => updateResults(1));
+            locationSelect.addEventListener('change', () => updateResults(1));
+
+            // Pagination clicks (links are rendered inside #results, so delegate)
+            resultsContainer.addEventListener('click', (e) => {
+                const link = e.target.closest('a');
+                if (!link) return;
+
+                // Only intercept pagination links
+                const url = new URL(link.href);
+                const page = url.searchParams.get('page');
+                if (!page) return;
+
+                e.preventDefault();
+                updateResults(page);
+            });
 
             // Init filter chip bij load als er al een filter actief is
-            if(locationSelect.value) updateResults();
+            if (locationSelect.value || searchInput.value) updateResults(1);
         });
     </script>
+
 @endsection

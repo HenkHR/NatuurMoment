@@ -5,6 +5,8 @@ namespace App\Livewire;
 use App\Models\Game;
 use App\Models\GamePlayer;
 use Livewire\Component;
+use App\Rules\NoCurseWords;
+
 
 class JoinGame extends Component
 {
@@ -15,7 +17,7 @@ class JoinGame extends Component
 
     protected $rules = [
         'pin' => 'required|size:6',
-        'name' => 'required|min:2|max:20',
+        'name' => 'required|min:2|max:20|string',
     ];
 
 
@@ -65,13 +67,15 @@ class JoinGame extends Component
         }
 
         $this->step = 2;
-        
+
     }
 
     //stap 2 van de join functie
     public function join()
     {
-        $this->validate(['name' => 'required|min:2|max:20']);
+        $this->validate([
+            'name' => ['required', 'min:2', 'max:20', 'string', new NoCurseWords],
+        ]);
 
         $game = Game::findOrFail($this->gameId);
 
@@ -81,7 +85,7 @@ class JoinGame extends Component
             $this->addError('game', 'Spel is al gestart, er kunnen geen nieuwe spelers meedoen');
             return;
         }
-        
+
         //check of de naam al gebruikt
         $duplicateName = GamePlayer::where('game_id', $game->id)
         ->where('name', $this->name)

@@ -50,6 +50,11 @@
             </article>
         @endforeach
     </div>
+
+    {{-- Pagination --}}
+    <div class="mt-6">
+        {{ $locations->onEachSide(1)->links('vendor.pagination.locations') }}
+    </div>
 @else
     <p class="text-sm text-gray-600">Geen locaties gevonden.</p>
 @endif

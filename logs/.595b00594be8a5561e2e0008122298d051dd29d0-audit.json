@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "c:\\Projects\\NatuurMoment\\logs\\.595b00594be8a5561e2e0008122298d051dd29d0-audit.json",
+    "files": [
+        {
+            "date": 1765741846388,
+            "name": "c:\\Projects\\NatuurMoment\\logs\\mcp-puppeteer-2025-12-14.log",
+            "hash": "e66bf4beba179ae77e5b442931f8305a8277e04f92b955ebcebb1c0bfc283ec0"
+        }
+    ],
+    "hashType": "sha256"
+}

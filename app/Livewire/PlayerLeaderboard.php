@@ -17,6 +17,7 @@ class PlayerLeaderboard extends Component
     
     public $game;
     public array $leaderboardData = [];
+    public bool $playerCompletedAll = false;
 
     public function mount($gameId, $playerToken)
     {
@@ -27,8 +28,11 @@ class PlayerLeaderboard extends Component
         $player = GamePlayer::where('token', $playerToken)
             ->where('game_id', $gameId)
             ->firstOrFail();
-        
+
         $this->game = Game::findOrFail($gameId);
+
+        // Check if current player has completed everything
+        $this->playerCompletedAll = $player->hasCompletedAll();
         
         // Redirect if game is finished
         if ($this->game->status === 'finished') {

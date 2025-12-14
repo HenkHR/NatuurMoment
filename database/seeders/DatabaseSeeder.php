@@ -30,6 +30,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             LocationSeeder::class,
             LocationBingoItemSeeder::class,
+            LocationRouteStopSeeder::class,
         ]);
     }
 }

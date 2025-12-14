@@ -478,3 +478,267 @@ it('REQ-001: isUnlockedFor returns true for second question when first answered'
 
     expect($q2->isUnlockedFor($player->id))->toBeTrue();
 });
+
+// ============================================
+// Part 03: GamePlayer Completion Tests
+// ============================================
+
+use App\Models\Photo;
+use App\Models\BingoItem;
+
+// REQ-011: Test hasCompletedQuestions returns true when all answered
+it('REQ-011: hasCompletedQuestions returns true when all questions answered', function () {
+    $player = GamePlayer::create([
+        'game_id' => $this->game->id,
+        'name' => 'Test Player',
+        'token' => 'test-token',
+        'score' => 0,
+    ]);
+
+    $q1 = RouteStop::create([
+        'game_id' => $this->game->id,
+        'name' => 'Q1',
+        'question_text' => 'Question 1?',
+        'option_a' => 'A',
+        'option_b' => 'B',
+        'correct_option' => 'A',
+        'points' => 5,
+        'sequence' => 1,
+    ]);
+
+    $q2 = RouteStop::create([
+        'game_id' => $this->game->id,
+        'name' => 'Q2',
+        'question_text' => 'Question 2?',
+        'option_a' => 'A',
+        'option_b' => 'B',
+        'correct_option' => 'B',
+        'points' => 10,
+        'sequence' => 2,
+    ]);
+
+    // Answer both questions
+    RouteStopAnswer::create([
+        'game_player_id' => $player->id,
+        'route_stop_id' => $q1->id,
+        'chosen_option' => 'A',
+        'is_correct' => true,
+        'score_awarded' => 5,
+        'answered_at' => now(),
+    ]);
+
+    RouteStopAnswer::create([
+        'game_player_id' => $player->id,
+        'route_stop_id' => $q2->id,
+        'chosen_option' => 'B',
+        'is_correct' => true,
+        'score_awarded' => 10,
+        'answered_at' => now(),
+    ]);
+
+    expect($player->hasCompletedQuestions())->toBeTrue();
+});
+
+// REQ-011: Test hasCompletedQuestions returns false when not all answered
+it('REQ-011: hasCompletedQuestions returns false when not all answered', function () {
+    $player = GamePlayer::create([
+        'game_id' => $this->game->id,
+        'name' => 'Test Player',
+        'token' => 'test-token',
+        'score' => 0,
+    ]);
+
+    $q1 = RouteStop::create([
+        'game_id' => $this->game->id,
+        'name' => 'Q1',
+        'question_text' => 'Question 1?',
+        'option_a' => 'A',
+        'option_b' => 'B',
+        'correct_option' => 'A',
+        'points' => 5,
+        'sequence' => 1,
+    ]);
+
+    RouteStop::create([
+        'game_id' => $this->game->id,
+        'name' => 'Q2',
+        'question_text' => 'Question 2?',
+        'option_a' => 'A',
+        'option_b' => 'B',
+        'correct_option' => 'B',
+        'points' => 10,
+        'sequence' => 2,
+    ]);
+
+    // Only answer first question
+    RouteStopAnswer::create([
+        'game_player_id' => $player->id,
+        'route_stop_id' => $q1->id,
+        'chosen_option' => 'A',
+        'is_correct' => true,
+        'score_awarded' => 5,
+        'answered_at' => now(),
+    ]);
+
+    expect($player->hasCompletedQuestions())->toBeFalse();
+});
+
+// REQ-011: Test hasCompletedQuestions returns false when no questions exist
+it('REQ-011: hasCompletedQuestions returns false when no questions exist', function () {
+    $player = GamePlayer::create([
+        'game_id' => $this->game->id,
+        'name' => 'Test Player',
+        'token' => 'test-token',
+        'score' => 0,
+    ]);
+
+    // No questions created
+    expect($player->hasCompletedQuestions())->toBeFalse();
+});
+
+// REQ-012: Test hasCompletedBingo returns true with 9 approved photos
+it('REQ-012: hasCompletedBingo returns true with 9 approved photos', function () {
+    $player = GamePlayer::create([
+        'game_id' => $this->game->id,
+        'name' => 'Test Player',
+        'token' => 'test-token',
+        'score' => 0,
+    ]);
+
+    // Create 9 approved photos
+    for ($i = 0; $i < 9; $i++) {
+        $bingoItem = BingoItem::create([
+            'game_id' => $this->game->id,
+            'label' => "Item $i",
+            'position' => $i,
+            'points' => 1,
+        ]);
+
+        Photo::create([
+            'game_id' => $this->game->id,
+            'game_player_id' => $player->id,
+            'bingo_item_id' => $bingoItem->id,
+            'path' => "photos/test-$i.jpg",
+            'status' => 'approved',
+            'taken_at' => now(),
+        ]);
+    }
+
+    expect($player->hasCompletedBingo())->toBeTrue();
+});
+
+// REQ-012: Test hasCompletedBingo returns false with less than 9 photos
+it('REQ-012: hasCompletedBingo returns false with less than 9 approved photos', function () {
+    $player = GamePlayer::create([
+        'game_id' => $this->game->id,
+        'name' => 'Test Player',
+        'token' => 'test-token',
+        'score' => 0,
+    ]);
+
+    // Create only 5 approved photos
+    for ($i = 0; $i < 5; $i++) {
+        $bingoItem = BingoItem::create([
+            'game_id' => $this->game->id,
+            'label' => "Item $i",
+            'position' => $i,
+            'points' => 1,
+        ]);
+
+        Photo::create([
+            'game_id' => $this->game->id,
+            'game_player_id' => $player->id,
+            'bingo_item_id' => $bingoItem->id,
+            'path' => "photos/test-$i.jpg",
+            'status' => 'approved',
+            'taken_at' => now(),
+        ]);
+    }
+
+    expect($player->hasCompletedBingo())->toBeFalse();
+});
+
+// REQ-012: Test hasCompletedAll returns true only when both complete
+it('REQ-012: hasCompletedAll returns true when both bingo and questions complete', function () {
+    $player = GamePlayer::create([
+        'game_id' => $this->game->id,
+        'name' => 'Test Player',
+        'token' => 'test-token',
+        'score' => 0,
+    ]);
+
+    // Create and answer 1 question
+    $q1 = RouteStop::create([
+        'game_id' => $this->game->id,
+        'name' => 'Q1',
+        'question_text' => 'Question 1?',
+        'option_a' => 'A',
+        'option_b' => 'B',
+        'correct_option' => 'A',
+        'points' => 5,
+        'sequence' => 1,
+    ]);
+
+    RouteStopAnswer::create([
+        'game_player_id' => $player->id,
+        'route_stop_id' => $q1->id,
+        'chosen_option' => 'A',
+        'is_correct' => true,
+        'score_awarded' => 5,
+        'answered_at' => now(),
+    ]);
+
+    // Create 9 approved photos
+    for ($i = 0; $i < 9; $i++) {
+        $bingoItem = BingoItem::create([
+            'game_id' => $this->game->id,
+            'label' => "Item $i",
+            'position' => $i,
+            'points' => 1,
+        ]);
+
+        Photo::create([
+            'game_id' => $this->game->id,
+            'game_player_id' => $player->id,
+            'bingo_item_id' => $bingoItem->id,
+            'path' => "photos/test-$i.jpg",
+            'status' => 'approved',
+            'taken_at' => now(),
+        ]);
+    }
+
+    expect($player->hasCompletedAll())->toBeTrue();
+});
+
+// REQ-012: Test hasCompletedAll returns true if no questions but bingo complete
+it('REQ-012: hasCompletedAll returns true if no questions but bingo complete', function () {
+    $player = GamePlayer::create([
+        'game_id' => $this->game->id,
+        'name' => 'Test Player',
+        'token' => 'test-token',
+        'score' => 0,
+    ]);
+
+    // No questions created
+
+    // Create 9 approved photos
+    for ($i = 0; $i < 9; $i++) {
+        $bingoItem = BingoItem::create([
+            'game_id' => $this->game->id,
+            'label' => "Item $i",
+            'position' => $i,
+            'points' => 1,
+        ]);
+
+        Photo::create([
+            'game_id' => $this->game->id,
+            'game_player_id' => $player->id,
+            'bingo_item_id' => $bingoItem->id,
+            'path' => "photos/test-$i.jpg",
+            'status' => 'approved',
+            'taken_at' => now(),
+        ]);
+    }
+
+    expect($player->hasCompletedAll())->toBeTrue();
+});

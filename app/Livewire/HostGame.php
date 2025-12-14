@@ -7,6 +7,7 @@ use App\Models\Game;
 use App\Models\Photo;
 use App\Models\BingoItem;
 use App\Models\GamePlayer;
+use App\Models\RouteStopAnswer;
 use Livewire\Component;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Locked;
@@ -168,9 +169,21 @@ class HostGame extends Component
             $playersCompleted[$playerId] = count($approvedPositions) >= self::BINGO_ITEM_COUNT;
         }
 
+        // REQ-013: Get route question counts for progress display
+        $totalRouteQuestions = $this->game->routeStops()->count();
+        $routeAnswerCounts = [];
+        if ($totalRouteQuestions > 0) {
+            $routeAnswerCounts = RouteStopAnswer::whereIn('game_player_id', $this->game->players->pluck('id'))
+                ->select('game_player_id', DB::raw('count(*) as count'))
+                ->groupBy('game_player_id')
+                ->pluck('count', 'game_player_id')
+                ->toArray();
+        }
+
         // Calculate scores for each player (includes line bonuses)
-        $this->players = $this->game->players->map(function($player) use ($pendingCounts, $playerScores, $playersCompleted) {
+        $this->players = $this->game->players->map(function($player) use ($pendingCounts, $playerScores, $playersCompleted, $totalRouteQuestions, $routeAnswerCounts) {
             $score = $playerScores[$player->id] ?? 0;
+            $answeredQuestions = $routeAnswerCounts[$player->id] ?? 0;
 
             return [
                 'id' => $player->id,
@@ -178,6 +191,12 @@ class HostGame extends Component
                 'score' => $score,
                 'pending_photos' => $pendingCounts[$player->id] ?? 0,
                 'completed' => $playersCompleted[$player->id] ?? false,
+                // REQ-013: Route question progress
+                'route_questions_total' => $totalRouteQuestions,
+                'route_questions_answered' => $answeredQuestions,
+                'route_questions_percentage' => $totalRouteQuestions > 0
+                    ? round(($answeredQuestions / $totalRouteQuestions) * 100)
+                    : null,
             ];
         })->toArray();
     }
@@ -195,20 +214,42 @@ class HostGame extends Component
             }
         }
 
-        // Check if all players completed (all 9 bingo items approved)
+        // Check if all players completed (bingo + questions if applicable)
         if ($this->game->players->count() > 0) {
             $totalPlayers = $this->game->players->count();
+            $hasRouteQuestions = $this->game->routeStops()->exists();
 
-            $completedPlayers = Photo::where('game_id', $this->gameId)
+            // Count players who completed bingo (9 approved photos)
+            $bingoCompletedPlayers = Photo::where('game_id', $this->gameId)
                 ->where('status', 'approved')
                 ->select('game_player_id', DB::raw('count(*) as count'))
                 ->groupBy('game_player_id')
                 ->havingRaw('count(*) >= ?', [self::BINGO_ITEM_COUNT])
-                ->count();
+                ->pluck('game_player_id')
+                ->toArray();
 
-            if ($completedPlayers >= $totalPlayers) {
-                $this->endGame();
-                return true;
+            // If no route questions, just check bingo completion
+            if (!$hasRouteQuestions) {
+                if (count($bingoCompletedPlayers) >= $totalPlayers) {
+                    $this->endGame();
+                    return true;
+                }
+            } else {
+                // REQ-012: Check if all players completed BOTH bingo AND questions
+                $totalRouteQuestions = $this->game->routeStops()->count();
+                $fullyCompletedPlayers = 0;
+
+                foreach ($bingoCompletedPlayers as $playerId) {
+                    $answeredQuestions = RouteStopAnswer::where('game_player_id', $playerId)->count();
+                    if ($answeredQuestions >= $totalRouteQuestions) {
+                        $fullyCompletedPlayers++;
+                    }
+                }
+
+                if ($fullyCompletedPlayers >= $totalPlayers) {
+                    $this->endGame();
+                    return true;
+                }
             }
         }
 

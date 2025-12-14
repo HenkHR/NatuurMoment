@@ -126,11 +126,13 @@ class PlayerRouteQuestion extends Component
     /**
      * Clear feedback and refresh component (called after 2s delay)
      * REQ-007: Auto volgende vraag
+     * Note: REQ-011 redirect is handled in render() after feedback clears
      */
     public function clearFeedback(): void
     {
         $this->feedbackMessage = null;
         $this->feedbackType = null;
+        // Component will re-render, and render() will handle redirect if all questions done
     }
 
     // ============================================
@@ -198,6 +200,17 @@ class PlayerRouteQuestion extends Component
         // Count answered questions
         $answeredCount = $allQuestions->filter(fn($q) => $q->isAnsweredBy($playerId))->count();
         $totalQuestions = $allQuestions->count();
+
+        // REQ-011: Redirect when all questions answered and no feedback showing
+        if ($currentQuestion === null && $this->feedbackMessage === null && $totalQuestions > 0) {
+            $player = GamePlayer::findOrFail($playerId);
+            // REQ-012: Check if also bingo is complete → go to leaderboard
+            if ($player->hasCompletedBingo()) {
+                $this->redirectRoute('player.leaderboard', ['game' => $this->gameId]);
+            } else {
+                $this->redirectRoute('player.game', ['game' => $this->gameId]);
+            }
+        }
 
         return view('livewire.player-route-question', [
             'currentQuestion' => $currentQuestion,

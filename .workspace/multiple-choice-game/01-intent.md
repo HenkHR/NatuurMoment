@@ -33,15 +33,15 @@ FEATURE
 | REQ-006 | Na beantwoorden toont feedback: goed (groen) of fout (rood) indicator | ui | manual | true |
 | REQ-007 | Na feedback automatisch volgende vraag tonen (2s delay) | ui | automated_ui | true |
 | REQ-008 | Alleen ingevulde antwoordopties tonen (2-4 opties) | ui | manual | true |
-| REQ-009 | Vragen-tab verbergen als locatie geen vragen heeft | ui | manual | false |
-| REQ-010 | Speler kan vrij switchen tussen bingo en vragen tabs | ui | manual | false |
+| REQ-009 | Vragen-tab verbergen als locatie geen vragen heeft | ui | manual | true |
+| REQ-010 | Speler kan vrij switchen tussen bingo en vragen tabs | ui | manual | true |
 
 ### Integration Requirements
 | ID | Description | Category | Test Type | Passes |
 |----|-------------|----------|-----------|--------|
-| REQ-011 | Na alle vragen beantwoord → redirect naar bingo kaart | integration | automated_ui | false |
-| REQ-012 | Na bingo voltooid (9 foto's ingediend) + vragen klaar → redirect naar tussenstand | integration | automated_ui | false |
-| REQ-013 | Host ziet per speler % vragen beantwoord in dashboard | integration | manual | false |
+| REQ-011 | Na alle vragen beantwoord → redirect naar bingo kaart | integration | automated_ui | true |
+| REQ-012 | Na bingo voltooid (9 foto's ingediend) + vragen klaar → redirect naar tussenstand | integration | automated_ui | true |
+| REQ-013 | Host ziet per speler % vragen beantwoord in dashboard | integration | manual | true |
 
 ### Edge Cases
 | ID | Description | Category | Test Type | Passes |
@@ -110,13 +110,13 @@ None (foundation layer)
 ---
 
 ## Part 03: Integration
-**Status:** ○ pending
+**Status:** ✓ verified (2025-12-14)
 
 ### Scope
 - HostGame dashboard: % vragen beantwoord per speler
 - Redirect logic: vragen klaar → bingo, alles klaar → tussenstand
 - Vragen-tab visibility (verbergen als geen vragen)
-- Route registratie voor player questions
+- Completion methods on GamePlayer model
 
 ### Requirements Covered
 - REQ-009: Tab verbergen als geen vragen
@@ -126,11 +126,11 @@ None (foundation layer)
 - REQ-013: Host ziet % beantwoord
 
 ### Success Criteria
-- [ ] HostGame toont "Vragen: X%" per speler
-- [ ] PlayerRouteQuestion redirect naar bingo na laatste vraag
-- [ ] Completion check: bingo + vragen → tussenstand
-- [ ] Vragen-tab conditionally rendered
-- [ ] Route `/player/questions/{game}` geregistreerd
+- [x] HostGame toont "Vragen: X%" per speler
+- [x] GameController redirect naar bingo na laatste vraag
+- [x] Completion check: bingo + vragen → tussenstand
+- [x] Vragen-tab conditionally rendered
+- [x] GamePlayer completion methods: hasCompletedQuestions(), hasCompletedBingo(), hasCompletedAll()
 
 ### Dependencies
 - Part 01 (models)

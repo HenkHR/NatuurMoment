@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+[x-cloak] { display: none !important; }
+
+
 @layer utilities {
     .pb-safe {
         padding-bottom: calc(env(safe-area-inset-bottom) + 0.5rem);

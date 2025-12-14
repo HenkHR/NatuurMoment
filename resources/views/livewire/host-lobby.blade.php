@@ -11,6 +11,7 @@
     class="h-screen w-full bg-surface-light flex flex-col overflow-hidden"
     x-data="{
         showRoomCodePopup: true,
+        showRulesPopup: false,
         copied: false,
         confirmDelete: false,
         playerToDelete: null,
@@ -67,16 +68,25 @@
                     Code: {{ $pin }}
                 </button>
 
-                <a
-                    href="{{ url('/speluitleg') }}"
+                <button
+                    type="button"
+                    @click="showRulesPopup = true"
                     class="
                         w-[45%] sm:w-[180px] md:w-[190px]
-                        text-center bg-forest-700 hover:bg-forest-600 text-white rounded-lg font-semibold transition px-4 py-2
+                        bg-forest-500 text-pure-white text-sm font-semibold
+                        rounded-button px-4 py-2 shadow-card
                         flex items-center justify-center
+                        transition
+                        hover:bg-forest-600 hover:shadow-lg hover:-translate-y-0.5
+                        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
+                        focus-visible:ring-forest-500 focus-visible:ring-offset-surface-light
                     "
+                    aria-haspopup="dialog"
+                    :aria-expanded="showRulesPopup.toString()"
+                    aria-controls="rules-popup"
                 >
                     Speluitleg
-                </a>
+                </button>
             </div>
 
             <section class="bg-pure-white shadow-card rounded-card overflow-hidden flex-1 flex flex-col min-h-0">
@@ -161,6 +171,68 @@
             </button>
         </div>
     </footer>
+    {{-- popup voor speluitleg --}}
+    <div
+        x-show="showRulesPopup"
+        x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        class="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4"
+        @click="showRulesPopup = false"
+        @keyup.escape.window="showRulesPopup = false"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="rules-popup-title"
+        id="rules-popup"
+    >
+        <div
+            @click.stop
+            class="
+                w-full
+                max-w-[52rem] md:max-w-[56rem]  {{-- groter dan max-w-3xl, alleen host-lobby --}}
+            "
+        >
+            {{-- 1 wit blok (header + regels samen) --}}
+            <div class="bg-pure-white rounded-card shadow-card overflow-hidden">
+                {{-- header --}}
+                <div class="px-6 py-4 flex items-center justify-between border-b border-surface-medium">
+                    <h2 id="rules-popup-title" class="text-lg sm:text-xl font-bold text-deep-black">
+                        Speluitleg
+                    </h2>
+
+                    <button
+                        type="button"
+                        @click="showRulesPopup = false"
+                        class="
+                            bg-surface-medium text-deep-black font-semibold
+                            px-4 py-2 rounded-button shadow-card
+                            transition
+                            hover:shadow-lg hover:-translate-y-0.5
+                            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
+                            focus-visible:ring-forest-500 focus-visible:ring-offset-pure-white
+                        "
+                    >
+                        Sluiten
+                    </button>
+                </div>
+
+                {{-- content: zorg dat hij op mobiel niet buiten beeld valt --}}
+                <div class="max-h-[70vh] overflow-y-auto p-4 sm:p-6">
+                    {{-- wrapper rond rules-card zodat het “in” het witte blok voelt --}}
+                    <div class="rounded-card overflow-hidden">
+                        <x-game.rules-card
+                            :rules="$rules"
+                            :showActions="false"
+                            class="shadow-none rounded-none"
+                        />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     {{-- popup voor de roomcode --}}
     <div

@@ -26,6 +26,7 @@ class HostLobby extends Component
     public $timerEnabled = false;
     public $timerDurationMinutes = null;
     public $locationName = null;
+    public array $rules = [];
 
     // ============================================
     // LIFECYCLE SECTION
@@ -54,6 +55,8 @@ class HostLobby extends Component
         $this->locationName = optional($game->location)->name ?? 'Locatie';
 
         $this->loadPlayers();
+        $this->rules = config('game.rules');
+
     }
 
     // ============================================

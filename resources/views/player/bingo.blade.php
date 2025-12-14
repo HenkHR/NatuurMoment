@@ -29,13 +29,18 @@
     </div>
 
     {{--link naar speluitleg--}}
-    <div class="flex justify-end mb-4 mt-2 mx-auto max-w-md">
-        <a
-            href="{{ url('/speluitleg') }}"
-            class="text-center bg-forest-700 hover:bg-forest-600 text-white rounded-lg font-semibold transition px-4 py-2 mr-4">
+    <div class="flex justify-end mb-4 mt-2 mx-auto max-w-md px-4">
+        <button
+            type="button"
+            x-data
+            x-on:click="$dispatch('open-modal', 'rules-modal-bingo')"
+            class="text-center bg-forest-700 hover:bg-forest-600 text-white rounded-lg font-semibold transition px-4 py-2"
+            aria-haspopup="dialog"
+        >
             Speluitleg
-        </a>
+        </button>
     </div>
+
 
     <!-- Photo Capture Component (includes bingo card) -->
     @livewire('player-photo-capture', [
@@ -57,6 +62,13 @@
             </a>
         </div>
     </nav>
+
+    <x-game.rules-modal
+    name="rules-modal-bingo"
+    :rules="config('game.rules')"
+    title="Speluitleg"
+    maxWidth="2xl"
+    />
 
 </main>
 @livewireScripts

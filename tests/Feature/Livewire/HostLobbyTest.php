@@ -42,11 +42,13 @@ it('REQ-019: shows players list in lobby', function () {
         'game_id' => $this->game->id,
         'name' => 'Speler 1',
         'token' => 'token1',
+        'score' => 0,
     ]);
     $player2 = GamePlayer::create([
         'game_id' => $this->game->id,
         'name' => 'Speler 2',
         'token' => 'token2',
+        'score' => 0,
     ]);
 
     Livewire::test(HostLobby::class, ['gameId' => $this->game->id])
@@ -61,6 +63,7 @@ it('REQ-020: host can remove player from lobby', function () {
         'game_id' => $this->game->id,
         'name' => 'Te Verwijderen Speler',
         'token' => 'remove-token',
+        'score' => 0,
     ]);
 
     expect(GamePlayer::find($player->id))->not->toBeNull();
@@ -77,6 +80,7 @@ it('REQ-020: non-host cannot remove player', function () {
         'game_id' => $this->game->id,
         'name' => 'Protected Player',
         'token' => 'protected-token',
+        'score' => 0,
     ]);
 
     // Clear host session
@@ -94,10 +98,16 @@ it('REQ-002: timer starts automatically when game starts', function () {
         'game_id' => $this->game->id,
         'name' => 'Test Player',
         'token' => 'test-token',
+        'score' => 0,
+    ]);
+
+    // Enable timer on game (timer is configured at game creation, not in lobby)
+    $this->game->update([
+        'timer_enabled' => true,
+        'timer_duration_minutes' => 30,
     ]);
 
     Livewire::test(HostLobby::class, ['gameId' => $this->game->id])
-        ->set('timerDuration', 30)
         ->call('startGame');
 
     $this->game->refresh();
@@ -107,33 +117,38 @@ it('REQ-002: timer starts automatically when game starts', function () {
     expect($this->game->timer_duration_minutes)->toBe(30);
 });
 
-// Timer duration is required to start game
-it('requires timer duration to start game', function () {
+// Game can start without timer (timer is optional, configured at game creation)
+it('can start game without timer', function () {
     GamePlayer::create([
         'game_id' => $this->game->id,
         'name' => 'Test Player',
         'token' => 'test-token',
+        'score' => 0,
+    ]);
+
+    // Timer not enabled
+    $this->game->update([
+        'timer_enabled' => false,
+        'timer_duration_minutes' => null,
     ]);
 
     Livewire::test(HostLobby::class, ['gameId' => $this->game->id])
-        ->set('timerDuration', null)
-        ->call('startGame')
-        ->assertSessionHas('error', 'Selecteer een speelduur om te starten');
+        ->call('startGame');
 
     $this->game->refresh();
-    expect($this->game->status)->toBe('lobby');
+    expect($this->game->status)->toBe('started');
+    expect($this->game->timer_ends_at)->toBeNull();
 });
 
-// REQ-001: Timer duur selecteren
-it('REQ-001: can select timer duration', function () {
+// Timer duration is read from game model (configured at game creation)
+it('reads timer duration from game model', function () {
+    $this->game->update([
+        'timer_enabled' => true,
+        'timer_duration_minutes' => 60,
+    ]);
+
     Livewire::test(HostLobby::class, ['gameId' => $this->game->id])
-        ->set('timerDuration', 60)
-        ->assertSet('timerDuration', 60);
-});
-
-// Timer durations constant is available
-it('has correct timer duration options', function () {
-    expect(HostLobby::TIMER_DURATIONS)->toBe([15, 30, 45, 60, 90, 120]);
+        ->assertSet('timerDurationMinutes', 60);
 });
 
 // REQ-005: Vragen worden gekopieerd van LocationRouteStop naar RouteStop bij game start

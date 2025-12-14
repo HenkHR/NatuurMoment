@@ -21,18 +21,18 @@ FEATURE
 ### Core Requirements
 | ID | Description | Category | Test Type | Passes |
 |----|-------------|----------|-----------|--------|
-| REQ-001 | Speler kan alleen vraag N+1 zien als vraag N beantwoord is (sequential unlock) | core | automated_ui | false |
-| REQ-002 | Speler kan een antwoord selecteren (A/B/C/D) en submitten | core | automated_ui | false |
-| REQ-003 | Fout antwoord is definitief - geen retry mogelijk, 0 punten | core | automated_api | false |
-| REQ-004 | Goed antwoord kent punten toe aan speler (opgeteld bij totaalscore) | core | automated_api | false |
-| REQ-005 | Vragen worden gekopieerd van LocationRouteStop naar RouteStop bij game start | core | automated_api | false |
+| REQ-001 | Speler kan alleen vraag N+1 zien als vraag N beantwoord is (sequential unlock) | core | automated_ui | true |
+| REQ-002 | Speler kan een antwoord selecteren (A/B/C/D) en submitten | core | automated_ui | true |
+| REQ-003 | Fout antwoord is definitief - geen retry mogelijk, 0 punten | core | automated_api | true |
+| REQ-004 | Goed antwoord kent punten toe aan speler (opgeteld bij totaalscore) | core | automated_api | true |
+| REQ-005 | Vragen worden gekopieerd van LocationRouteStop naar RouteStop bij game start | core | automated_api | true |
 
 ### UI Requirements
 | ID | Description | Category | Test Type | Passes |
 |----|-------------|----------|-----------|--------|
-| REQ-006 | Na beantwoorden toont feedback: goed (groen) of fout (rood) indicator | ui | manual | false |
-| REQ-007 | Na feedback automatisch volgende vraag tonen (2s delay) | ui | automated_ui | false |
-| REQ-008 | Alleen ingevulde antwoordopties tonen (2-4 opties) | ui | manual | false |
+| REQ-006 | Na beantwoorden toont feedback: goed (groen) of fout (rood) indicator | ui | manual | true |
+| REQ-007 | Na feedback automatisch volgende vraag tonen (2s delay) | ui | automated_ui | true |
+| REQ-008 | Alleen ingevulde antwoordopties tonen (2-4 opties) | ui | manual | true |
 | REQ-009 | Vragen-tab verbergen als locatie geen vragen heeft | ui | manual | false |
 | REQ-010 | Speler kan vrij switchen tussen bingo en vragen tabs | ui | manual | false |
 
@@ -46,12 +46,12 @@ FEATURE
 ### Edge Cases
 | ID | Description | Category | Test Type | Passes |
 |----|-------------|----------|-----------|--------|
-| REQ-014 | Speler kan niet 2x dezelfde vraag beantwoorden (duplicate prevention) | edge_case | automated_api | false |
+| REQ-014 | Speler kan niet 2x dezelfde vraag beantwoorden (duplicate prevention) | edge_case | automated_api | true |
 
 ---
 
 ## Part 01: Foundation
-**Status:** ○ pending
+**Status:** ✓ verified (2025-12-14)
 
 ### Scope
 - RouteStop model met relationships
@@ -76,7 +76,7 @@ None (foundation layer)
 ---
 
 ## Part 02: Player Game
-**Status:** ○ pending
+**Status:** ✓ verified (2025-12-14)
 
 ### Scope
 - PlayerRouteQuestion Livewire component
@@ -97,12 +97,12 @@ None (foundation layer)
 - REQ-014: Duplicate prevention
 
 ### Success Criteria
-- [ ] PlayerRouteQuestion component met #[Locked] properties
-- [ ] unlocked() query scope op RouteStop model
-- [ ] submitAnswer() met correctness check en score update
-- [ ] wire:loading op submit button
-- [ ] Alpine.js feedback timer (2s)
-- [ ] Vraag display met 2-4 antwoordopties
+- [x] PlayerRouteQuestion component met #[Locked] properties
+- [x] unlocked() query scope op RouteStop model
+- [x] submitAnswer() met correctness check en score update
+- [x] wire:loading op submit button
+- [x] Alpine.js feedback timer (2s)
+- [x] Vraag display met 2-4 antwoordopties
 
 ### Dependencies
 - Part 01 (models must exist)

@@ -22,7 +22,8 @@ class PlayerLobby extends Component
     public $gameStatus = 'lobby';
     public $players = [];
     public $locationName = 'Locatie'; 
-
+    public array $rules = [];
+    
     //constructor
     public function mount($gameId, $playerToken)
     {
@@ -52,6 +53,8 @@ class PlayerLobby extends Component
         
         $this->locationName = optional($game->location)->name ?? 'Locatie';
         
+        $this->rules = config('game.rules');
+
         $this->checkGameStatus();
     }
 

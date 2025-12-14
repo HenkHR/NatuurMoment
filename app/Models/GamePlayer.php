@@ -24,6 +24,11 @@ class GamePlayer extends Model
         return $this->belongsTo(Game::class);
     }
 
+    public function routeStopAnswers()
+    {
+        return $this->hasMany(RouteStopAnswer::class);
+    }
+
     public static function generateToken()
     {
         return Str::random(100);

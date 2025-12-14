@@ -32,6 +32,11 @@ class Game extends Model
     {
         return $this->hasMany(BingoItem::class);
     }
+
+    public function routeStops()
+    {
+        return $this->hasMany(RouteStop::class);
+    }
     
     protected function casts(): array
     {

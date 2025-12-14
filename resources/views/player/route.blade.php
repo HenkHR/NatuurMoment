@@ -31,11 +31,15 @@
     {{-- Game Status Check (polling for finished games) --}}
     @livewire('player-route-check', ['gameId' => $gameId])
 
-    {{-- TODO: Voeg route vragen toe --}}
+    {{-- Route Questions Component --}}
     <div class="container mx-auto px-4 mt-6 mb-6">
-        <div class="text-center py-8">
-            <p class="text-gray-600 text-lg">Er zijn nog geen route vragen beschikbaar voor deze locatie.</p>
-        </div>
+        @if($game->routeStops()->exists())
+            @livewire('player-route-question', ['gameId' => $gameId, 'playerToken' => $playerToken])
+        @else
+            <div class="text-center py-8">
+                <p class="text-gray-600 text-lg">Er zijn geen route vragen beschikbaar voor deze locatie.</p>
+            </div>
+        @endif
     </div>
 
     <nav class="fixed bottom-0 left-0 right-0 bg-[#0076A8] pb-safe">

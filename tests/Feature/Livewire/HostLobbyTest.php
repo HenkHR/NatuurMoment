@@ -4,6 +4,8 @@ use App\Models\Game;
 use App\Models\GamePlayer;
 use App\Models\Location;
 use App\Models\LocationBingoItem;
+use App\Models\LocationRouteStop;
+use App\Models\RouteStop;
 use App\Livewire\HostLobby;
 use Livewire\Livewire;
 
@@ -132,4 +134,114 @@ it('REQ-001: can select timer duration', function () {
 // Timer durations constant is available
 it('has correct timer duration options', function () {
     expect(HostLobby::TIMER_DURATIONS)->toBe([15, 30, 45, 60, 90, 120]);
+});
+
+// REQ-005: Vragen worden gekopieerd van LocationRouteStop naar RouteStop bij game start
+it('REQ-005: copies route stops from location to game on start', function () {
+    // Create location route stops (multiple choice questions)
+    LocationRouteStop::create([
+        'location_id' => $this->location->id,
+        'name' => 'Vraag 1',
+        'question_text' => 'Wat is de hoofdstad van Nederland?',
+        'option_a' => 'Amsterdam',
+        'option_b' => 'Den Haag',
+        'option_c' => 'Rotterdam',
+        'option_d' => 'Utrecht',
+        'correct_option' => 'A',
+        'points' => 10,
+        'sequence' => 1,
+    ]);
+
+    LocationRouteStop::create([
+        'location_id' => $this->location->id,
+        'name' => 'Vraag 2',
+        'question_text' => 'Hoeveel provincies heeft Nederland?',
+        'option_a' => '10',
+        'option_b' => '12',
+        'option_c' => '14',
+        'option_d' => null,
+        'correct_option' => 'B',
+        'points' => 5,
+        'sequence' => 2,
+    ]);
+
+    // Add a player (required to start)
+    GamePlayer::create([
+        'game_id' => $this->game->id,
+        'name' => 'Test Player',
+        'token' => 'test-token',
+        'score' => 0,
+    ]);
+
+    // Enable timer (required to start)
+    $this->game->update([
+        'timer_enabled' => true,
+        'timer_duration_minutes' => 30,
+    ]);
+
+    // Start the game
+    Livewire::test(HostLobby::class, ['gameId' => $this->game->id])
+        ->call('startGame');
+
+    // Assert route stops were copied
+    $routeStops = RouteStop::where('game_id', $this->game->id)->orderBy('sequence')->get();
+
+    expect($routeStops)->toHaveCount(2);
+    expect($routeStops[0]->name)->toBe('Vraag 1');
+    expect($routeStops[0]->question_text)->toBe('Wat is de hoofdstad van Nederland?');
+    expect($routeStops[0]->correct_option)->toBe('A');
+    expect($routeStops[0]->points)->toBe(10);
+    expect($routeStops[0]->sequence)->toBe(1);
+    expect($routeStops[1]->name)->toBe('Vraag 2');
+    expect($routeStops[1]->sequence)->toBe(2);
+});
+
+// REQ-005: Route stops are not duplicated on multiple start attempts
+it('REQ-005: does not duplicate route stops if already generated', function () {
+    // Create one location route stop
+    LocationRouteStop::create([
+        'location_id' => $this->location->id,
+        'name' => 'Vraag 1',
+        'question_text' => 'Test vraag',
+        'option_a' => 'Optie A',
+        'option_b' => 'Optie B',
+        'correct_option' => 'A',
+        'points' => 5,
+        'sequence' => 1,
+    ]);
+
+    // Pre-create a route stop for this game
+    RouteStop::create([
+        'game_id' => $this->game->id,
+        'name' => 'Existing',
+        'question_text' => 'Existing question',
+        'option_a' => 'A',
+        'option_b' => 'B',
+        'correct_option' => 'A',
+        'points' => 5,
+        'sequence' => 1,
+    ]);
+
+    // Add a player (required to start)
+    GamePlayer::create([
+        'game_id' => $this->game->id,
+        'name' => 'Test Player',
+        'token' => 'test-token',
+        'score' => 0,
+    ]);
+
+    // Enable timer
+    $this->game->update([
+        'timer_enabled' => true,
+        'timer_duration_minutes' => 30,
+    ]);
+
+    // Start the game
+    Livewire::test(HostLobby::class, ['gameId' => $this->game->id])
+        ->call('startGame');
+
+    // Assert only 1 route stop exists (not duplicated)
+    $routeStops = RouteStop::where('game_id', $this->game->id)->get();
+    expect($routeStops)->toHaveCount(1);
+    expect($routeStops[0]->name)->toBe('Existing');
 });

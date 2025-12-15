@@ -35,11 +35,12 @@
                 </div>
             @endif
 
-            {{-- REQ-002 & REQ-008: Answer form with only available options --}}
+            {{-- REQ-002 & REQ-008: Answer options --}}
             {{-- REQ-006: Inline feedback on answered option (groen/rood border + background) --}}
-            @if(!$answeredOption)
-                <form wire:submit.prevent="submitAnswer({{ $currentQuestion->id }})" class="space-y-3">
-                    @foreach($currentQuestion->getAvailableOptions() as $optionKey => $optionText)
+            <div class="space-y-3">
+                @foreach($currentQuestion->getAvailableOptions() as $optionKey => $optionText)
+                    @if(!$answeredOption)
+                        {{-- Selectable option (before answer) --}}
                         <label
                             class="flex items-center p-4 border-2 rounded-lg cursor-pointer transition-all
                                 {{ $selectedOption === $optionKey ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50' }}"
@@ -53,35 +54,8 @@
                             >
                             <span class="ml-3 text-lg text-gray-700">{{ $optionText }}</span>
                         </label>
-                    @endforeach
-
-                    @error('selectedOption')
-                        <p class="text-red-600 text-sm">{{ $message }}</p>
-                    @enderror
-
-                    {{-- Submit button with wire:loading --}}
-                    <button
-                        type="submit"
-                        wire:loading.attr="disabled"
-                        x-bind:disabled="!selectedOption"
-                        class="w-full mt-4 py-3 bg-blue-600 text-white rounded-lg font-semibold
-                               disabled:opacity-50 disabled:cursor-not-allowed
-                               hover:bg-blue-700 transition-colors"
-                    >
-                        <span wire:loading.remove>Bevestig antwoord</span>
-                        <span wire:loading class="flex items-center justify-center gap-2">
-                            <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            Bezig...
-                        </span>
-                    </button>
-                </form>
-            @else
-                {{-- Show options with feedback styling on answered option --}}
-                <div class="space-y-3">
-                    @foreach($currentQuestion->getAvailableOptions() as $optionKey => $optionText)
+                    @else
+                        {{-- Feedback option (after answer) --}}
                         <div
                             class="flex items-center p-4 border-2 rounded-lg transition-all
                                 @if($answeredOption === $optionKey)
@@ -112,9 +86,56 @@
                                 {{ $optionText }}
                             </span>
                         </div>
-                    @endforeach
-                </div>
-            @endif
+                    @endif
+                @endforeach
+            </div>
+
+            @error('selectedOption')
+                <p class="text-red-600 text-sm mt-2">{{ $message }}</p>
+            @enderror
+
+            {{-- Submit button - always visible, changes state based on answeredOption --}}
+            <button
+                type="button"
+                wire:click="submitAnswer({{ $currentQuestion->id }})"
+                wire:loading.attr="disabled"
+                @if($answeredOption)
+                    disabled
+                @else
+                    x-bind:disabled="!selectedOption"
+                @endif
+                class="w-full mt-4 py-3 rounded-lg font-semibold transition-colors
+                    @if($answeredOption)
+                        {{ $feedbackType === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white' }}
+                    @else
+                        bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed
+                    @endif"
+            >
+                <span class="inline-flex items-center justify-center gap-2">
+                    @if($answeredOption)
+                        @if($feedbackType === 'success')
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                            </svg>
+                            Correct!
+                        @else
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                            </svg>
+                            Helaas, fout
+                        @endif
+                    @else
+                        <span wire:loading.remove wire:target="submitAnswer">Bevestig antwoord</span>
+                        <span wire:loading wire:target="submitAnswer">
+                            <svg class="animate-spin h-5 w-5 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Bezig...
+                        </span>
+                    @endif
+                </span>
+            </button>
         </div>
     @else
         {{-- All questions completed - REQ-011: Auto-redirect after showing feedback --}}

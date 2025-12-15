@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\BingoItemController;
 use App\Http\Controllers\Admin\AdminGameController;
 use App\Http\Controllers\Admin\LocationController;
 use App\Http\Controllers\Admin\RouteStopController;
+use App\Http\Controllers\Admin\StatisticsController;
 use App\Http\Controllers\GameInfoController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -76,6 +77,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::resource('locations.bingo-items', BingoItemController::class)->shallow()->except(['show']);
     Route::resource('locations.route-stops', RouteStopController::class)->shallow()->except(['show']);
     Route::resource('games', AdminGameController::class)->only(['index', 'show', 'destroy']);
+
+    // Statistics dashboard (REQ-002)
+    Route::get('statistics', [StatisticsController::class, 'index'])->name('statistics.index');
+    Route::get('statistics/trends', [StatisticsController::class, 'trends'])->name('statistics.trends');
 });
 
 //game info route

@@ -542,3 +542,167 @@ Generated: 2025-12-02 14:29:04
 - [ ] Verify: Opslaan werkt en toont success message
 - [ ] Verify: Admin index pages respecteren preference
 - [ ] Rebuild assets: `npm run dev` of `npm run build`
+
+---
+
+## Extend: survey-statistieken Tests (2025-12-15)
+
+### Requirements Test Matrix
+
+| REQ-ID | Description | Test Type | Automated | Manual |
+|--------|-------------|-----------|-----------|--------|
+| SS-REQ-001 | Feedback formulier toont 1-5 sterren | manual | - | ✓ |
+| SS-REQ-002 | Statistieken dashboard beschikbaar | automated_ui | ✓ | - |
+| SS-REQ-003 | 4 stat cards tonen correct | automated_ui | ✓ | ✓ |
+| SS-REQ-004 | Leeftijdsverdeling staafdiagram | manual | - | ✓ |
+| SS-REQ-005 | Tevredenheid per leeftijd grafiek | manual | - | ✓ |
+| SS-REQ-006 | Trends lijndiagram met AJAX filter | automated_api | ✓ | ✓ |
+| SS-REQ-007 | Rating per locatie horizontaal | manual | - | ✓ |
+| SS-REQ-008 | Rating opgeslagen als 1-5 | automated_unit | ✓ | - |
+| SS-REQ-009 | Leeftijd in 5 groepen | automated_unit | ✓ | - |
+| SS-REQ-010 | Aggregatie queries correct | automated_unit | ✓ | - |
+| SS-REQ-011 | Lege staat message | automated_ui | ✓ | ✓ |
+| SS-REQ-012 | Grafieken met 0 responses | manual | - | ✓ |
+
+### Manual Tests
+
+#### SS-REQ-001: Sterren Rating Formulier
+**Category:** core
+**Test Type:** manual
+
+**Test Steps:**
+1. Start een game en speel tot het einde
+2. Na afloop verschijnt het feedback formulier
+3. Bekijk de rating vraag
+
+**Expected Result:**
+- 5 ster-iconen worden getoond (niet 10 knoppen)
+- Sterren zijn klikbaar en worden geel bij selectie
+- Hover effect toont potentiele selectie
+- "X/5 sterren" indicator verschijnt na selectie
+
+---
+
+#### SS-REQ-003: Stat Cards Visueel
+**Category:** core
+**Test Type:** manual
+
+**Test Steps:**
+1. Zorg dat er feedback data is (speel een game en geef feedback)
+2. Log in als admin
+3. Navigeer naar /admin/statistics
+
+**Expected Result:**
+- 4 stat cards worden getoond in een rij
+- "Totaal Responses" toont het totaal aantal feedback entries
+- "Gemiddelde Rating" toont gemiddelde met sterren visualisatie
+- "Deze Maand" toont responses van huidige maand
+- "Meest Actieve Locatie" toont locatienaam met aantal
+
+---
+
+#### SS-REQ-004/005/007: Grafiek Visualisatie
+**Category:** ui
+**Test Type:** manual
+
+**Test Steps:**
+1. Navigeer naar /admin/statistics met feedback data
+2. Bekijk alle 4 grafieken
+
+**Expected Result:**
+- Leeftijdsverdeling: staafdiagram met 5 categorieën (≤12, 13-15, 16-18, 19-21, 22+)
+- Tevredenheid per leeftijd: staafdiagram met gemiddelde rating per leeftijdscategorie
+- Trends: lijndiagram met rating over tijd
+- Rating per locatie: horizontaal staafdiagram met locaties
+
+---
+
+#### SS-REQ-006: Trends AJAX Filter
+**Category:** core
+**Test Type:** manual
+
+**Test Steps:**
+1. Navigeer naar /admin/statistics
+2. Klik op de period dropdown bij "Trends Over Tijd"
+3. Selecteer "Per Week"
+4. Selecteer "Per Jaar"
+
+**Expected Result:**
+- Grafiek update zonder page refresh
+- Labels veranderen naar week/maand/jaar format
+- Data punten veranderen op basis van aggregatie periode
+
+---
+
+#### SS-REQ-011: Lege Staat
+**Category:** edge_case
+**Test Type:** manual
+
+**Test Steps:**
+1. Zorg dat er geen feedback data is (verse database)
+2. Navigeer naar /admin/statistics
+
+**Expected Result:**
+- Melding "Geen feedback gegevens" wordt getoond
+- Geen grafieken of stat cards zichtbaar
+- Uitleg dat statistieken verschijnen na eerste feedback
+
+---
+
+#### SS-REQ-012: Grafieken met Lege Categorieën
+**Category:** edge_case
+**Test Type:** manual
+
+**Test Steps:**
+1. Maak feedback met alleen spelers van 10 jaar oud
+2. Navigeer naar /admin/statistics
+
+**Expected Result:**
+- Leeftijdsverdeling toont alleen ≤12 categorie met data
+- Andere categorieën tonen 0 (geen error)
+- Grafieken renderen correct zonder crashes
+
+---
+
+### Automated Tests
+
+#### StatisticsController Tests (17 tests)
+```bash
+./vendor/bin/pest tests/Feature/Admin/StatisticsControllerTest.php
+```
+
+| Test | REQ-ID | Description |
+|------|--------|-------------|
+| REQ-002: admin can view statistics dashboard | SS-REQ-002 | Dashboard laadt voor admin |
+| non-admin cannot view statistics dashboard | - | 403 voor non-admin |
+| guest cannot view statistics dashboard | - | Redirect naar login |
+| REQ-011: dashboard shows empty state | SS-REQ-011 | Lege staat bij geen data |
+| REQ-003: dashboard shows total responses | SS-REQ-003 | Totaal responses correct |
+| REQ-003: dashboard shows average rating | SS-REQ-003 | Gemiddelde berekening correct |
+| REQ-003: dashboard shows responses this month | SS-REQ-003 | Maand filter werkt |
+| REQ-003: dashboard shows most active location | SS-REQ-003 | Meest actieve locatie correct |
+| REQ-009: age groups categorized correctly | SS-REQ-009 | 5 leeftijdscategorieën werken |
+| REQ-009: age distribution handles empty categories | SS-REQ-009 | 0 voor lege categorieën |
+| REQ-010: aggregation calculates satisfaction by age | SS-REQ-010 | AVG per leeftijdsgroep correct |
+| REQ-010: rating by location aggregation correct | SS-REQ-010 | AVG per locatie correct |
+| REQ-006: trends AJAX endpoint returns JSON | SS-REQ-006 | JSON response format |
+| REQ-006: trends AJAX accepts week period | SS-REQ-006 | Week period werkt |
+| REQ-006: trends AJAX accepts year period | SS-REQ-006 | Year period werkt |
+| REQ-008: players only have ratings 1-5 | SS-REQ-008 | Rating range verificatie |
+
+### Run All Survey-Statistieken Tests
+```bash
+./vendor/bin/pest tests/Feature/Admin/StatisticsControllerTest.php
+```
+
+**Expected result:** 17 tests passed
+
+### Pre-Deployment Checklist (survey-statistieken)
+
+- [ ] Run tests: `./vendor/bin/pest tests/Feature/Admin/StatisticsControllerTest.php`
+- [ ] Verify: Feedback formulier toont 5 sterren
+- [ ] Verify: Admin navigatie toont "Statistieken" link
+- [ ] Verify: Dashboard toont 4 stat cards
+- [ ] Verify: 4 Chart.js grafieken renderen correct
+- [ ] Verify: Trends AJAX filter werkt zonder page refresh
+- [ ] Verify: Empty state verschijnt bij geen feedback data

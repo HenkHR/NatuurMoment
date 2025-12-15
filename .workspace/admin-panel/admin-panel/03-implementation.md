@@ -399,3 +399,83 @@ Game modes systeem met toggle switches per locatie, validatie per modus (bingo: 
 | REQ-008 | Table shows ⚠️ badge when incomplete active modes | Implemented |
 | REQ-009 | Location without valid active modes not visible on home | Implemented |
 | REQ-010 | Bingo selects random 9 items if > 9 available | Deferred (game creation logic) |
+
+---
+
+## Extend: survey-statistieken (2025-12-15)
+
+### Overview
+Survey feedback systeem aangepast naar 1-5 sterren-rating en statistieken dashboard toegevoegd aan admin panel met stat cards en Chart.js grafieken.
+
+### Files Created
+
+#### Controller
+- `app/Http/Controllers/Admin/StatisticsController.php` - Dashboard controller met 4 stat cards + 4 chart query methods
+
+#### Views
+- `resources/views/admin/statistics/index.blade.php` - Dashboard view met Chart.js grafieken (via CDN)
+
+#### Factory
+- `database/factories/GamePlayerFactory.php` - Factory voor GamePlayer model met feedback states
+
+#### Tests
+- `tests/Feature/Admin/StatisticsControllerTest.php` - 17 feature tests voor REQ-001 t/m REQ-011
+
+### Files Modified
+
+#### Livewire Component
+- `app/Livewire/PlayerFeedback.php`
+  - Changed validation rule from `1-10` to `1-5` (REQ-008)
+
+#### Views
+- `resources/views/livewire/player-feedback.blade.php`
+  - Replaced 10 number buttons with 5 clickable star icons (REQ-001)
+  - Added rating indicator text (X/5 sterren)
+
+#### Routes
+- `routes/web.php`
+  - Added `admin.statistics.index` route
+  - Added `admin.statistics.trends` route for AJAX filter
+
+#### Navigation
+- `resources/views/layouts/admin-navigation.blade.php`
+  - Added "Locaties" and "Statistieken" nav links in desktop navigation
+  - Added responsive navigation links for mobile menu
+
+### Architectural Decisions
+
+1. **Inline Controller Query Methods**: Chose controller methods with descriptive names instead of service layer (YAGNI - single-use queries don't warrant abstraction)
+
+2. **Chart.js via CDN**: Used CDN instead of npm install for zero configuration and faster implementation
+
+3. **Const Arrays for Age Groups**: Used PHP const arrays instead of Enum for simplicity - documents categories without ceremony
+
+4. **AJAX Only for Trends Filter**: Other charts reload full page - only trends filter needs AJAX for smooth UX
+
+5. **Balanced Synthesis**: Combined approaches from 3 implementation agents:
+   - File structure: from BALANCED agent
+   - Query methods: from BALANCED agent (clean but not over-abstracted)
+   - View/Charts: from SPEED agent (inline Chart.js, simple Alpine.js)
+
+### Deviations from Research Plan
+
+- Skipped service layer (from quality agent) - inline queries sufficient for read-only dashboard
+- Skipped separate chart components (from quality agent) - only 4 charts, inline is cleaner
+- Skipped query caching - premature optimization for admin-only page
+
+### Requirements Status
+
+| REQ-ID | Description | Status |
+|--------|-------------|--------|
+| REQ-001 | Feedback formulier toont 1-5 sterren | Implemented |
+| REQ-002 | Statistieken dashboard beschikbaar | Implemented |
+| REQ-003 | 4 stat cards tonen correct | Implemented |
+| REQ-004 | Leeftijdsverdeling staafdiagram | Implemented |
+| REQ-005 | Tevredenheid per leeftijd grafiek | Implemented |
+| REQ-006 | Trends lijndiagram met AJAX filter | Implemented |
+| REQ-007 | Rating per locatie horizontaal | Implemented |
+| REQ-008 | Rating opgeslagen als 1-5 | Implemented |
+| REQ-009 | Leeftijd in 5 groepen | Implemented |
+| REQ-010 | Aggregatie queries correct | Implemented |
+| REQ-011 | Lege staat message | Implemented |
+| REQ-012 | Grafieken met 0 responses | Implemented |

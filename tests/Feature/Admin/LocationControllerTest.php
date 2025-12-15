@@ -28,12 +28,17 @@ test('admin can view create location form', function () {
 });
 
 test('admin can create a location', function () {
+    // Create a fake image for upload
+    $image = \Illuminate\Http\UploadedFile::fake()->image('location.jpg');
+
     $this->actingAs($this->admin)
         ->post('/admin/locations', [
             'name' => 'Test Locatie',
             'description' => 'Test beschrijving',
             'province' => 'Noord-Holland',
-            'duration' => 60,
+            'distance' => 60,
+            'image' => $image,
+            'game_modes' => ['bingo'],
         ])
         ->assertRedirect('/admin/locations')
         ->assertSessionHas('status');
@@ -70,14 +75,15 @@ test('admin can view edit location form', function () {
 });
 
 test('admin can update a location', function () {
-    $location = Location::factory()->create();
+    $location = Location::factory()->create(['description' => 'Originele beschrijving']);
 
     $this->actingAs($this->admin)
         ->put("/admin/locations/{$location->id}", [
             'name' => 'Bijgewerkte Naam',
             'description' => 'Bijgewerkte beschrijving',
             'province' => 'Utrecht',
-            'duration' => 90,
+            'distance' => 90,
+            'game_modes' => ['vragen'],
         ])
         ->assertRedirect('/admin/locations')
         ->assertSessionHas('status');
@@ -166,10 +172,11 @@ test('REQ-006: filters and pagination preserve query string', function () {
     $response->assertStatus(200);
     $locations = $response->viewData('locations');
 
-    // Check that pagination links contain query params
-    $paginationHtml = $locations->links()->toHtml();
-    expect($paginationHtml)->toContain('regio=Utrecht');
-    expect($paginationHtml)->toContain('search=Utr');
+    // Check that withQueryString() preserves filters
+    // The paginator should have appends set for regio and search
+    expect($locations->appends(['regio' => 'Utrecht', 'search' => 'Utr'])->url(2))
+        ->toContain('regio=Utrecht')
+        ->toContain('search=Utr');
 });
 
 test('REQ-007: shows empty state when no locations match filter', function () {

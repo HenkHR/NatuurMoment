@@ -353,18 +353,18 @@ EXTEND
 
 | ID | Description | Category | Test Type | Passes |
 |----|-------------|----------|-----------|--------|
-| REQ-001 | Feedback formulier toont 1-5 sterren i.p.v. 1-10 cijfer | core | manual | false |
-| REQ-002 | Statistieken dashboard pagina beschikbaar in admin panel | core | automated_ui | false |
-| REQ-003 | 4 stat cards tonen: totaal responses, gem. rating, responses deze maand, meest actieve locatie | core | automated_ui | false |
-| REQ-004 | Staafdiagram toont leeftijdsverdeling in 5 categorieën (≤12, 13-15, 16-18, 19-21, 22+) | ui | manual | false |
-| REQ-005 | Grouped staafdiagram toont tevredenheid per leeftijdscategorie | ui | manual | false |
-| REQ-006 | Lijndiagram toont trends met dropdown filter (week/maand/jaar) | ui | manual | false |
-| REQ-007 | Horizontaal staafdiagram toont gemiddelde rating per locatie | ui | manual | false |
-| REQ-008 | Rating wordt opgeslagen als 1-5 integer | api | automated_unit | false |
-| REQ-009 | Leeftijd wordt gecategoriseerd in 5 groepen voor statistieken | api | automated_unit | false |
-| REQ-010 | Aggregatie queries berekenen AVG rating, COUNT per categorie, GROUP BY tijd/locatie/leeftijd | api | automated_unit | false |
-| REQ-011 | Dashboard toont lege staat message als geen feedback data aanwezig | edge_case | automated_ui | false |
-| REQ-012 | Grafieken renderen correct met 0 responses in bepaalde categorieën | edge_case | manual | false |
+| REQ-001 | Feedback formulier toont 1-5 sterren i.p.v. 1-10 cijfer | core | manual | true |
+| REQ-002 | Statistieken dashboard pagina beschikbaar in admin panel | core | automated_ui | true |
+| REQ-003 | 4 stat cards tonen: totaal responses, gem. rating, responses deze maand, meest actieve locatie | core | automated_ui | true |
+| REQ-004 | Staafdiagram toont leeftijdsverdeling in 5 categorieën (≤12, 13-15, 16-18, 19-21, 22+) | ui | manual | true |
+| REQ-005 | Grouped staafdiagram toont tevredenheid per leeftijdscategorie | ui | manual | true |
+| REQ-006 | Lijndiagram toont trends met dropdown filter (week/maand/jaar) | ui | manual | true |
+| REQ-007 | Horizontaal staafdiagram toont gemiddelde rating per locatie | ui | manual | true |
+| REQ-008 | Rating wordt opgeslagen als 1-5 integer | api | automated_unit | true |
+| REQ-009 | Leeftijd wordt gecategoriseerd in 5 groepen voor statistieken | api | automated_unit | true |
+| REQ-010 | Aggregatie queries berekenen AVG rating, COUNT per categorie, GROUP BY tijd/locatie/leeftijd | api | automated_unit | true |
+| REQ-011 | Dashboard toont lege staat message als geen feedback data aanwezig | edge_case | automated_ui | true |
+| REQ-012 | Grafieken renderen correct met 0 responses in bepaalde categorieën | edge_case | manual | true |
 
 ### Leeftijdscategorieën
 | Categorie | Leeftijd | Doelgroep |

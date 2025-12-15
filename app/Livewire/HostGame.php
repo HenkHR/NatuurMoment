@@ -172,17 +172,27 @@ class HostGame extends Component
         // REQ-013: Get route question counts for progress display
         $totalRouteQuestions = $this->game->routeStops()->count();
         $routeAnswerCounts = [];
+        $routeAnswerScores = [];
         if ($totalRouteQuestions > 0) {
             $routeAnswerCounts = RouteStopAnswer::whereIn('game_player_id', $this->game->players->pluck('id'))
                 ->select('game_player_id', DB::raw('count(*) as count'))
                 ->groupBy('game_player_id')
                 ->pluck('count', 'game_player_id')
                 ->toArray();
+            
+            // Get route stop answer scores for all players
+            $routeAnswerScores = RouteStopAnswer::whereIn('game_player_id', $this->game->players->pluck('id'))
+                ->select('game_player_id', DB::raw('sum(score_awarded) as total_score'))
+                ->groupBy('game_player_id')
+                ->pluck('total_score', 'game_player_id')
+                ->toArray();
         }
 
-        // Calculate scores for each player (includes line bonuses)
-        $this->players = $this->game->players->map(function($player) use ($pendingCounts, $playerScores, $playersCompleted, $totalRouteQuestions, $routeAnswerCounts) {
-            $score = $playerScores[$player->id] ?? 0;
+        // Calculate scores for each player (includes line bonuses and route stop answers)
+        $this->players = $this->game->players->map(function($player) use ($pendingCounts, $playerScores, $playersCompleted, $totalRouteQuestions, $routeAnswerCounts, $routeAnswerScores) {
+            $photoScore = $playerScores[$player->id] ?? 0;
+            $routeScore = (int)($routeAnswerScores[$player->id] ?? 0);
+            $score = $photoScore + $routeScore;
             $answeredQuestions = $routeAnswerCounts[$player->id] ?? 0;
 
             return [
@@ -379,7 +389,7 @@ class HostGame extends Component
     }
 
     /**
-     * Calculate player bingo score (base points + line bonuses)
+     * Calculate player total score (bingo points + line bonuses + route stop answers)
      *
      * @param int $playerId Player ID to calculate score for
      * @param bool $persist If true, also updates the database
@@ -404,7 +414,11 @@ class HostGame extends Component
         // Calculate bonus points for completed lines
         $bonusPoints = $this->calculateLineBonuses($approvedPositions);
 
-        $totalScore = (int)(($baseScore ?? 0) + $bonusPoints);
+        // Calculate score from route stop answers
+        $routeScore = RouteStopAnswer::where('game_player_id', $playerId)
+            ->sum('score_awarded') ?? 0;
+
+        $totalScore = (int)(($baseScore ?? 0) + $bonusPoints + $routeScore);
 
         // Optionally persist to database
         if ($persist) {

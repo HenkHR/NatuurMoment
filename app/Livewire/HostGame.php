@@ -208,7 +208,14 @@ class HostGame extends Component
                     ? round(($answeredQuestions / $totalRouteQuestions) * 100)
                     : null,
             ];
-        })->toArray();
+        })
+        ->sortBy(function($player) {
+            // Sort by pending_photos descending first, then by score descending
+            // Using negative values to achieve descending sort
+            return [-$player['pending_photos'], -$player['score']];
+        })
+        ->values()
+        ->toArray();
     }
 
     /**

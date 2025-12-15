@@ -10,3 +10,7 @@
         padding-bottom: calc(env(safe-area-inset-bottom) + 0.5rem);
     }
 }
+
+html {
+  overflow-y: scroll; /* zorgt dat de scrollbar altijd ruimte inneemt */
+}

@@ -103,8 +103,6 @@
                                     {{-- REQ-007: Red text for counts under minimum --}}
                                     <span class="font-semibold">{{ $location->bingo_items_count }}</span>
                                 </a>
-                            @else
-                                <span class="text-gray-400">—</span>
                             @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm">
@@ -116,8 +114,6 @@
                                     {{-- REQ-007: Red text for counts under minimum --}}
                                     <span class="font-semibold">{{ $location->route_stops_count }}</span>
                                 </a>
-                            @else
-                                <span class="text-gray-400">—</span>
                             @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

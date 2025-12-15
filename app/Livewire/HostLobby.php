@@ -179,6 +179,11 @@ class HostLobby extends Component
      */
     private function generateBingoItems(Game $game): bool
     {
+        // Skip bingo generation if bingo mode is not enabled for this location
+        if (!$game->location->has_bingo_mode) {
+            return true;
+        }
+
         // Check if bingo items already exist (prevent duplicates)
         if (BingoItem::where('game_id', $game->id)->exists()) {
             return true; // Already exists, not an error
@@ -221,6 +226,11 @@ class HostLobby extends Component
      */
     private function generateRouteStops(Game $game): void
     {
+        // Skip route stops generation if vragen mode is not enabled for this location
+        if (!$game->location->has_vragen_mode) {
+            return;
+        }
+
         // Check if route stops already exist (prevent duplicates)
         if ($game->routeStops()->exists()) {
             return;

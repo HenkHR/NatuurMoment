@@ -30,13 +30,15 @@
     @if(!$playerCompletedAll)
     <nav class="fixed bottom-0 left-0 right-0 bg-[#0076A8] pb-safe z-50">
         <div class="mx-auto w-full max-w-lg flex justify-around py-3 sm:py-5">
+            @if($game && $game->location->has_bingo_mode)
             <a href="{{ route('player.game', $gameId) }}" class="flex items-center justify-center p-2 rounded {{ request()->routeIs('player.game') ? 'bg-sky-500' : '' }}">
                 <x-bi-grid alt="Bingo" class="w-8 h-8 sm:w-10 sm:h-10 text-white" />
             </a>
+            @endif
             <a href="{{ route('player.leaderboard', $gameId) }}" class="flex items-center justify-center p-2 rounded {{ request()->routeIs('player.leaderboard') ? 'bg-sky-500' : '' }}">
                 <x-lucide-trophy alt="Ranglijst" class="w-8 h-8 sm:w-10 sm:h-10 text-white"/>
             </a>
-            @if($game && $game->routeStops()->exists())
+            @if($game && $game->location->has_vragen_mode && $game->routeStops()->exists())
             <a href="{{ route('player.route', $gameId) }}" class="flex items-center justify-center p-2 rounded {{ request()->routeIs('player.route') ? 'bg-sky-500' : '' }}">
                 <x-lucide-route alt="Route" class="w-8 h-8 sm:w-10 sm:h-10 text-white"/>
             </a>

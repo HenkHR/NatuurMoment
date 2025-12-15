@@ -16,11 +16,14 @@ class BingoItemController extends Controller
 {
     public function index(Location $location): View
     {
+        $perPage = request('per_page', auth()->user()->admin_per_page ?? 15);
+
         $bingoItems = $location->bingoItems()
             ->orderBy('label')
-            ->paginate(15);
+            ->paginate($perPage)
+            ->withQueryString();
 
-        return view('admin.bingo-items.index', compact('location', 'bingoItems'));
+        return view('admin.bingo-items.index', compact('location', 'bingoItems', 'perPage'));
     }
 
     public function create(Location $location): View

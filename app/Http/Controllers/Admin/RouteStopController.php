@@ -15,11 +15,14 @@ class RouteStopController extends Controller
 {
     public function index(Location $location): View
     {
+        $perPage = request('per_page', auth()->user()->admin_per_page ?? 15);
+
         $routeStops = $location->routeStops()
             ->orderBy('sequence')
-            ->paginate(15);
+            ->paginate($perPage)
+            ->withQueryString();
 
-        return view('admin.route-stops.index', compact('location', 'routeStops'));
+        return view('admin.route-stops.index', compact('location', 'routeStops', 'perPage'));
     }
 
     public function create(Location $location): View

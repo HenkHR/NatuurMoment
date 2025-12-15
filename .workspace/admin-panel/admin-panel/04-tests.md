@@ -209,18 +209,19 @@ Generated: 2025-12-02 14:29:04
 
 ### Manual Tests
 
-#### REQ-001: Search Bar Filtert op Regio
+#### REQ-001: Search Bar Live Filtering
 **Category:** core
 **Test Type:** manual
 
 **Test Steps:**
 1. Navigeer naar /admin/locations
-2. Typ "Noord" in de search bar
-3. Klik op "Zoek" knop
+2. Typ "Noord" in de search bar (zonder knop te klikken)
+3. Wacht 400ms
 
 **Expected Result:**
-- Alleen locaties met "Noord" in de province worden getoond
-- Locaties met andere provincies zijn verborgen
+- Pagina refresht automatisch na stoppen met typen
+- Alleen locaties met "Noord" in de naam of province worden getoond
+- Search input behoudt focus en cursor positie
 
 ---
 
@@ -231,11 +232,12 @@ Generated: 2025-12-02 14:29:04
 **Test Steps:**
 1. Navigeer naar /admin/locations
 2. Selecteer "Gelderland" in de regio dropdown
-3. Klik op "Zoek" knop
 
 **Expected Result:**
+- Pagina refresht direct bij selectie (geen knop nodig)
 - Alleen locaties in Gelderland worden getoond
 - Dropdown bevat alle 12 provincies uit config/provinces.php
+- Search bar zoekt nu alleen op naam (niet meer op regio)
 
 ---
 
@@ -244,13 +246,16 @@ Generated: 2025-12-02 14:29:04
 **Test Type:** manual
 
 **Test Steps:**
-1. Navigeer naar /admin/locations?search=Noord&regio=Utrecht
-2. Klik op pagina 2 in pagination
-3. Bekijk URL
+1. Navigeer naar /admin/locations
+2. Typ "Veluwe" in search bar (wacht op refresh)
+3. Selecteer een regio in dropdown
+4. Klik op pagina 2 in pagination
+5. Bekijk URL
 
 **Expected Result:**
-- URL bevat `search=Noord&regio=Utrecht&page=2`
+- URL bevat `search=Veluwe&regio=...&page=2`
 - Filters blijven ingevuld in de form
+- Focus blijft behouden bij typing
 
 ---
 
@@ -260,13 +265,28 @@ Generated: 2025-12-02 14:29:04
 
 **Test Steps:**
 1. Navigeer naar /admin/locations
-2. Zoek op een niet-bestaande provincie: "NonExistent"
-3. Klik op "Zoek"
+2. Typ een niet-bestaande naam: "XYZNonExistent"
+3. Wacht op refresh
 
 **Expected Result:**
 - Melding: "Geen locaties gevonden voor deze filters"
 - "Probeer andere zoektermen of filters" hint wordt getoond
-- "Wis filters" knop is zichtbaar
+- Search input behoudt focus om direct te kunnen corrigeren
+
+---
+
+#### Live Filter UX Tests
+**Category:** ux
+**Test Type:** manual
+
+**Test Steps:**
+1. Typ snel meerdere karakters in search bar
+2. Wis de search bar volledig
+
+**Expected Result:**
+- Debouncing: pagina refresht pas 400ms na stoppen met typen
+- Focus blijft behouden ook bij lege search
+- Smooth typing ervaring zonder onderbrekingen
 
 ---
 
@@ -314,3 +334,211 @@ Generated: 2025-12-02 14:29:04
 ```
 
 **Expected result:** 12 new tests passed (in addition to existing 38)
+
+---
+
+## Extend: game-modes Tests (2025-12-15)
+
+### Requirements Test Matrix
+
+| REQ-ID | Description | Test Type | Automated | Manual |
+|--------|-------------|-----------|-----------|--------|
+| GM-REQ-001 | Location has game_modes JSON field | automated_unit | ✓ | - |
+| GM-REQ-002 | Bingo mode requires min 9 bingo items | automated_unit | ✓ | - |
+| GM-REQ-003 | Vragen mode requires min 1 question | automated_unit | ✓ | - |
+| GM-REQ-004 | Edit/create shows toggle switches | automated_ui | ✓ | ✓ |
+| GM-REQ-005 | Toggle shows status indicator with count | automated_ui | ✓ | ✓ |
+| GM-REQ-006 | New location has all modes OFF | automated_unit | ✓ | - |
+| GM-REQ-007 | Table shows red text for counts under minimum | automated_ui | ✓ | ✓ |
+| GM-REQ-008 | Table shows warning badge when incomplete modes | automated_ui | ✓ | ✓ |
+| GM-REQ-009 | Location without valid modes not visible on home | automated_integration | ✓ | ✓ |
+| GM-REQ-010 | Bingo selects random 9 items if > 9 available | - | - | - |
+
+### Manual Tests
+
+#### GM-REQ-004: Toggle Switches on Create/Edit Pages
+**Category:** core
+**Test Type:** manual
+
+**Test Steps:**
+1. Navigeer naar /admin/locations/create
+2. Bekijk het "Spelmodi" gedeelte
+
+**Expected Result:**
+- "Bingo modus" toggle is zichtbaar en UIT
+- "Vragen modus" toggle is zichtbaar en UIT
+- Tekst toont minimum vereisten (9 items / 1 vraag)
+
+---
+
+#### GM-REQ-005: Status Indicator on Edit Page
+**Category:** core
+**Test Type:** manual
+
+**Test Steps:**
+1. Maak een locatie met bingo modus AAN en 5 bingo items
+2. Navigeer naar edit page
+
+**Expected Result:**
+- Bingo toggle toont ⚠️ indicator
+- Counter toont "5/9 items"
+- Oranje styling voor onvoldoende content
+
+---
+
+#### GM-REQ-007/008: Red Counts & Warning Badge on Index
+**Category:** ui
+**Test Type:** manual
+
+**Test Steps:**
+1. Maak een locatie met bingo modus AAN en slechts 3 bingo items
+2. Navigeer naar /admin/locations
+
+**Expected Result:**
+- Bingo items count "3" is rood gekleurd
+- ⚠️ badge verschijnt na locatienaam
+- Tooltip toont "Actieve spelmodus heeft onvoldoende content"
+
+---
+
+#### GM-REQ-009: Home Page Filtering
+**Category:** integration
+**Test Type:** manual
+
+**Test Steps:**
+1. Maak locatie A met bingo modus AAN + 10 bingo items (valide)
+2. Maak locatie B met bingo modus AAN + 5 bingo items (invalide)
+3. Maak locatie C zonder actieve modi
+4. Navigeer naar homepage (/)
+
+**Expected Result:**
+- Locatie A is zichtbaar
+- Locatie B is NIET zichtbaar
+- Locatie C is NIET zichtbaar
+
+---
+
+### Automated Tests
+
+#### Location Controller Tests (12 nieuwe tests)
+```bash
+./vendor/bin/pest tests/Feature/Admin/LocationControllerTest.php --filter="GM-REQ"
+```
+
+| Test | REQ-ID | Description |
+|------|--------|-------------|
+| GM-REQ-001: location has game_modes JSON field | GM-REQ-001 | JSON array cast werkt |
+| GM-REQ-002: bingo mode requires min 9 bingo items to be valid | GM-REQ-002 | Validatie logica accessor |
+| GM-REQ-003: vragen mode requires min 1 question to be valid | GM-REQ-003 | Validatie logica accessor |
+| GM-REQ-004: edit page shows toggle switches for game modes | GM-REQ-004 | UI elements aanwezig |
+| GM-REQ-005: toggle shows status indicator with count | GM-REQ-005 | Count indicator in view |
+| GM-REQ-006: new location has all modes OFF by default | GM-REQ-006 | Factory default empty array |
+| GM-REQ-007: index table shows red styling for counts under minimum | GM-REQ-007 | Red CSS class applied |
+| GM-REQ-008: index table shows warning badge when incomplete active modes | GM-REQ-008 | Warning badge title present |
+| GM-REQ-006: admin can save location with game modes | GM-REQ-006 | Store/update game_modes |
+| location has_valid_game_mode returns true when at least one mode is valid | - | Accessor logica |
+| location has_incomplete_active_mode returns true when enabled mode has insufficient content | - | Accessor logica |
+| location scopeWithValidGameModes filters correctly | GM-REQ-009 | Scope filtering |
+
+### Run All Game-Modes Tests
+```bash
+./vendor/bin/pest tests/Feature/Admin/LocationControllerTest.php --filter="GM-REQ"
+```
+
+**Expected result:** 12 new tests passed (total ~62 tests in admin suite)
+
+### Pre-Deployment Checklist (game-modes)
+
+- [ ] Run migration: `php artisan migrate`
+- [ ] Run tests: `./vendor/bin/pest tests/Feature/Admin/LocationControllerTest.php --filter="GM-REQ"`
+- [ ] Verify: Edit page shows toggles with status indicators
+- [ ] Verify: Index page shows red counts and warning badges
+- [ ] Verify: Homepage filters out locations without valid modes
+
+---
+
+## Extend: settings-page Tests (2025-12-15)
+
+### Requirements Test Matrix
+
+| REQ-ID | Description | Test Type | Automated | Manual |
+|--------|-------------|-----------|-----------|--------|
+| SET-001 | Settings page accessible via /settings | manual | - | ✓ |
+| SET-002 | Per-page dropdown shows 10, 15, 25, 50, 100 | manual | - | ✓ |
+| SET-003 | Per-page preference persists after save | manual | - | ✓ |
+| SET-004 | Admin index pages use saved preference | manual | - | ✓ |
+| SET-005 | Navigation shows "Instellingen" link | manual | - | ✓ |
+
+### Manual Tests
+
+#### SET-001: Settings Page Access
+**Category:** core
+**Test Type:** manual
+
+**Test Steps:**
+1. Log in als admin
+2. Klik op je naam in de navbar
+3. Klik op "Instellingen"
+
+**Expected Result:**
+- URL is `/settings`
+- Pagina toont "Instellingen" als titel
+- Eerste sectie is "Admin voorkeuren"
+- Overige secties: Profile, Wachtwoord, Account verwijderen
+
+---
+
+#### SET-002/003: Per-Page Preference
+**Category:** core
+**Test Type:** manual
+
+**Test Steps:**
+1. Ga naar /settings
+2. Selecteer "25 items" in de per-page dropdown
+3. Klik "Opslaan"
+4. Refresh de pagina
+
+**Expected Result:**
+- Melding "Opgeslagen." verschijnt tijdelijk
+- Na refresh is "25 items" nog steeds geselecteerd
+- Preference is opgeslagen in database
+
+---
+
+#### SET-004: Admin Index Uses Preference
+**Category:** integration
+**Test Type:** manual
+
+**Test Steps:**
+1. Ga naar /settings en stel "50 items" in
+2. Navigeer naar /admin/locations
+3. Bekijk de pagination
+
+**Expected Result:**
+- Maximaal 50 locaties per pagina worden getoond
+- Pagination past zich aan op basis van nieuwe per-page waarde
+
+---
+
+#### SET-005: Navigation Link
+**Category:** ui
+**Test Type:** manual
+
+**Test Steps:**
+1. Log in als admin
+2. Klik op je naam in de navbar (desktop en mobiel)
+
+**Expected Result:**
+- Dropdown toont "Instellingen" (niet "Profile")
+- Link navigeert naar /settings
+
+---
+
+### Pre-Deployment Checklist (settings-page)
+
+- [ ] Run migration: `php artisan migrate`
+- [ ] Verify: Alpine.js dropdown werkt in navbar
+- [ ] Verify: Settings pagina toont per-page dropdown
+- [ ] Verify: Opslaan werkt en toont success message
+- [ ] Verify: Admin index pages respecteren preference
+- [ ] Rebuild assets: `npm run dev` of `npm run build`

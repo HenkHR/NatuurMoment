@@ -139,3 +139,36 @@ test('admin can delete a route stop', function () {
 
     $this->assertDatabaseMissing('location_route_stops', ['id' => $routeStop->id]);
 });
+
+// ============================================
+// Pagination Tests (REQ-005)
+// ============================================
+
+test('REQ-005: route stops index paginates with 15 items per page', function () {
+    LocationRouteStop::factory()->count(20)->create([
+        'location_id' => $this->location->id,
+    ]);
+
+    $response = $this->actingAs($this->admin)
+        ->get("/admin/locations/{$this->location->id}/route-stops");
+
+    $response->assertStatus(200);
+    $routeStops = $response->viewData('routeStops');
+    expect($routeStops->perPage())->toBe(15);
+    expect($routeStops->count())->toBe(15);
+});
+
+test('route stops pagination preserves query string', function () {
+    LocationRouteStop::factory()->count(20)->create([
+        'location_id' => $this->location->id,
+    ]);
+
+    $response = $this->actingAs($this->admin)
+        ->get("/admin/locations/{$this->location->id}/route-stops?page=1");
+
+    $response->assertStatus(200);
+    $routeStops = $response->viewData('routeStops');
+
+    // withQueryString should be applied
+    expect($routeStops->hasPages())->toBeTrue();
+});

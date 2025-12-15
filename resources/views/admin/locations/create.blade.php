@@ -57,6 +57,9 @@
                 <x-input-error :messages="$errors->get('image')" class="mt-2" />
             </div>
 
+            {{-- Game Mode Toggles --}}
+            @include('admin.locations._game-mode-toggles', ['location' => new \App\Models\Location()])
+
             <div class="flex justify-end gap-3">
                 <a href="{{ route('admin.locations.index') }}">
                     <x-secondary-button type="button">Annuleren</x-secondary-button>

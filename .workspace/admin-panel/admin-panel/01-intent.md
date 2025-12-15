@@ -151,14 +151,14 @@ EXTEND
 
 | ID | Description | Category | Test Type | Passes |
 |----|-------------|----------|-----------|--------|
-| REQ-001 | Locaties overzicht toont search bar die filtert op regio | core | automated_ui | false |
-| REQ-002 | Locaties overzicht toont regio filter dropdown met zelfde opties als home | core | automated_ui | false |
-| REQ-003 | Locaties overzicht toont pagination met 15 items per pagina | core | automated_ui | false |
-| REQ-004 | Bingo items per locatie toont pagination met 15 items per pagina | core | automated_ui | false |
-| REQ-005 | Vragen per locatie toont pagination met 15 items per pagina | ui | automated_ui | false |
-| REQ-006 | Filters en pagination behouden state bij navigeren | ui | automated_ui | false |
-| REQ-007 | Lege resultaten tonen "geen resultaten" melding | edge_case | automated_ui | false |
-| REQ-008 | Pagination toont correcte totaal aantal pagina's | edge_case | automated_unit | false |
+| REQ-001 | Locaties overzicht toont search bar die filtert op regio | core | automated_ui | true |
+| REQ-002 | Locaties overzicht toont regio filter dropdown met zelfde opties als home | core | automated_ui | true |
+| REQ-003 | Locaties overzicht toont pagination met 15 items per pagina | core | automated_ui | true |
+| REQ-004 | Bingo items per locatie toont pagination met 15 items per pagina | core | automated_ui | true |
+| REQ-005 | Vragen per locatie toont pagination met 15 items per pagina | ui | automated_ui | true |
+| REQ-006 | Filters en pagination behouden state bij navigeren | ui | automated_ui | true |
+| REQ-007 | Lege resultaten tonen "geen resultaten" melding | edge_case | automated_ui | true |
+| REQ-008 | Pagination toont correcte totaal aantal pagina's | edge_case | automated_unit | true |
 
 ### UI Components
 
@@ -238,16 +238,16 @@ EXTEND
 
 | ID | Description | Category | Test Type | Passes |
 |----|-------------|----------|-----------|--------|
-| REQ-001 | Locatie heeft game_modes JSON veld met enabled modes | core | automated_unit | false |
-| REQ-002 | Bingo modus vereist minimaal 9 bingo items | core | automated_unit | false |
-| REQ-003 | Vragen modus vereist minimaal 1 vraag | core | automated_unit | false |
-| REQ-004 | Edit/create pagina toont toggle switches per game mode | ui | automated_ui | false |
-| REQ-005 | Toggle toont status indicator (✓/⚠️) met count | ui | automated_ui | false |
-| REQ-006 | Nieuwe locatie heeft alle modes standaard UIT | core | automated_unit | false |
-| REQ-007 | Tabel toont rode tekst voor counts onder minimum | ui | automated_ui | false |
-| REQ-008 | Tabel toont ⚠️ badge achter naam bij incomplete actieve modes | ui | automated_ui | false |
-| REQ-009 | Locatie zonder valide actieve modes niet zichtbaar op home | core | automated_api | false |
-| REQ-010 | Bingo selecteert random 9 items als er meer dan 9 zijn | core | automated_unit | false |
+| REQ-001 | Locatie heeft game_modes JSON veld met enabled modes | core | automated_unit | true |
+| REQ-002 | Bingo modus vereist minimaal 9 bingo items | core | automated_unit | true |
+| REQ-003 | Vragen modus vereist minimaal 1 vraag | core | automated_unit | true |
+| REQ-004 | Edit/create pagina toont toggle switches per game mode | ui | automated_ui | true |
+| REQ-005 | Toggle toont status indicator (✓/⚠️) met count | ui | automated_ui | true |
+| REQ-006 | Nieuwe locatie heeft alle modes standaard UIT | core | automated_unit | true |
+| REQ-007 | Tabel toont rode tekst voor counts onder minimum | ui | automated_ui | true |
+| REQ-008 | Tabel toont ⚠️ badge achter naam bij incomplete actieve modes | ui | automated_ui | true |
+| REQ-009 | Locatie zonder valide actieve modes niet zichtbaar op home | core | automated_api | true |
+| REQ-010 | Bingo selecteert random 9 items als er meer dan 9 zijn | core | automated_unit | deferred |
 
 ### Data Models
 

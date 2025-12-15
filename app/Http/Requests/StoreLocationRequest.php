@@ -19,6 +19,8 @@ class StoreLocationRequest extends FormRequest
             'province' => ['required', 'string', 'max:255'],
             'distance' => ['required', 'numeric', 'min:0.1'],
             'image' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
+            'game_modes' => ['nullable', 'array'],
+            'game_modes.*' => ['string', 'in:bingo,vragen'],
         ];
     }
 

@@ -19,6 +19,37 @@ class LocationFactory extends Factory
             'description' => fake()->optional()->paragraph(),
             'province' => fake()->randomElement(['Noord-Holland', 'Zuid-Holland', 'Utrecht', 'Gelderland', 'Noord-Brabant', 'Limburg', 'Overijssel', 'Flevoland', 'Drenthe', 'Friesland', 'Groningen', 'Zeeland']),
             'distance' => fake()->numberBetween(30, 180),
+            'game_modes' => [], // REQ-006: Default all modes OFF
         ];
+    }
+
+    /**
+     * State: Bingo mode enabled
+     */
+    public function withBingoMode(): static
+    {
+        return $this->state(fn(array $attributes) => [
+            'game_modes' => array_merge($attributes['game_modes'] ?? [], ['bingo']),
+        ]);
+    }
+
+    /**
+     * State: Vragen mode enabled
+     */
+    public function withVragenMode(): static
+    {
+        return $this->state(fn(array $attributes) => [
+            'game_modes' => array_merge($attributes['game_modes'] ?? [], ['vragen']),
+        ]);
+    }
+
+    /**
+     * State: Both modes enabled
+     */
+    public function withAllModes(): static
+    {
+        return $this->state(fn(array $attributes) => [
+            'game_modes' => ['bingo', 'vragen'],
+        ]);
     }
 }

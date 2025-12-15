@@ -41,9 +41,21 @@
                 </button>
             </div>
 
+            <!-- Floating Flash Message -->
             @if (session('photo-message'))
-                <div class="bg-green-500 text-white px-4 py-2 rounded mb-4 mx-4 flex-shrink-0">
-                    {{ session('photo-message') }}
+                <div 
+                    x-data="{ show: true }"
+                    x-init="setTimeout(() => show = false, 3000)"
+                    x-show="show"
+                    x-transition:enter="transition ease-out duration-300"
+                    x-transition:enter-start="opacity-0 translate-y-4"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-200"
+                    x-transition:leave-start="opacity-100 translate-y-0"
+                    x-transition:leave-end="opacity-0 translate-y-4"
+                    class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg w-fit mx-auto"
+                >
+                    <span class="font-medium">{{ session('photo-message') }}</span>
                 </div>
             @endif
 
@@ -178,12 +190,12 @@
                 <div class="bg-white rounded-lg w-full max-w-md max-h-[90vh] overflow-auto" @click.stop>
                     <div class="p-6">
                         @if($selectedPhoto['status'] === 'pending' && $selectedPhoto['pending_count'] > 0)
-                            <p class="text-sm bg-sky-500 rounded-badge w-fit mx-auto text-center text-white p-2 mb-3">Nog {{ $selectedPhoto['pending_count'] }} foto's te beoordelen</p>
+                            <p class="text-sm bg-sky-500 rounded-badge w-fit mx-auto text-center text-white p-2 mb-5">Nog {{ $selectedPhoto['pending_count'] }} foto's te beoordelen</p>
                         @endif
                         <div class="flex flex-row justify-between items-center mb-4 relative">
                             <div class="flex flex-col justify-between w-full">
-                                <h2 class="text-2xl font-bold">Foto Review</h2>
-                                <p class="text-md text-gray-500">{{ $selectedPhoto['bingo_item_label'] }}</p>
+                                <p class="text-md text-gray-500">Foto Review</p>
+                                <h2 class="text-2xl font-bold">{{ $selectedPhoto['bingo_item_label'] }}</h2>
                             </div>
                             <button
                                 wire:click="closePhotoModal"

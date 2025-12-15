@@ -549,9 +549,6 @@ class HostGame extends Component
         }
         
         $message = 'Foto goedgekeurd!';
-        if ($bingoItem && $bingoItem->points > 0) {
-            $message .= " ({$bingoItem->points} punt(en))";
-        }
         session()->flash('photo-message', $message);
     }
 

@@ -3,7 +3,7 @@
 
         <!-- Flash message -->
         @if (session('photo-message'))
-            <div class="absolute top-32 bg-sky-500 text-white px-4 py-2 rounded mb-4 mx-4">
+            <div class="absolute top-32 bg-forest-500 text-white px-4 py-2 rounded mb-4 mx-4">
                 {{ session('photo-message') }}
             </div>
         @endif

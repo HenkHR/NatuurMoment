@@ -52,15 +52,16 @@ class RouteStop extends Model
     /**
      * Get the next unlocked question for a player (sequential unlock)
      * Returns null if all questions are answered
+     * Optimized: Uses single query with LEFT JOIN instead of N+1
      */
     public static function getNextUnlocked(int $gameId, int $playerId): ?RouteStop
     {
         return static::where('game_id', $gameId)
+            ->whereDoesntHave('answers', function ($query) use ($playerId) {
+                $query->where('game_player_id', $playerId);
+            })
             ->orderBy('sequence')
-            ->get()
-            ->first(function ($stop) use ($playerId) {
-                return !$stop->isAnsweredBy($playerId);
-            });
+            ->first();
     }
 
     /**

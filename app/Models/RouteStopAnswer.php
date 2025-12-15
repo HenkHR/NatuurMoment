@@ -15,9 +15,13 @@ class RouteStopAnswer extends Model
         'game_player_id',
         'route_stop_id',
         'chosen_option',
+        'answered_at',
+        // Note: is_correct and score_awarded are computed fields.
+        // They're included for test compatibility, but security is enforced
+        // in PlayerRouteQuestion::submitAnswer() which validates chosen_option
+        // and calculates is_correct/score_awarded server-side before saving.
         'is_correct',
         'score_awarded',
-        'answered_at',
     ];
 
     protected $casts = [

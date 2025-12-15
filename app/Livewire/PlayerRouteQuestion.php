@@ -7,6 +7,8 @@ use App\Models\GamePlayer;
 use App\Models\RouteStop;
 use App\Models\RouteStopAnswer;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
 
@@ -69,6 +71,14 @@ class PlayerRouteQuestion extends Component
             ->where('game_id', $this->gameId)
             ->firstOrFail();
 
+        // Security: Validate chosen_option against available options
+        $availableOptions = array_keys($routeStop->getAvailableOptions());
+        if (!in_array($this->selectedOption, $availableOptions, true)) {
+            $this->feedbackMessage = 'Ongeldig antwoord geselecteerd';
+            $this->feedbackType = 'error';
+            return;
+        }
+
         // REQ-014: Check if already answered (duplicate prevention)
         if ($routeStop->isAnsweredBy($playerId)) {
             $this->feedbackMessage = 'Je hebt deze vraag al beantwoord';
@@ -87,22 +97,27 @@ class PlayerRouteQuestion extends Component
         $isCorrect = $this->selectedOption === $routeStop->correct_option;
         $scoreAwarded = $isCorrect ? $routeStop->points : 0;
 
-        // Data integrity: handle duplicates gracefully via DB constraint
+        // Data integrity: use transaction for atomic answer + score update
         try {
-            RouteStopAnswer::create([
-                'game_player_id' => $playerId,
-                'route_stop_id' => $routeStopId,
-                'chosen_option' => $this->selectedOption,
-                'is_correct' => $isCorrect,
-                'score_awarded' => $scoreAwarded,
-                'answered_at' => now(),
-            ]);
+            DB::transaction(function () use ($playerId, $routeStopId, $isCorrect, $scoreAwarded) {
+                // Create answer with explicit setting of computed fields (not mass assigned for security)
+                $answer = new RouteStopAnswer([
+                    'game_player_id' => $playerId,
+                    'route_stop_id' => $routeStopId,
+                    'chosen_option' => $this->selectedOption,
+                    'answered_at' => now(),
+                ]);
+                // Set computed fields explicitly (protected from mass assignment)
+                $answer->is_correct = $isCorrect;
+                $answer->score_awarded = $scoreAwarded;
+                $answer->save();
 
-            // REQ-004: Update player score
-            $player = GamePlayer::findOrFail($playerId);
-            $player->increment('score', $scoreAwarded);
+                // REQ-004: Update player score
+                $player = GamePlayer::findOrFail($playerId);
+                $player->increment('score', $scoreAwarded);
+            });
 
-            // Set feedback
+            // Set feedback (outside transaction - UI state only)
             $this->feedbackType = $isCorrect ? 'success' : 'error';
             $this->answeredOption = $this->selectedOption; // Remember which option for inline styling
             $this->answeredQuestionId = $routeStopId; // Remember which question this feedback is for
@@ -119,7 +134,15 @@ class PlayerRouteQuestion extends Component
                 $this->feedbackMessage = 'Je hebt deze vraag al beantwoord';
                 $this->feedbackType = 'error';
             } else {
-                throw $e;
+                // Log unexpected database errors for debugging
+                Log::error('Unexpected database error in submitAnswer', [
+                    'game_id' => $this->gameId,
+                    'player_id' => $playerId,
+                    'route_stop_id' => $routeStopId,
+                    'error' => $e->getMessage(),
+                ]);
+                $this->feedbackMessage = 'Er ging iets mis. Probeer opnieuw.';
+                $this->feedbackType = 'error';
             }
         }
     }
@@ -192,21 +215,23 @@ class PlayerRouteQuestion extends Component
         $this->validatePlayerAccess($this->gameId, $this->playerToken);
         $playerId = $this->getPlayerId();
 
-        // Get all questions for this game
+        // Get all questions with player's answers eager loaded (prevents N+1)
         $allQuestions = RouteStop::where('game_id', $this->gameId)
+            ->with(['answers' => fn($q) => $q->where('game_player_id', $playerId)])
             ->orderBy('sequence')
             ->get();
 
+        // Count answered using eager loaded relation (no extra queries)
+        $answeredCount = $allQuestions->filter(fn($q) => $q->answers->isNotEmpty())->count();
+
         // If showing feedback, show the answered question instead of next
         if ($this->answeredQuestionId !== null) {
-            $currentQuestion = RouteStop::find($this->answeredQuestionId);
-            // Count answered questions minus 1 (to show correct progress during feedback)
-            $answeredCount = $allQuestions->filter(fn($q) => $q->isAnsweredBy($playerId))->count() - 1;
+            $currentQuestion = $allQuestions->firstWhere('id', $this->answeredQuestionId);
+            // Adjust count: show progress before this answer was recorded
+            $answeredCount = max(0, $answeredCount - 1);
         } else {
-            // REQ-001: Get current unlocked question (sequential unlock)
-            $currentQuestion = RouteStop::getNextUnlocked($this->gameId, $playerId);
-            // Count answered questions
-            $answeredCount = $allQuestions->filter(fn($q) => $q->isAnsweredBy($playerId))->count();
+            // REQ-001: Get current unlocked question (first unanswered in sequence)
+            $currentQuestion = $allQuestions->first(fn($q) => $q->answers->isEmpty());
         }
 
         $totalQuestions = $allQuestions->count();

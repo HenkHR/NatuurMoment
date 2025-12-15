@@ -86,8 +86,17 @@ class GamePlayer extends Model
         return $this->hasCompletedBingo() && $this->hasCompletedQuestions();
     }
 
-    public static function generateToken()
+    /**
+     * Generate a cryptographically secure player token
+     *
+     * Uses random_bytes() which is CSPRNG (Cryptographically Secure Pseudo-Random Number Generator)
+     * instead of Str::random() which may not be cryptographically secure.
+     *
+     * @return string 100 character hex token
+     */
+    public static function generateToken(): string
     {
-        return Str::random(100);
+        // Use cryptographically secure random bytes (50 bytes = 100 hex characters)
+        return bin2hex(random_bytes(50));
     }
 }

@@ -287,5 +287,5 @@ it('shows progress indicator', function () {
         'gameId' => $this->game->id,
         'playerToken' => $this->player->token,
     ])
-        ->assertSee('1 van 2 vragen beantwoord');
+        ->assertSee('Vraag 2 van 2');
 });

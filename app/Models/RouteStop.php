@@ -23,6 +23,7 @@ class RouteStop extends Model
         'correct_option',
         'points',
         'sequence',
+        'image_path',
     ];
 
     protected $casts = [

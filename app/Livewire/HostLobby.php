@@ -246,6 +246,7 @@ class HostLobby extends Component
                 'correct_option' => $template->correct_option,
                 'points' => $template->points,
                 'sequence' => $template->sequence,
+                'image_path' => $template->image_path,
             ]);
         }
     }

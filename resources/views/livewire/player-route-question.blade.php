@@ -1,21 +1,10 @@
 <div class="space-y-6">
-    {{-- Progress indicator --}}
-    <div class="flex gap-1.5">
-        @foreach($allQuestions as $question)
-            <div class="flex-1 h-2 rounded-full {{
-                $question->isAnsweredBy($playerId)
-                    ? 'bg-green-500'
-                    : ($currentQuestion && $question->id === $currentQuestion->id ? 'bg-blue-500' : 'bg-gray-300')
-            }}"></div>
-        @endforeach
-    </div>
-
-    {{-- Progress text --}}
-    <p class="text-sm text-gray-600 text-center">
-        {{ $answeredCount }} van {{ $totalQuestions }} vragen beantwoord
-    </p>
-
     @if($currentQuestion)
+        {{-- Progress text --}}
+        <p class="text-sm text-gray-600 text-center">
+            Vraag {{ $answeredCount + 1 }} van {{ $totalQuestions }}
+        </p>
+
         {{-- Current question card --}}
         <div
             x-data="{
@@ -44,7 +33,18 @@
             </div>
 
             {{-- Question text --}}
-            <p class="text-lg text-gray-700 mb-6">{{ $currentQuestion->question_text }}</p>
+            <p class="text-lg text-gray-700 mb-4">{{ $currentQuestion->question_text }}</p>
+
+            {{-- Question image (if available) --}}
+            @if($currentQuestion->image_path)
+                <div class="mb-6">
+                    <img
+                        src="{{ Storage::url($currentQuestion->image_path) }}"
+                        alt="Vraag afbeelding"
+                        class="w-full max-w-md mx-auto rounded-lg shadow-md"
+                    >
+                </div>
+            @endif
 
             {{-- REQ-006: Feedback indicator (groen/rood) --}}
             @if($feedbackMessage)

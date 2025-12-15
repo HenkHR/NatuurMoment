@@ -6,12 +6,12 @@
 @endphp
 
 <div class="mb-6 pt-4 border-t border-surface-medium">
-    <h3 class="text-lg font-semibold text-deep-black mb-2">Spelmodi</h3>
+    <h3 class="text-lg font-semibold text-deep-black mb-2">Beschikbare spellen</h3>
     <p class="text-sm text-gray-600 mb-4">
         @if(!isset($location) || !$location->exists)
-            Nieuwe locaties hebben standaard alle spelmodi uitgeschakeld.
+            Nieuwe locaties hebben standaard alle spellen uitgeschakeld.
         @else
-            Selecteer welke spelmodi beschikbaar zijn voor deze locatie.
+            Selecteer welke spellen beschikbaar zijn voor deze locatie.
         @endif
     </p>
 

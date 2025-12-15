@@ -5,21 +5,15 @@
         </div>
 
         <ul class="inline-flex items-center gap-1 text-sm">
-            {{-- Vorige --}}
-            @if ($paginator->onFirstPage())
-                <li>
-                    <span class="px-3 py-2 rounded-lg border border-gray-200 text-gray-400 cursor-not-allowed bg-white">
-                        Vorige
-                    </span>
-                </li>
-            @else
+            {{-- Vorige (alleen tonen als niet op eerste pagina) --}}
+            @unless ($paginator->onFirstPage())
                 <li>
                     <a href="{{ $paginator->previousPageUrl() }}"
                        class="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-sky-50 hover:border-sky-300 transition bg-white">
                         Vorige
                     </a>
                 </li>
-            @endif
+            @endunless
 
             {{-- Pagina nummers --}}
             @foreach ($elements as $element)
@@ -51,19 +45,13 @@
                 @endif
             @endforeach
 
-            {{-- Volgende --}}
+            {{-- Volgende (alleen tonen als er meer pagina's zijn) --}}
             @if ($paginator->hasMorePages())
                 <li>
                     <a href="{{ $paginator->nextPageUrl() }}"
                        class="px-3 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-sky-50 hover:border-sky-300 transition bg-white">
                         Volgende
                     </a>
-                </li>
-            @else
-                <li>
-                    <span class="px-3 py-2 rounded-lg border border-gray-200 text-gray-400 cursor-not-allowed bg-white">
-                        Volgende
-                    </span>
                 </li>
             @endif
         </ul>

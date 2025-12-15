@@ -25,6 +25,7 @@ class PlayerRouteQuestion extends Component
     public ?string $selectedOption = null;
     public ?string $feedbackMessage = null;
     public ?string $feedbackType = null; // 'success' or 'error'
+    public ?string $answeredOption = null; // Track which option was answered for inline feedback
 
     // Cached player ID to avoid repeated lookups
     private ?int $cachedPlayerId = null;
@@ -101,10 +102,8 @@ class PlayerRouteQuestion extends Component
             $player->increment('score', $scoreAwarded);
 
             // Set feedback
-            $this->feedbackMessage = $isCorrect
-                ? "Correct! +{$scoreAwarded} punten"
-                : "Helaas, dat is niet het goede antwoord";
             $this->feedbackType = $isCorrect ? 'success' : 'error';
+            $this->answeredOption = $this->selectedOption; // Remember which option for inline styling
 
             // Reset selection for next question
             $this->selectedOption = null;
@@ -132,6 +131,7 @@ class PlayerRouteQuestion extends Component
     {
         $this->feedbackMessage = null;
         $this->feedbackType = null;
+        $this->answeredOption = null;
         // Component will re-render, and render() will handle redirect if all questions done
     }
 

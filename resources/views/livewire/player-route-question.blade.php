@@ -7,19 +7,8 @@
 
         {{-- Current question card --}}
         <div
-            x-data="{
-                showFeedback: false,
-                feedbackTimeout: null,
-                selectedOption: @entangle('selectedOption')
-            }"
-            x-on:answer-submitted.window="
-                showFeedback = true;
-                clearTimeout(feedbackTimeout);
-                feedbackTimeout = setTimeout(() => {
-                    showFeedback = false;
-                    $wire.clearFeedback();
-                }, 2000);
-            "
+            x-data="{ selectedOption: @entangle('selectedOption') }"
+            x-on:answer-submitted.window="setTimeout(() => $wire.clearFeedback(), 2000)"
             class="bg-white rounded-lg shadow-lg p-6"
         >
             {{-- Question header --}}
@@ -46,33 +35,9 @@
                 </div>
             @endif
 
-            {{-- REQ-006: Feedback indicator (groen/rood) --}}
-            @if($feedbackMessage)
-                <div
-                    x-show="showFeedback"
-                    x-transition:enter="transition ease-out duration-300"
-                    x-transition:enter-start="opacity-0 transform scale-95"
-                    x-transition:enter-end="opacity-100 transform scale-100"
-                    x-transition:leave="transition ease-in duration-200"
-                    x-transition:leave-start="opacity-100 transform scale-100"
-                    x-transition:leave-end="opacity-0 transform scale-95"
-                    class="mb-4 p-4 rounded-lg flex items-center gap-3 {{ $feedbackType === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}"
-                >
-                    @if($feedbackType === 'success')
-                        <svg class="w-6 h-6 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
-                        </svg>
-                    @else
-                        <svg class="w-6 h-6 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
-                        </svg>
-                    @endif
-                    <span class="font-medium">{{ $feedbackMessage }}</span>
-                </div>
-            @endif
-
             {{-- REQ-002 & REQ-008: Answer form with only available options --}}
-            @if(!$feedbackMessage || $feedbackType !== 'success')
+            {{-- REQ-006: Inline feedback on answered option (groen/rood border + background) --}}
+            @if(!$answeredOption)
                 <form wire:submit.prevent="submitAnswer({{ $currentQuestion->id }})" class="space-y-3">
                     @foreach($currentQuestion->getAvailableOptions() as $optionKey => $optionText)
                         <label
@@ -113,6 +78,42 @@
                         </span>
                     </button>
                 </form>
+            @else
+                {{-- Show options with feedback styling on answered option --}}
+                <div class="space-y-3">
+                    @foreach($currentQuestion->getAvailableOptions() as $optionKey => $optionText)
+                        <div
+                            class="flex items-center p-4 border-2 rounded-lg transition-all
+                                @if($answeredOption === $optionKey)
+                                    {{ $feedbackType === 'success' ? 'border-green-500 bg-green-100' : 'border-red-500 bg-red-100' }}
+                                @else
+                                    border-gray-200 bg-gray-50 opacity-60
+                                @endif"
+                        >
+                            <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center
+                                @if($answeredOption === $optionKey)
+                                    {{ $feedbackType === 'success' ? 'border-green-500 bg-green-500' : 'border-red-500 bg-red-500' }}
+                                @else
+                                    border-gray-300
+                                @endif">
+                                @if($answeredOption === $optionKey)
+                                    @if($feedbackType === 'success')
+                                        <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                        </svg>
+                                    @else
+                                        <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                                        </svg>
+                                    @endif
+                                @endif
+                            </div>
+                            <span class="ml-3 text-lg {{ $answeredOption === $optionKey ? ($feedbackType === 'success' ? 'text-green-800 font-medium' : 'text-red-800 font-medium') : 'text-gray-500' }}">
+                                {{ $optionText }}
+                            </span>
+                        </div>
+                    @endforeach
+                </div>
             @endif
         </div>
     @else

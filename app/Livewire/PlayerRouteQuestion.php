@@ -236,17 +236,6 @@ class PlayerRouteQuestion extends Component
 
         $totalQuestions = $allQuestions->count();
 
-        // REQ-011: Redirect when all questions answered and no feedback showing
-        if ($currentQuestion === null && $this->answeredQuestionId === null && $totalQuestions > 0) {
-            $player = GamePlayer::findOrFail($playerId);
-            // REQ-012: Check if also bingo is complete → go to leaderboard
-            if ($player->hasCompletedBingo()) {
-                $this->redirectRoute('player.leaderboard', ['game' => $this->gameId]);
-            } else {
-                $this->redirectRoute('player.game', ['game' => $this->gameId]);
-            }
-        }
-
         return view('livewire.player-route-question', [
             'currentQuestion' => $currentQuestion,
             'answeredCount' => $answeredCount,

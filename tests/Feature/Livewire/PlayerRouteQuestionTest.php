@@ -244,7 +244,7 @@ it('blocks access when game is not started', function () {
 // Completion Tests
 // ============================================
 
-it('REQ-011: redirects to bingo when all questions answered', function () {
+it('REQ-011: shows message when all questions answered', function () {
     // Answer both questions
     RouteStopAnswer::create([
         'game_player_id' => $this->player->id,
@@ -264,12 +264,12 @@ it('REQ-011: redirects to bingo when all questions answered', function () {
         'answered_at' => now(),
     ]);
 
-    // REQ-011: When all questions answered, should redirect to bingo
+    // REQ-011: When all questions answered, should show message instead of redirecting
     Livewire::test(PlayerRouteQuestion::class, [
         'gameId' => $this->game->id,
         'playerToken' => $this->player->token,
     ])
-        ->assertRedirect(route('player.game', $this->game->id));
+        ->assertSee('Je hebt alle vragen al beantwoord');
 });
 
 it('shows progress indicator', function () {

@@ -211,15 +211,6 @@ class GameController extends Controller
             return redirect()->route('player.lobby', $gameId)->with('error', 'Het spel is nog niet gestart');
         }
 
-        // REQ-011: Redirect to bingo if all questions answered
-        if ($player->hasCompletedQuestions()) {
-            // REQ-012: Check if both bingo and questions complete → go to leaderboard
-            if ($player->hasCompletedBingo()) {
-                return redirect()->route('player.leaderboard', $gameId);
-            }
-            return redirect()->route('player.game', $gameId);
-        }
-
         $routeStops = $game->location->routeStops;
 
         return view('player.route', [

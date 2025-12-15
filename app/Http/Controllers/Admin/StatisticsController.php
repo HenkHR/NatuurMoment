@@ -22,7 +22,7 @@ class StatisticsController extends Controller
         '22+' => [22, 999],
     ];
 
-    private const AGE_GROUP_LABELS = ['≤12', '13-15', '16-18', '19-21', '22+'];
+    private const AGE_GROUP_LABELS = ['≤12', '13-15', '16-18', '19-21', '≥22'];
 
     // ============================================
     // MAIN ACTION
@@ -131,7 +131,7 @@ class StatisticsController extends Controller
                     WHEN CAST(feedback_age AS {$castType}) BETWEEN 13 AND 15 THEN '13-15'
                     WHEN CAST(feedback_age AS {$castType}) BETWEEN 16 AND 18 THEN '16-18'
                     WHEN CAST(feedback_age AS {$castType}) BETWEEN 19 AND 21 THEN '19-21'
-                    ELSE '22+'
+                    ELSE '≥22'
                 END as age_group,
                 COUNT(*) as count
             ")
@@ -168,7 +168,7 @@ class StatisticsController extends Controller
                     WHEN CAST(feedback_age AS {$castType}) BETWEEN 13 AND 15 THEN '13-15'
                     WHEN CAST(feedback_age AS {$castType}) BETWEEN 16 AND 18 THEN '16-18'
                     WHEN CAST(feedback_age AS {$castType}) BETWEEN 19 AND 21 THEN '19-21'
-                    ELSE '22+'
+                    ELSE '≥22'
                 END as age_group,
                 AVG(feedback_rating) as avg_rating,
                 COUNT(*) as count

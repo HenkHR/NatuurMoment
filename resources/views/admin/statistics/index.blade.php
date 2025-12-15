@@ -110,7 +110,7 @@
             {{-- REQ-006: Trends Chart with AJAX Filter --}}
             <div class="bg-pure-white rounded-card shadow-card p-6">
                 <div class="flex items-center justify-between mb-4">
-                    <h3 class="text-lg font-semibold text-deep-black">Trends Over Tijd</h3>
+                    <h3 class="text-lg font-semibold text-deep-black">Beoordeling per Periode</h3>
                     <select
                         id="trendPeriodSelect"
                         class="rounded-lg border border-gray-300 pl-3 pr-8 py-1.5 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500 appearance-none bg-no-repeat bg-right bg-[length:1.25rem]"

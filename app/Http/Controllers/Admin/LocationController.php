@@ -3,23 +3,30 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Admin\Traits\AdminPaginationTrait;
+use App\Http\Controllers\Admin\Traits\HandlesFileUploads;
 use App\Http\Requests\StoreLocationRequest;
 use App\Http\Requests\UpdateLocationRequest;
 use App\Models\Location;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class LocationController extends Controller
 {
+    use AdminPaginationTrait;
+    use HandlesFileUploads;
+
     public function index(): View
     {
         $hasRegioFilter = request()->filled('regio');
-        $perPage = request('per_page', auth()->user()->admin_per_page ?? 15);
+        $perPage = $this->getPerPage();
 
         $locations = Location::withCount(['bingoItems', 'routeStops', 'games'])
             ->when(request('search'), function ($q, $search) use ($hasRegioFilter) {
+                // Escape LIKE wildcards to prevent SQL injection
+                $search = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $search);
+
                 // If regio dropdown is selected, only search by name
                 // Otherwise search by both name and province
                 if ($hasRegioFilter) {
@@ -56,12 +63,12 @@ class LocationController extends Controller
         // REQ-006: Default game modes to empty array (all OFF) for new locations
         $data['game_modes'] = $request->input('game_modes', []);
 
-        if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('location-images', 'public');
-            if ($path === false) {
-                return back()->withErrors(['image' => 'Bestand kon niet worden opgeslagen.'])->withInput();
-            }
-            $data['image_path'] = $path;
+        $upload = $this->handleFileUpload($request, 'image', 'location-images');
+        if ($upload['error']) {
+            return back()->withErrors(['image' => $upload['error']])->withInput();
+        }
+        if ($upload['path']) {
+            $data['image_path'] = $upload['path'];
         }
 
         Location::create($data);
@@ -86,20 +93,16 @@ class LocationController extends Controller
         // Handle game_modes - if not provided, keep existing
         $data['game_modes'] = $request->input('game_modes', []);
 
-        if ($request->boolean('remove_image')) {
-            if ($location->image_path && Storage::disk('public')->exists($location->image_path)) {
-                Storage::disk('public')->delete($location->image_path);
-            }
+        if ($this->handleFileRemoval($request, 'remove_image', $location->image_path)) {
             $data['image_path'] = null;
-        } elseif ($request->hasFile('image')) {
-            if ($location->image_path && Storage::disk('public')->exists($location->image_path)) {
-                Storage::disk('public')->delete($location->image_path);
+        } else {
+            $upload = $this->handleFileUpload($request, 'image', 'location-images', $location->image_path);
+            if ($upload['error']) {
+                return back()->withErrors(['image' => $upload['error']])->withInput();
             }
-            $path = $request->file('image')->store('location-images', 'public');
-            if ($path === false) {
-                return back()->withErrors(['image' => 'Bestand kon niet worden opgeslagen.'])->withInput();
+            if ($upload['path']) {
+                $data['image_path'] = $upload['path'];
             }
-            $data['image_path'] = $path;
         }
 
         $location->update($data);

@@ -72,7 +72,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/settings', [ProfileController::class, 'destroy'])->name('settings.destroy');
 });
 
-Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'admin', 'throttle:120,1'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('locations', LocationController::class)->except(['show']);
     Route::resource('locations.bingo-items', BingoItemController::class)->shallow()->except(['show']);
     Route::resource('locations.route-stops', RouteStopController::class)->shallow()->except(['show']);

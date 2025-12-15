@@ -3,10 +3,13 @@
 use App\Models\Location;
 use App\Models\LocationRouteStop;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
     $this->admin = User::factory()->create(['is_admin' => true]);
     $this->location = Location::factory()->create();
+    Storage::fake('public');
 });
 
 test('admin can view route stops index for a location', function () {
@@ -39,6 +42,7 @@ test('admin can create a route stop', function () {
             'correct_option' => 'B',
             'points' => 5,
             'sequence' => 0,
+            'image' => UploadedFile::fake()->image('route-stop.jpg'),
         ])
         ->assertRedirect("/admin/locations/{$this->location->id}/route-stops")
         ->assertSessionHas('status');

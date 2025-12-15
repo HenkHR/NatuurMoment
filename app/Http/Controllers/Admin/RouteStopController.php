@@ -3,19 +3,23 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Admin\Traits\AdminPaginationTrait;
+use App\Http\Controllers\Admin\Traits\HandlesFileUploads;
 use App\Http\Requests\StoreRouteStopRequest;
 use App\Http\Requests\UpdateRouteStopRequest;
 use App\Models\Location;
 use App\Models\LocationRouteStop;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class RouteStopController extends Controller
 {
+    use AdminPaginationTrait;
+    use HandlesFileUploads;
+
     public function index(Location $location): View
     {
-        $perPage = request('per_page', auth()->user()->admin_per_page ?? 15);
+        $perPage = $this->getPerPage();
 
         $routeStops = $location->routeStops()
             ->orderBy('sequence')
@@ -36,8 +40,12 @@ class RouteStopController extends Controller
     {
         $data = $request->validated();
 
-        if ($request->hasFile('image')) {
-            $data['image_path'] = $request->file('image')->store('route-stops', 'public');
+        $upload = $this->handleFileUpload($request, 'image', 'route-stops');
+        if ($upload['error']) {
+            return back()->withErrors(['image' => $upload['error']])->withInput();
+        }
+        if ($upload['path']) {
+            $data['image_path'] = $upload['path'];
         }
 
         unset($data['image']);
@@ -59,11 +67,12 @@ class RouteStopController extends Controller
     {
         $data = $request->validated();
 
-        if ($request->hasFile('image')) {
-            if ($routeStop->image_path) {
-                Storage::disk('public')->delete($routeStop->image_path);
-            }
-            $data['image_path'] = $request->file('image')->store('route-stops', 'public');
+        $upload = $this->handleFileUpload($request, 'image', 'route-stops', $routeStop->image_path);
+        if ($upload['error']) {
+            return back()->withErrors(['image' => $upload['error']])->withInput();
+        }
+        if ($upload['path']) {
+            $data['image_path'] = $upload['path'];
         }
 
         unset($data['image']);
@@ -78,9 +87,7 @@ class RouteStopController extends Controller
     {
         $location = $routeStop->location;
 
-        if ($routeStop->image_path) {
-            Storage::disk('public')->delete($routeStop->image_path);
-        }
+        $this->deleteStoredFile($routeStop->image_path);
 
         $routeStop->delete();
 

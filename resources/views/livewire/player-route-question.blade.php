@@ -1,5 +1,5 @@
 <div class="h-full flex flex-col min-h-0">
-    <div class="space-y-6 flex-1 overflow-y-auto min-h-0 pb-8">
+    <div class="space-y-6 flex-1 overflow-y-auto min-h-0 pb-9">
     @if($currentQuestion)
         {{-- Progress text --}}
         <p class="text-sm text-gray-600 text-center">

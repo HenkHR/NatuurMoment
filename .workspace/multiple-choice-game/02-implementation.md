@@ -33,7 +33,7 @@ Generated: 2025-12-14 20:58:48
 
 | Planned | Actual | Reason |
 |---------|--------|--------|
-| image_path in RouteStop | Not included | Schema mismatch: location_route_stops has image_path but route_stops doesn't (migration difference) |
+| image_path in RouteStop | Added in /4-refine (2025-12-15) | Initially skipped, later added via migration |
 
 ### Sequential Thinking Insights
 

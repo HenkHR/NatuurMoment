@@ -304,3 +304,156 @@ public function scopeWithValidGameModes($query)
 4. Home page filtert incorrect geconfigureerde locaties
 5. Bestaande functionaliteit blijft werken
 6. Nieuwe locaties starten met alle modes uit
+
+---
+
+## Extend: survey-statistieken (2025-12-15)
+
+### Overview
+Survey feedback systeem aanpassen naar sterren-rating en statistieken dashboard toevoegen aan admin panel. Bestaande PlayerFeedback component wijzigen van 1-10 cijfers naar 1-5 sterren. Nieuw dashboard met stat cards en grafieken voor inzicht in feedback data.
+
+### Task Type
+EXTEND
+
+### Scope
+- **PlayerFeedback wijziging**: 1-10 cijfer → 1-5 sterren rating
+- **Statistics Dashboard**: Nieuwe admin pagina met:
+  - 4 stat cards (totaal responses, gem. rating, responses deze maand, meest actieve locatie)
+  - 4 grafieken (leeftijdsverdeling, tevredenheid per leeftijd, trends, rating per locatie)
+- **AJAX dropdown**: Trends grafiek filtert op week/maand/jaar
+
+### Functional Requirements
+
+#### PlayerFeedback Component
+- Validatie wijzigen van 1-10 naar 1-5
+- UI wijzigen van 10 nummer-knoppen naar 5 klikbare sterren
+- Bestaande leeftijdsveld behouden
+
+#### Stat Cards (4 stuks)
+1. **Totaal responses**: COUNT van alle feedback entries
+2. **Gemiddelde rating**: AVG van feedback_rating (weergave als sterren)
+3. **Responses deze maand**: COUNT van huidige maand
+4. **Meest actieve locatie**: Locatie met hoogste COUNT
+
+#### Grafieken
+| Grafiek | Type | Data |
+|---------|------|------|
+| Leeftijdsverdeling | Staafdiagram | 5 categorieën: ≤12, 13-15, 16-18, 19-21, 22+ |
+| Tevredenheid per leeftijd | Grouped staafdiagram | Gem. rating per leeftijdscategorie |
+| Trends over tijd | Lijndiagram | Rating over tijd, dropdown filter (week/maand/jaar) |
+| Rating per locatie | Horizontaal staafdiagram | Gem. rating per locatie |
+
+#### AJAX Trend Filter
+- Dropdown met opties: Week, Maand, Jaar
+- Bij wijziging: fetch() naar `/admin/statistics?period=X`
+- Controller retourneert JSON met trend data
+- Alpine.js update Chart.js grafiek met `chart.update()`
+
+### Testable Requirements
+
+| ID | Description | Category | Test Type | Passes |
+|----|-------------|----------|-----------|--------|
+| REQ-001 | Feedback formulier toont 1-5 sterren i.p.v. 1-10 cijfer | core | manual | false |
+| REQ-002 | Statistieken dashboard pagina beschikbaar in admin panel | core | automated_ui | false |
+| REQ-003 | 4 stat cards tonen: totaal responses, gem. rating, responses deze maand, meest actieve locatie | core | automated_ui | false |
+| REQ-004 | Staafdiagram toont leeftijdsverdeling in 5 categorieën (≤12, 13-15, 16-18, 19-21, 22+) | ui | manual | false |
+| REQ-005 | Grouped staafdiagram toont tevredenheid per leeftijdscategorie | ui | manual | false |
+| REQ-006 | Lijndiagram toont trends met dropdown filter (week/maand/jaar) | ui | manual | false |
+| REQ-007 | Horizontaal staafdiagram toont gemiddelde rating per locatie | ui | manual | false |
+| REQ-008 | Rating wordt opgeslagen als 1-5 integer | api | automated_unit | false |
+| REQ-009 | Leeftijd wordt gecategoriseerd in 5 groepen voor statistieken | api | automated_unit | false |
+| REQ-010 | Aggregatie queries berekenen AVG rating, COUNT per categorie, GROUP BY tijd/locatie/leeftijd | api | automated_unit | false |
+| REQ-011 | Dashboard toont lege staat message als geen feedback data aanwezig | edge_case | automated_ui | false |
+| REQ-012 | Grafieken renderen correct met 0 responses in bepaalde categorieën | edge_case | manual | false |
+
+### Leeftijdscategorieën
+| Categorie | Leeftijd | Doelgroep |
+|-----------|----------|-----------|
+| ≤12 | 0-12 jaar | Kinderen (Oerr programma) |
+| 13-15 | 13-15 jaar | Onderbouw middelbaar |
+| 16-18 | 16-18 jaar | Bovenbouw middelbaar |
+| 19-21 | 19-21 jaar | Jong volwassen |
+| 22+ | 22+ jaar | Buiten primaire doelgroep |
+
+### Data Models
+
+#### Bestaande Schema (game_players tabel)
+- `feedback_rating`: unsignedTinyInteger (wijzigen validatie naar 1-5)
+- `feedback_age`: string (leeftijd)
+- Via `Game` relatie: `location_id` beschikbaar
+
+#### Aggregatie Queries (in Controller)
+```php
+// Stat cards
+GamePlayer::whereNotNull('feedback_rating')->count();
+GamePlayer::avg('feedback_rating');
+GamePlayer::whereMonth('created_at', now()->month)->count();
+
+// Leeftijdsverdeling (CASE/WHEN)
+selectRaw("CASE
+    WHEN CAST(feedback_age AS INTEGER) <= 12 THEN '≤12'
+    WHEN CAST(feedback_age AS INTEGER) BETWEEN 13 AND 15 THEN '13-15'
+    ...
+END as age_group, COUNT(*) as count")
+->groupBy('age_group')
+
+// Trends (SQLite strftime)
+selectRaw("strftime('%Y-%W', created_at) as period, AVG(feedback_rating) as avg")
+->groupByRaw("strftime('%Y-%W', created_at)")
+```
+
+### UI Components
+
+#### Stat Card Pattern
+```blade
+<div class="bg-pure-white rounded-card shadow-card p-6">
+    <div class="text-surface-dark text-sm">{{ $label }}</div>
+    <div class="text-h2 text-forest-700">{{ $value }}</div>
+</div>
+```
+
+#### Chart.js Initialisatie (Alpine.js)
+```blade
+<div x-data="{
+    chart: null,
+    init() {
+        this.chart = new Chart(this.$refs.canvas, config);
+    }
+}">
+    <canvas x-ref="canvas"></canvas>
+</div>
+```
+
+### Files to Create
+| File | Purpose |
+|------|---------|
+| `app/Http/Controllers/Admin/StatisticsController.php` | Aggregatie queries, JSON endpoint voor trends |
+| `resources/views/admin/statistics/index.blade.php` | Dashboard met stat cards en Chart.js grafieken |
+
+### Files to Modify
+| File | Change |
+|------|--------|
+| `app/Livewire/PlayerFeedback.php` | Validatie 1-10 → 1-5 |
+| `resources/views/livewire/player-feedback.blade.php` | 10 buttons → 5 sterren |
+| `routes/web.php` | Route toevoegen: `admin.statistics.index` |
+| `resources/views/layouts/admin-navigation.blade.php` | Nav link "Statistieken" toevoegen |
+
+### Dependencies
+- **Chart.js 4.x** via CDN (geen npm install nodig)
+- **Alpine.js** (reeds aanwezig)
+- **Tailwind CSS** (reeds aanwezig, gebruik forest-* kleuren)
+
+### Edge Cases
+1. **Geen feedback data**: Dashboard toont "Geen gegevens beschikbaar" message
+2. **Lege leeftijdscategorieën**: Grafieken tonen 0 voor ontbrekende categorieën
+3. **Nieuwe locatie zonder feedback**: Wordt niet getoond in locatie grafiek
+4. **Division by zero**: AVG op lege set retourneert null, handle in view
+
+### Success Criteria
+1. PlayerFeedback toont 5 klikbare sterren
+2. Rating 1-5 wordt correct opgeslagen in database
+3. Statistics dashboard toont 4 stat cards met correcte data
+4. Alle 4 grafieken renderen correct met Chart.js
+5. Trends dropdown filter werkt via AJAX zonder page reload
+6. Dashboard is responsive (stat cards stacken op mobile)
+7. Admin navigatie bevat link naar "Statistieken"

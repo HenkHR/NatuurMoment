@@ -18,7 +18,7 @@ class LocationFactory extends Factory
             'name' => fake()->unique()->city() . ' ' . fake()->randomElement(['Bos', 'Park', 'Natuurgebied', 'Heide']),
             'description' => fake()->optional()->paragraph(),
             'province' => fake()->randomElement(['Noord-Holland', 'Zuid-Holland', 'Utrecht', 'Gelderland', 'Noord-Brabant', 'Limburg', 'Overijssel', 'Flevoland', 'Drenthe', 'Friesland', 'Groningen', 'Zeeland']),
-            'duration' => fake()->numberBetween(30, 180),
+            'distance' => fake()->numberBetween(30, 180),
         ];
     }
 }

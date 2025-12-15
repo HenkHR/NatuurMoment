@@ -78,6 +78,12 @@
                                     </div>
 
                                     <div class="flex items-center gap-3">
+                                        {{-- REQ-013: Display route question progress --}}
+                                        @if($player['route_questions_percentage'] !== null)
+                                            <span class="text-xs {{ $expandedPlayerId === $player['id'] ? 'text-white' : 'text-purple-700 bg-purple-100' }} px-2 py-0.5 rounded-full font-semibold">
+                                                Vragen: {{ $player['route_questions_percentage'] }}%
+                                            </span>
+                                        @endif
                                         <span class="text-sm font-semibold {{ $expandedPlayerId === $player['id'] ? 'text-white shadow-none' : 'bg-sky-500 text-white' }} rounded-badge px-2 py-1 shadow-card">Score: {{ $player['score'] }}</span>
                                         <svg class="w-5 h-5 transform transition-transform {{ $expandedPlayerId === $player['id'] ? 'rotate-180' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>

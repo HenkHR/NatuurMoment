@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\Game;
 use App\Models\BingoItem;
 use App\Models\GamePlayer;
+use App\Models\RouteStop;
 use Livewire\Component;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Locked;
@@ -151,6 +152,9 @@ class HostLobby extends Component
             return;
         }
 
+        // Generate route stops (multiple choice questions)
+        $this->generateRouteStops($game);
+
         // Calculate timer_ends_at only if timer is enabled
         $updateData = [
             'status' => 'started',
@@ -207,6 +211,47 @@ class HostLobby extends Component
         }
 
         return true;
+    }
+
+    /**
+     * Generate route stops for the game (multiple choice questions)
+     *
+     * @param Game $game The game to generate route stops for
+     * @return void
+     */
+    private function generateRouteStops(Game $game): void
+    {
+        // Check if route stops already exist (prevent duplicates)
+        if ($game->routeStops()->exists()) {
+            return;
+        }
+
+        // Get location for this game
+        $location = $game->location;
+
+        if (!$location) {
+            return;
+        }
+
+        // Get all location route stops for this game's location
+        $locationRouteStops = $location->routeStops()->orderBy('sequence')->get();
+
+        // Copy each template to a game instance
+        foreach ($locationRouteStops as $template) {
+            RouteStop::create([
+                'game_id' => $game->id,
+                'name' => $template->name,
+                'question_text' => $template->question_text,
+                'option_a' => $template->option_a,
+                'option_b' => $template->option_b,
+                'option_c' => $template->option_c,
+                'option_d' => $template->option_d,
+                'correct_option' => $template->correct_option,
+                'points' => $template->points,
+                'sequence' => $template->sequence,
+                'image_path' => $template->image_path,
+            ]);
+        }
     }
 
     public function render()

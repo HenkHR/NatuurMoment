@@ -7,6 +7,7 @@ use App\Models\Game;
 use App\Models\Photo;
 use App\Models\BingoItem;
 use App\Models\GamePlayer;
+use App\Models\RouteStopAnswer;
 use Livewire\Component;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Locked;
@@ -168,9 +169,21 @@ class HostGame extends Component
             $playersCompleted[$playerId] = count($approvedPositions) >= self::BINGO_ITEM_COUNT;
         }
 
+        // REQ-013: Get route question counts for progress display
+        $totalRouteQuestions = $this->game->routeStops()->count();
+        $routeAnswerCounts = [];
+        if ($totalRouteQuestions > 0) {
+            $routeAnswerCounts = RouteStopAnswer::whereIn('game_player_id', $this->game->players->pluck('id'))
+                ->select('game_player_id', DB::raw('count(*) as count'))
+                ->groupBy('game_player_id')
+                ->pluck('count', 'game_player_id')
+                ->toArray();
+        }
+
         // Calculate scores for each player (includes line bonuses)
-        $this->players = $this->game->players->map(function($player) use ($pendingCounts, $playerScores, $playersCompleted) {
+        $this->players = $this->game->players->map(function($player) use ($pendingCounts, $playerScores, $playersCompleted, $totalRouteQuestions, $routeAnswerCounts) {
             $score = $playerScores[$player->id] ?? 0;
+            $answeredQuestions = $routeAnswerCounts[$player->id] ?? 0;
 
             return [
                 'id' => $player->id,
@@ -178,6 +191,12 @@ class HostGame extends Component
                 'score' => $score,
                 'pending_photos' => $pendingCounts[$player->id] ?? 0,
                 'completed' => $playersCompleted[$player->id] ?? false,
+                // REQ-013: Route question progress
+                'route_questions_total' => $totalRouteQuestions,
+                'route_questions_answered' => $answeredQuestions,
+                'route_questions_percentage' => $totalRouteQuestions > 0
+                    ? round(($answeredQuestions / $totalRouteQuestions) * 100)
+                    : null,
             ];
         })->toArray();
     }
@@ -188,28 +207,53 @@ class HostGame extends Component
     private function checkAutoEnd(): bool
     {
         // Check timer expiry
-        if ($this->game->timer_enabled && $this->game->timer_ends_at) {
-            if (now()->isAfter($this->game->timer_ends_at)) {
-                $this->endGame();
-                return true;
-            }
+        if ($this->game->timer_enabled
+            && $this->game->timer_ends_at
+            && now()->isAfter($this->game->timer_ends_at)
+        ) {
+            $this->endGame();
+            return true;
         }
 
-        // Check if all players completed (all 9 bingo items approved)
-        if ($this->game->players->count() > 0) {
-            $totalPlayers = $this->game->players->count();
+        // Early return: no players means nothing to check
+        $totalPlayers = $this->game->players->count();
+        if ($totalPlayers === 0) {
+            return false;
+        }
 
-            $completedPlayers = Photo::where('game_id', $this->gameId)
-                ->where('status', 'approved')
-                ->select('game_player_id', DB::raw('count(*) as count'))
-                ->groupBy('game_player_id')
-                ->havingRaw('count(*) >= ?', [self::BINGO_ITEM_COUNT])
-                ->count();
+        // Count players who completed bingo (9 approved photos)
+        $bingoCompletedPlayers = Photo::where('game_id', $this->gameId)
+            ->where('status', 'approved')
+            ->select('game_player_id', DB::raw('count(*) as count'))
+            ->groupBy('game_player_id')
+            ->havingRaw('count(*) >= ?', [self::BINGO_ITEM_COUNT])
+            ->pluck('game_player_id')
+            ->toArray();
 
-            if ($completedPlayers >= $totalPlayers) {
+        $hasRouteQuestions = $this->game->routeStops()->exists();
+
+        // If no route questions, just check bingo completion
+        if (!$hasRouteQuestions) {
+            if (count($bingoCompletedPlayers) >= $totalPlayers) {
                 $this->endGame();
                 return true;
             }
+            return false;
+        }
+
+        // REQ-012: Check if all players completed BOTH bingo AND questions
+        $totalRouteQuestions = $this->game->routeStops()->count();
+
+        // Batch query: count answers per player who completed bingo (prevents N+1)
+        $fullyCompletedCount = RouteStopAnswer::whereIn('game_player_id', $bingoCompletedPlayers)
+            ->select('game_player_id', DB::raw('count(*) as count'))
+            ->groupBy('game_player_id')
+            ->havingRaw('count(*) >= ?', [$totalRouteQuestions])
+            ->count();
+
+        if ($fullyCompletedCount >= $totalPlayers) {
+            $this->endGame();
+            return true;
         }
 
         return false;
@@ -335,10 +379,13 @@ class HostGame extends Component
     }
 
     /**
-     * Get player score without updating database (read-only)
-     * Used for display purposes in loadPlayers()
+     * Calculate player bingo score (base points + line bonuses)
+     *
+     * @param int $playerId Player ID to calculate score for
+     * @param bool $persist If true, also updates the database
+     * @return int Calculated total score
      */
-    private function getPlayerScore($playerId): int
+    private function calculatePlayerScore(int $playerId, bool $persist = false): int
     {
         // Get all approved photos with their bingo item points and positions in one query
         $approvedPhotos = Photo::where('photos.game_id', $this->gameId)
@@ -347,34 +394,23 @@ class HostGame extends Component
             ->join('bingo_items', 'photos.bingo_item_id', '=', 'bingo_items.id')
             ->select('bingo_items.points', 'bingo_items.position')
             ->get();
-        
+
         // Calculate base score from points
         $baseScore = $approvedPhotos->sum('points');
-        
+
         // Get positions for line bonus calculation
         $approvedPositions = $approvedPhotos->pluck('position')->toArray();
-        
+
         // Calculate bonus points for completed lines
         $bonusPoints = $this->calculateLineBonuses($approvedPositions);
-        
-        return (int)(($baseScore ?? 0) + $bonusPoints);
-    }
 
-    /**
-     * Calculate and update player score based on all approved photos
-     * This ensures the score is always accurate and prevents double-counting
-     * Also adds bonus points for completed lines (rows, columns, diagonals)
-     * 
-     * This method should only be called when the score actually changes (approve/reject)
-     */
-    private function calculatePlayerScore($playerId)
-    {
-        $totalScore = $this->getPlayerScore($playerId);
-        
-        // Update player score in database using Eloquent
-        GamePlayer::where('id', $playerId)
-            ->update(['score' => $totalScore]);
-        
+        $totalScore = (int)(($baseScore ?? 0) + $bonusPoints);
+
+        // Optionally persist to database
+        if ($persist) {
+            GamePlayer::where('id', $playerId)->update(['score' => $totalScore]);
+        }
+
         return $totalScore;
     }
     
@@ -432,7 +468,7 @@ class HostGame extends Component
         $photo->update(['status' => 'approved']);
         
         // Recalculate player score based on all approved photos
-        $newScore = $this->calculatePlayerScore($photo->game_player_id);
+        $newScore = $this->calculatePlayerScore($photo->game_player_id, persist: true);
         
         // Get bingo item for message
         $bingoItem = $photo->bingoItem;
@@ -469,7 +505,7 @@ class HostGame extends Component
         
         // Recalculate player score based on all approved photos
         // This will remove points if the photo was previously approved
-        $this->calculatePlayerScore($photo->game_player_id);
+        $this->calculatePlayerScore($photo->game_player_id, persist: true);
         
         // Close photo modal
         $this->selectedPhoto = null;
@@ -527,7 +563,7 @@ class HostGame extends Component
 
                 // Update all player scores one final time
                 foreach ($game->players as $player) {
-                    $this->calculatePlayerScore($player->id);
+                    $this->calculatePlayerScore($player->id, persist: true);
                 }
 
                 // Mark game as finished

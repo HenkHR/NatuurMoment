@@ -139,7 +139,7 @@
                         }
 
                         // Smooth scroll naar resultaten
-                        resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        // resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
                         // Update URL zonder reload
                         const newUrl = `${window.location.pathname}?${params.toString()}`;

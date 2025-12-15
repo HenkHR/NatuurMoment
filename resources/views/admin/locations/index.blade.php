@@ -211,7 +211,7 @@
         </x-modal>
     @endforeach
 
-    <div class="mt-4">
+    <div class="mt-6">
         {{ $locations->links('vendor.pagination.admin') }}
     </div>
 </x-admin.layout>

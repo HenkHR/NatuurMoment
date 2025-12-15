@@ -134,7 +134,7 @@
         </x-modal>
     @endforeach
 
-    <div class="mt-4">
+    <div class="mt-6">
         {{ $bingoItems->links('vendor.pagination.admin') }}
     </div>
 </x-admin.layout>

@@ -113,7 +113,8 @@
                     <h3 class="text-lg font-semibold text-deep-black">Trends Over Tijd</h3>
                     <select
                         id="trendPeriodSelect"
-                        class="rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
+                        class="rounded-lg border border-gray-300 pl-3 pr-8 py-1.5 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500 appearance-none bg-no-repeat bg-right bg-[length:1.25rem]"
+                        style="background-image: url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 fill=%27none%27 viewBox=%270 0 20 20%27%3E%3Cpath stroke=%27%236b7280%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27 stroke-width=%271.5%27 d=%27M6 8l4 4 4-4%27/%3E%3C/svg%3E'); background-position: right 0.5rem center;"
                     >
                         <option value="week" {{ $period === 'week' ? 'selected' : '' }}>Per Week</option>
                         <option value="month" {{ $period === 'month' ? 'selected' : '' }}>Per Maand</option>
@@ -199,7 +200,13 @@
                             y: {
                                 beginAtZero: true,
                                 max: 5,
-                                ticks: { stepSize: 1 }
+                                ticks: {
+                                    stepSize: 0.5,
+                                    callback: function(value) {
+                                        // Alleen hele getallen tonen als label
+                                        return Number.isInteger(value) ? value : '';
+                                    }
+                                }
                             }
                         }
                     }
@@ -277,7 +284,13 @@
                             x: {
                                 beginAtZero: true,
                                 max: 5,
-                                ticks: { stepSize: 1 }
+                                ticks: {
+                                    stepSize: 0.5,
+                                    callback: function(value) {
+                                        // Alleen hele getallen tonen als label
+                                        return Number.isInteger(value) ? value : '';
+                                    }
+                                }
                             }
                         }
                     }

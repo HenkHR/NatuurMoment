@@ -95,22 +95,30 @@
                             @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm">
-                            <a href="{{ route('admin.locations.bingo-items.index', $location) }}" onclick="event.stopPropagation()" class="inline-flex items-center gap-1.5 px-2 py-2 {{ $location->bingo_items_count < GameMode::MIN_BINGO_ITEMS ? 'text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100' : 'text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100' }} rounded-md transition-colors">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                                </svg>
-                                {{-- REQ-007: Red text for counts under minimum --}}
-                                <span class="font-semibold">{{ $location->bingo_items_count }}</span>
-                            </a>
+                            @if($location->has_bingo_mode)
+                                <a href="{{ route('admin.locations.bingo-items.index', $location) }}" onclick="event.stopPropagation()" class="inline-flex items-center gap-1.5 px-2 py-2 {{ $location->bingo_items_count < GameMode::MIN_BINGO_ITEMS ? 'text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100' : 'text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100' }} rounded-md transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                                    </svg>
+                                    {{-- REQ-007: Red text for counts under minimum --}}
+                                    <span class="font-semibold">{{ $location->bingo_items_count }}</span>
+                                </a>
+                            @else
+                                <span class="text-gray-400">—</span>
+                            @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm">
-                            <a href="{{ route('admin.locations.route-stops.index', $location) }}" onclick="event.stopPropagation()" class="inline-flex items-center gap-1.5 px-2 py-2 {{ $location->route_stops_count < GameMode::MIN_QUESTIONS ? 'text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100' : 'text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100' }} rounded-md transition-colors">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                                {{-- REQ-007: Red text for counts under minimum --}}
-                                <span class="font-semibold">{{ $location->route_stops_count }}</span>
-                            </a>
+                            @if($location->has_vragen_mode)
+                                <a href="{{ route('admin.locations.route-stops.index', $location) }}" onclick="event.stopPropagation()" class="inline-flex items-center gap-1.5 px-2 py-2 {{ $location->route_stops_count < GameMode::MIN_QUESTIONS ? 'text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100' : 'text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100' }} rounded-md transition-colors">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    {{-- REQ-007: Red text for counts under minimum --}}
+                                    <span class="font-semibold">{{ $location->route_stops_count }}</span>
+                                </a>
+                            @else
+                                <span class="text-gray-400">—</span>
+                            @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <div class="flex justify-end gap-2">
@@ -153,18 +161,22 @@
                         @endif
                     </h3>
                     <div class="mt-2 flex gap-2 text-sm">
-                        <a href="{{ route('admin.locations.bingo-items.index', $location) }}" onclick="event.stopPropagation()" class="inline-flex items-center gap-1.5 px-2 py-2 {{ $location->bingo_items_count < GameMode::MIN_BINGO_ITEMS ? 'text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100' : 'text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100' }} rounded-md transition-colors">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                            </svg>
-                            <span class="font-semibold">{{ $location->bingo_items_count }}</span>
-                        </a>
-                        <a href="{{ route('admin.locations.route-stops.index', $location) }}" onclick="event.stopPropagation()" class="inline-flex items-center gap-1.5 px-2 py-2 {{ $location->route_stops_count < GameMode::MIN_QUESTIONS ? 'text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100' : 'text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100' }} rounded-md transition-colors">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <span class="font-semibold">{{ $location->route_stops_count }}</span>
-                        </a>
+                        @if($location->has_bingo_mode)
+                            <a href="{{ route('admin.locations.bingo-items.index', $location) }}" onclick="event.stopPropagation()" class="inline-flex items-center gap-1.5 px-2 py-2 {{ $location->bingo_items_count < GameMode::MIN_BINGO_ITEMS ? 'text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100' : 'text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100' }} rounded-md transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                                </svg>
+                                <span class="font-semibold">{{ $location->bingo_items_count }}</span>
+                            </a>
+                        @endif
+                        @if($location->has_vragen_mode)
+                            <a href="{{ route('admin.locations.route-stops.index', $location) }}" onclick="event.stopPropagation()" class="inline-flex items-center gap-1.5 px-2 py-2 {{ $location->route_stops_count < GameMode::MIN_QUESTIONS ? 'text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100' : 'text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100' }} rounded-md transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span class="font-semibold">{{ $location->route_stops_count }}</span>
+                            </a>
+                        @endif
                     </div>
                 </div>
                 <div class="flex gap-1">

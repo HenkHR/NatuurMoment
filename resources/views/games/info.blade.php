@@ -38,35 +38,70 @@
                     </div>
 
                     <a
-                        href="https://www.natuurmonumenten.nl/natuurgebieden/buitenplaats-de-tempel"
+                        href="https://www.natuurmonumenten.nl/bezoekerscentrum-veluwezoom"
                         target="_blank"
                         rel="noopener noreferrer"
                         class="self-start md:self-auto md:ml-auto bg-sky-500 hover:bg-sky-600
                                text-pure-white text-sm md:text-base font-semibold
                                px-4 py-2 rounded-badge shadow-card whitespace-nowrap transition
-                               focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-700"
+                               focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-700
+                               inline-flex items-center gap-2"
                         aria-label="Bezoek {{ $game['location'] }} op Natuur Monumenten (opent in nieuw venster)">
                         {{ $game['location'] }}
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
                     </a>
                 </div>
             </div>
         </section>
 
-        <div class="max-w-5xl mx-auto w-full px-4 lg:px-8 pb-20">
-            <x-ui.breadcrumbs
-                :items="$breadcrumbs"
-                class="mt-4 mb-4 md:mt-6 md:mb-8"
-                aria-label="Breadcrumb navigatie"
-            />
+        <div class="max-w-5xl mx-auto px-4 md:px-8">
+            <div class="mt-4 mb-4 md:mt-6 md:mb-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <x-ui.breadcrumbs :items="$breadcrumbs" aria-label="Breadcrumb navigatie" />
+
+                <button
+                    type="button"
+                    x-data
+                    x-on:click="$dispatch('open-modal', 'host-info-modal')"
+                    class="w-full sm:w-auto bg-forest-500 text-pure-white text-sm font-semibold
+                        rounded-button px-4 py-2 shadow-card
+                        inline-flex items-center justify-center gap-2
+                        transition hover:bg-forest-600 hover:shadow-lg hover:-translate-y-0.5
+                        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
+                        focus-visible:ring-forest-500"
+                    aria-haspopup="dialog"
+                    aria-label="Host informatie bekijken"
+                >
+                    <svg class="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+
+                    <span>Organisator info</span>
+                </button>
+            </div>
 
             <main id="maincontent" role="main" class="mt-4 md:mt-0">
                 <x-game.rules-card
                     :rules="$rules"
                     :locationId="$locationId"
-                    class="w-full max-w-5xl mx-auto"
+                    class="w-full"
                 />
             </main>
         </div>
+
+        <x-game.host-info-modal
+            name="host-info-modal"
+            title="Zo organiseer je het spel!"
+            :items="config('host.info')"
+            maxWidth="2xl"
+        />
     </div>
 
     <footer role="contentinfo" class="mt-6">

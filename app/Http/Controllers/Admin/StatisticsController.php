@@ -122,13 +122,15 @@ class StatisticsController extends Controller
      */
     private function getAgeDistribution(): array
     {
+        $castType = $this->getIntegerCastType();
+
         $results = GamePlayer::query()
             ->selectRaw("
                 CASE
-                    WHEN CAST(feedback_age AS INTEGER) <= 12 THEN '≤12'
-                    WHEN CAST(feedback_age AS INTEGER) BETWEEN 13 AND 15 THEN '13-15'
-                    WHEN CAST(feedback_age AS INTEGER) BETWEEN 16 AND 18 THEN '16-18'
-                    WHEN CAST(feedback_age AS INTEGER) BETWEEN 19 AND 21 THEN '19-21'
+                    WHEN CAST(feedback_age AS {$castType}) <= 12 THEN '≤12'
+                    WHEN CAST(feedback_age AS {$castType}) BETWEEN 13 AND 15 THEN '13-15'
+                    WHEN CAST(feedback_age AS {$castType}) BETWEEN 16 AND 18 THEN '16-18'
+                    WHEN CAST(feedback_age AS {$castType}) BETWEEN 19 AND 21 THEN '19-21'
                     ELSE '22+'
                 END as age_group,
                 COUNT(*) as count
@@ -157,13 +159,15 @@ class StatisticsController extends Controller
      */
     private function getSatisfactionByAge(): array
     {
+        $castType = $this->getIntegerCastType();
+
         $results = GamePlayer::query()
             ->selectRaw("
                 CASE
-                    WHEN CAST(feedback_age AS INTEGER) <= 12 THEN '≤12'
-                    WHEN CAST(feedback_age AS INTEGER) BETWEEN 13 AND 15 THEN '13-15'
-                    WHEN CAST(feedback_age AS INTEGER) BETWEEN 16 AND 18 THEN '16-18'
-                    WHEN CAST(feedback_age AS INTEGER) BETWEEN 19 AND 21 THEN '19-21'
+                    WHEN CAST(feedback_age AS {$castType}) <= 12 THEN '≤12'
+                    WHEN CAST(feedback_age AS {$castType}) BETWEEN 13 AND 15 THEN '13-15'
+                    WHEN CAST(feedback_age AS {$castType}) BETWEEN 16 AND 18 THEN '16-18'
+                    WHEN CAST(feedback_age AS {$castType}) BETWEEN 19 AND 21 THEN '19-21'
                     ELSE '22+'
                 END as age_group,
                 AVG(feedback_rating) as avg_rating,
@@ -198,28 +202,36 @@ class StatisticsController extends Controller
      */
     private function getTrends(string $period): array
     {
-        $format = match ($period) {
-            'week' => '%Y-%W',
-            'month' => '%Y-%m',
-            'year' => '%Y',
-            default => '%Y-%m',
-        };
+        $isSqlite = DB::connection()->getDriverName() === 'sqlite';
 
-        $labelFormat = match ($period) {
-            'week' => 'Week %W, %Y',
-            'month' => '%b %Y',
-            'year' => '%Y',
-            default => '%b %Y',
-        };
+        // Date format differs between SQLite and MySQL
+        if ($isSqlite) {
+            $format = match ($period) {
+                'week' => '%Y-%W',
+                'month' => '%Y-%m',
+                'year' => '%Y',
+                default => '%Y-%m',
+            };
+            $periodSelect = "strftime('{$format}', created_at)";
+        } else {
+            // MySQL uses DATE_FORMAT
+            $format = match ($period) {
+                'week' => '%Y-%u',
+                'month' => '%Y-%m',
+                'year' => '%Y',
+                default => '%Y-%m',
+            };
+            $periodSelect = "DATE_FORMAT(created_at, '{$format}')";
+        }
 
         $results = GamePlayer::query()
             ->selectRaw("
-                strftime('{$format}', created_at) as period,
+                {$periodSelect} as period,
                 AVG(feedback_rating) as avg_rating,
                 COUNT(*) as count
             ")
             ->whereNotNull('feedback_rating')
-            ->groupByRaw("strftime('{$format}', created_at)")
+            ->groupByRaw($periodSelect)
             ->orderBy('period')
             ->get();
 
@@ -273,5 +285,18 @@ class StatisticsController extends Controller
             'avgRatings' => $results->pluck('avg_rating')->map(fn($r) => round($r, 1))->toArray(),
             'counts' => $results->pluck('count')->toArray(),
         ];
+    }
+
+    // ============================================
+    // HELPER METHODS
+    // ============================================
+
+    /**
+     * Get the correct SQL cast type for integers based on database driver.
+     * SQLite uses INTEGER, MySQL uses SIGNED.
+     */
+    private function getIntegerCastType(): string
+    {
+        return DB::connection()->getDriverName() === 'sqlite' ? 'INTEGER' : 'SIGNED';
     }
 }

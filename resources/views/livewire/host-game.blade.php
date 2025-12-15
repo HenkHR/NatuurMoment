@@ -60,12 +60,12 @@
                             <div class="space-y-3 pt-2 pb-2">
                         @foreach($players as $player)
                             <div wire:key="player-{{ $player['id'] }}" class="bg-pure-white shadow-card rounded-card overflow-hidden">
-                                <!-- Player Header (Accordion Toggle) -->
+                                <!-- Player Header -->
+                                <div class="w-full flex flex-row justify-between items-center {{ $expandedPlayerId === $player['id'] ? 'bg-sky-500 text-white' : 'bg-surface-medium text-deep-black' }} px-4 py-3 rounded-card">
                                 <button
                                     wire:click="togglePlayer({{ $player['id'] }})"
-                                    class="w-full text-left flex flex-row justify-between items-center {{ $expandedPlayerId === $player['id'] ? 'bg-sky-500 text-white' : 'bg-surface-medium text-deep-black' }} px-4 py-3 rounded-card focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-pure-white transition">
+                                        class="flex-1 text-left flex flex-row items-center gap-3 transition">
 
-                                    <div class="flex items-center gap-3">
                                         <span class="font-semibold {{ $expandedPlayerId === $player['id'] ? 'text-white' : 'text-deep-black' }}">{{ $player['name'] }}</span>
                                         @if($player['pending_photos'] > 0)
                                             <span class="bg-yellow-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold" title="{{ $player['pending_photos'] }} foto(s) wachten op goedkeuring">
@@ -73,24 +73,28 @@
                                             </span>
                                         @endif
                                         @if($player['completed'] ?? false)
-                                            <span class="bg-green-300 text-green-800 px-2 py-0.5 rounded-full text-xs font-bold">Klaar</span>
+                                            <span class="{{ $expandedPlayerId === $player['id'] ? 'bg-green-100 text-green-800' : 'bg-green-300 text-green-800' }} px-2 py-0.5 rounded-full text-xs font-bold">Klaar</span>
                                         @endif
-                                    </div>
+                                    </button>
 
                                     <div class="flex items-center gap-3">
                                         {{-- REQ-013: Display route question progress --}}
                                         @if($player['route_questions_percentage'] !== null)
-                                            <span class="text-xs {{ $expandedPlayerId === $player['id'] ? 'text-white' : 'text-purple-700 bg-purple-100' }} px-2 py-0.5 rounded-full font-semibold">
+                                            <span class="text-xs {{ $expandedPlayerId === $player['id'] ? 'text-white bg-white/20' : 'text-purple-700 bg-purple-100' }} px-2 py-0.5 rounded-full font-semibold">
                                                 Vragen: {{ $player['route_questions_percentage'] }}%
                                             </span>
                                         @endif
-                                        <span class="text-sm font-semibold {{ $expandedPlayerId === $player['id'] ? 'text-white shadow-none' : 'bg-sky-500 text-white' }} rounded-badge px-2 py-1 shadow-card">Score: {{ $player['score'] }}</span>
-                                        <svg class="w-5 h-5 transform transition-transform {{ $expandedPlayerId === $player['id'] ? 'rotate-180' : '' }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                                        </svg>
+                                        <span class="text-sm font-semibold {{ $expandedPlayerId === $player['id'] ? 'text-white shadow-none' : 'bg-sky-500 text-white' }} rounded-badge px-2 py-1 {{ $expandedPlayerId === $player['id'] ? '' : 'shadow-card' }}">Score: {{ $player['score'] }}</span>
+                                        <button
+                                            wire:click="toggleBingoCard({{ $player['id'] }})"
+                                            class="flex items-center justify-center w-8 h-8 rounded-full {{ $expandedPlayerId === $player['id'] ? 'hover:bg-white/20' : 'hover:bg-sky-100' }} transition"
+                                            title="Bingokaart openen"
+                                        >
+                                            <x-bi-grid class="w-5 h-5 {{ $expandedPlayerId === $player['id'] ? 'text-white' : 'text-deep-black' }}" />
+                                        </button>
                                     </div>
 
-                                </button>
+                                </div>
 
                                 <!-- Player Bingo Card (Accordion Content) -->  
                                 @if($expandedPlayerId === $player['id'])
@@ -173,6 +177,9 @@
             <div class="fixed inset-0 z-50 bg-black bg-opacity-75 flex items-center justify-center p-4" wire:click="closePhotoModal">
                 <div class="bg-white rounded-lg w-full max-w-md max-h-[90vh] overflow-auto" @click.stop>
                     <div class="p-6">
+                        @if($selectedPhoto['status'] === 'pending' && $selectedPhoto['pending_count'] > 0)
+                            <p class="text-sm bg-sky-500 rounded-badge w-fit mx-auto text-center text-white p-2 mb-3">Nog {{ $selectedPhoto['pending_count'] }} foto's te beoordelen</p>
+                        @endif
                         <div class="flex flex-row justify-between items-center mb-4 relative">
                             <div class="flex flex-col justify-between w-full">
                                 <h2 class="text-2xl font-bold">Foto Review</h2>

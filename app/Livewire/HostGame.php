@@ -270,10 +270,31 @@ class HostGame extends Component
     }
 
     /**
-     * Toggle player accordion
-     * Only one player can be open at a time
+     * Open first pending photo for a player when clicking the player
+     * If no pending photos, do nothing
+     * Also collapses any expanded bingo cards
      */
     public function togglePlayer($playerId)
+    {
+        $this->verifyHostAccess();
+
+        // Collapse any expanded bingo cards
+        $this->expandedPlayerId = null;
+        $this->playerBingoItems = [];
+
+        // Get the first pending photo for this player
+        $firstPendingPhoto = $this->getFirstPendingPhoto($playerId);
+        
+        if ($firstPendingPhoto) {
+            $this->selectPhoto($firstPendingPhoto->id);
+        }
+    }
+
+    /**
+     * Toggle bingo card for a player
+     * Only one player can be open at a time
+     */
+    public function toggleBingoCard($playerId)
     {
         $this->verifyHostAccess();
 
@@ -286,6 +307,18 @@ class HostGame extends Component
             $this->expandedPlayerId = $playerId;
             $this->loadPlayerBingoItems($playerId);
         }
+    }
+
+    /**
+     * Get the first pending photo for a player
+     */
+    private function getFirstPendingPhoto($playerId)
+    {
+        return Photo::where('game_id', $this->gameId)
+            ->where('game_player_id', $playerId)
+            ->where('status', 'pending')
+            ->orderBy('taken_at', 'asc')
+            ->first();
     }
 
     /**
@@ -377,6 +410,12 @@ class HostGame extends Component
             abort(403, 'Unauthorized');
         }
         
+        // Get pending photo count for this player
+        $pendingCount = Photo::where('game_id', $this->gameId)
+            ->where('game_player_id', $photo->game_player_id)
+            ->where('status', 'pending')
+            ->count();
+        
         $this->selectedPhoto = [
             'id' => $photo->id,
             'player_name' => $photo->gamePlayer->name,
@@ -385,6 +424,7 @@ class HostGame extends Component
             'status' => $photo->status,
             'url' => $photo->url, // Use the accessor from Photo model
             'taken_at' => $photo->taken_at,
+            'pending_count' => $pendingCount,
         ];
     }
 
@@ -479,20 +519,27 @@ class HostGame extends Component
             abort(403, 'Unauthorized');
         }
         
+        $playerId = $photo->game_player_id;
         $photo->update(['status' => 'approved']);
         
         // Recalculate player score based on all approved photos
-        $newScore = $this->calculatePlayerScore($photo->game_player_id, persist: true);
+        $newScore = $this->calculatePlayerScore($playerId, persist: true);
         
         // Get bingo item for message
         $bingoItem = $photo->bingoItem;
         
-        // Close photo modal
-        $this->selectedPhoto = null;
-        
         // Refresh players and bingo items
         $this->loadPlayers();
         $this->refreshBingoItems();
+        
+        // Auto-open next pending photo for the same player
+        $nextPendingPhoto = $this->getFirstPendingPhoto($playerId);
+        if ($nextPendingPhoto) {
+            $this->selectPhoto($nextPendingPhoto->id);
+        } else {
+            // No more pending photos, close modal
+            $this->selectedPhoto = null;
+        }
         
         $message = 'Foto goedgekeurd!';
         if ($bingoItem && $bingoItem->points > 0) {
@@ -515,18 +562,25 @@ class HostGame extends Component
             abort(403, 'Unauthorized');
         }
         
+        $playerId = $photo->game_player_id;
         $photo->update(['status' => 'rejected']);
         
         // Recalculate player score based on all approved photos
         // This will remove points if the photo was previously approved
-        $this->calculatePlayerScore($photo->game_player_id, persist: true);
-        
-        // Close photo modal
-        $this->selectedPhoto = null;
+        $this->calculatePlayerScore($playerId, persist: true);
         
         // Refresh players and bingo items
         $this->loadPlayers();
         $this->refreshBingoItems();
+        
+        // Auto-open next pending photo for the same player
+        $nextPendingPhoto = $this->getFirstPendingPhoto($playerId);
+        if ($nextPendingPhoto) {
+            $this->selectPhoto($nextPendingPhoto->id);
+        } else {
+            // No more pending photos, close modal
+            $this->selectedPhoto = null;
+        }
         
         session()->flash('photo-message', 'Foto afgewezen.');
     }

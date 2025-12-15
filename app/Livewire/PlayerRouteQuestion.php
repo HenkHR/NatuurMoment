@@ -197,15 +197,22 @@ class PlayerRouteQuestion extends Component
             ->orderBy('sequence')
             ->get();
 
-        // REQ-001: Get current unlocked question (sequential unlock)
-        $currentQuestion = RouteStop::getNextUnlocked($this->gameId, $playerId);
+        // If showing feedback, show the answered question instead of next
+        if ($this->answeredQuestionId !== null) {
+            $currentQuestion = RouteStop::find($this->answeredQuestionId);
+            // Count answered questions minus 1 (to show correct progress during feedback)
+            $answeredCount = $allQuestions->filter(fn($q) => $q->isAnsweredBy($playerId))->count() - 1;
+        } else {
+            // REQ-001: Get current unlocked question (sequential unlock)
+            $currentQuestion = RouteStop::getNextUnlocked($this->gameId, $playerId);
+            // Count answered questions
+            $answeredCount = $allQuestions->filter(fn($q) => $q->isAnsweredBy($playerId))->count();
+        }
 
-        // Count answered questions
-        $answeredCount = $allQuestions->filter(fn($q) => $q->isAnsweredBy($playerId))->count();
         $totalQuestions = $allQuestions->count();
 
         // REQ-011: Redirect when all questions answered and no feedback showing
-        if ($currentQuestion === null && $this->feedbackMessage === null && $totalQuestions > 0) {
+        if ($currentQuestion === null && $this->answeredQuestionId === null && $totalQuestions > 0) {
             $player = GamePlayer::findOrFail($playerId);
             // REQ-012: Check if also bingo is complete → go to leaderboard
             if ($player->hasCompletedBingo()) {

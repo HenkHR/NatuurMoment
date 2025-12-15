@@ -37,7 +37,7 @@
 
             {{-- REQ-002 & REQ-008: Answer form with only available options --}}
             {{-- REQ-006: Inline feedback on answered option (groen/rood border + background) --}}
-            @if(!$answeredOption || $answeredQuestionId !== $currentQuestion->id)
+            @if(!$answeredOption)
                 <form wire:submit.prevent="submitAnswer({{ $currentQuestion->id }})" class="space-y-3">
                     @foreach($currentQuestion->getAvailableOptions() as $optionKey => $optionText)
                         <label

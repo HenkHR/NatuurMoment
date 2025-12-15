@@ -124,3 +124,73 @@ Generated: 2025-12-02 14:29:04
 - Used withCount() for eager loading relationship counts on location index for better N+1 prevention
 - Created Game factory with state modifiers (lobby(), started(), finished()) for better test readability
 - Placed admin layout in components/admin/ folder instead of admin/ for proper Blade component resolution
+
+---
+
+## Extend: search-filter (2025-12-15)
+
+### Overview
+Search bar, regio filter en pagination toevoegen aan admin panel pagina's.
+
+### Files Created
+
+#### Blade Components
+- `resources/views/components/admin/search-bar.blade.php` - Herbruikbare search input met icon
+- `resources/views/components/admin/regio-filter.blade.php` - Regio dropdown met provinces uit config
+- `resources/views/components/admin/empty-state.blade.php` - Lege resultaten melding component
+
+### Files Modified
+
+#### Controllers
+- `app/Http/Controllers/Admin/LocationController.php`
+  - Added `->when()` filters for search (province LIKE) and regio (exact match)
+  - Added `->withQueryString()` for pagination state preservation
+  - Pass `$provinces` from config and `$hasFilters` boolean to view
+
+- `app/Http/Controllers/Admin/BingoItemController.php`
+  - Added `->withQueryString()` to pagination
+
+- `app/Http/Controllers/Admin/RouteStopController.php`
+  - Added `->withQueryString()` to pagination
+
+#### Views
+- `resources/views/admin/locations/index.blade.php`
+  - Added search form with `<x-admin.search-bar>` and `<x-admin.regio-filter>` components
+  - Added "Wis filters" button when filters active
+  - Updated empty state to use `<x-admin.empty-state>` component with context-aware message
+
+#### Tests
+- `tests/Feature/Admin/LocationControllerTest.php` - Added 8 new tests for REQ-001 to REQ-008
+- `tests/Feature/Admin/BingoItemControllerTest.php` - Added 2 pagination tests for REQ-004
+- `tests/Feature/Admin/RouteStopControllerTest.php` - Added 2 pagination tests for REQ-005
+
+### Architectural Decisions
+
+1. **Inline when() filters**: Chose simple inline `->when()` clauses in controller instead of service layer (YAGNI - dit is simpele filtering, geen complexe business logic)
+
+2. **Herbruikbare Blade Components**: Created reusable components for search-bar, regio-filter, and empty-state to enable future reuse across other admin pages
+
+3. **Form submission (no AJAX)**: Used standard GET form submission instead of Alpine.js AJAX for progressive enhancement - works without JavaScript
+
+4. **withQueryString()**: Applied to all paginated results to preserve filter state across pages
+
+5. **Config-driven provinces**: Reused existing `config/provinces.php` for dropdown options (consistency with home page)
+
+### Deviations from Research Plan
+
+- Skipped AJAX partial rendering (from research) - standard form submission is sufficient for admin panel
+- Skipped service layer abstraction (from quality agent) - inline when() is simpler and adequate
+- Added "Wis filters" button (not in original requirements) - improved UX
+
+### Requirements Status
+
+| REQ-ID | Description | Status |
+|--------|-------------|--------|
+| REQ-001 | Search bar filtert op regio | Implemented |
+| REQ-002 | Regio filter dropdown | Implemented |
+| REQ-003 | Locaties pagination 15/page | Implemented |
+| REQ-004 | Bingo items pagination 15/page | Implemented |
+| REQ-005 | Vragen pagination 15/page | Implemented |
+| REQ-006 | Filters behouden state | Implemented |
+| REQ-007 | Lege resultaten melding | Implemented |
+| REQ-008 | Pagination toont totaal pages | Implemented |

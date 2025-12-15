@@ -190,3 +190,117 @@ EXTEND
 4. Filters blijven behouden bij pagination navigatie
 5. AJAX updates werken smooth zonder page reload
 6. Pagina werkt ook zonder JavaScript (progressive enhancement)
+
+---
+
+## Extend: game-modes (2025-12-15)
+
+### Overview
+Game modes systeem met validatie per locatie. Elke locatie krijgt configureerbare game modes (Bingo, Vragen) met minimum content vereisten.
+
+### Task Type
+EXTEND
+
+### Scope
+- Game modes per locatie: Bingo (min 9 items), Vragen (min 1 vraag)
+- Toggle switches op edit/create pagina
+- Visuele status in tabel (rode counts, ⚠️ badge)
+- Locatie zonder valide modes niet zichtbaar op home
+- Nieuwe locatie: modes standaard UIT
+
+### Functional Requirements
+
+#### Database
+- `game_modes` JSON kolom op locations tabel
+- Opslaat als array: `['bingo', 'vragen']` of `[]`
+- Default: lege array (alle modes uit)
+
+#### Admin Edit/Create
+- Toggle switches per game mode (Bingo, Vragen)
+- Status indicator per toggle:
+  - ✓ groen als mode valide (voldoende content)
+  - ⚠️ oranje/rood als mode enabled maar onvoldoende content
+- Count weergave naast toggle (bijv. "9/9 items")
+
+#### Admin Index Tabel
+- Rode tekst voor counts onder minimum (bingo < 9, vragen < 1)
+- ⚠️ badge achter locatienaam bij incomplete actieve modes
+- Bestaande count badges blijven klikbaar
+
+#### Home Page Filtering
+- Locaties zonder minstens 1 valide actieve mode worden verborgen
+- Valide = mode enabled EN voldoende content
+
+#### Game Logic
+- Bingo selecteert random 9 items als locatie meer dan 9 heeft
+
+### Testable Requirements
+
+| ID | Description | Category | Test Type | Passes |
+|----|-------------|----------|-----------|--------|
+| REQ-001 | Locatie heeft game_modes JSON veld met enabled modes | core | automated_unit | false |
+| REQ-002 | Bingo modus vereist minimaal 9 bingo items | core | automated_unit | false |
+| REQ-003 | Vragen modus vereist minimaal 1 vraag | core | automated_unit | false |
+| REQ-004 | Edit/create pagina toont toggle switches per game mode | ui | automated_ui | false |
+| REQ-005 | Toggle toont status indicator (✓/⚠️) met count | ui | automated_ui | false |
+| REQ-006 | Nieuwe locatie heeft alle modes standaard UIT | core | automated_unit | false |
+| REQ-007 | Tabel toont rode tekst voor counts onder minimum | ui | automated_ui | false |
+| REQ-008 | Tabel toont ⚠️ badge achter naam bij incomplete actieve modes | ui | automated_ui | false |
+| REQ-009 | Locatie zonder valide actieve modes niet zichtbaar op home | core | automated_api | false |
+| REQ-010 | Bingo selecteert random 9 items als er meer dan 9 zijn | core | automated_unit | false |
+
+### Data Models
+
+#### Location Model Extensions
+```php
+// Fillable
+protected $fillable = [..., 'game_modes'];
+
+// Casts
+protected function casts(): array {
+    return ['game_modes' => 'array'];
+}
+
+// Accessors
+public function getHasBingoModeAttribute(): bool
+public function getHasVragenModeAttribute(): bool
+public function getIsBingoModeValidAttribute(): bool
+public function getIsVragenModeValidAttribute(): bool
+public function getHasValidGameModeAttribute(): bool
+
+// Scope
+public function scopeWithValidGameModes($query)
+```
+
+### UI Components
+
+#### Toggle Switch (inline Alpine.js)
+```blade
+<div x-data="{ enabled: {{ $location->has_bingo_mode ? 'true' : 'false' }} }">
+    <input type="checkbox" x-model="enabled" name="game_modes[]" value="bingo">
+    <span x-show="enabled && {{ $bingoCount }} >= 9">✓</span>
+    <span x-show="enabled && {{ $bingoCount }} < 9">⚠️</span>
+</div>
+```
+
+#### Status Badge (index tabel)
+```blade
+@if(!$location->has_valid_game_mode && ($location->has_bingo_mode || $location->has_vragen_mode))
+    <span class="text-yellow-600">⚠️</span>
+@endif
+```
+
+### Edge Cases
+1. Nieuwe locatie zonder content → beide modes uit, geen waarschuwing
+2. Locatie met bingo enabled maar 0 items → ⚠️ badge, niet op home
+3. Locatie met alleen vragen mode valide → zichtbaar op home
+4. Locatie met beide modes valide → zichtbaar op home
+5. Bestaande locaties na migratie → game_modes = [] (alle uit)
+
+### Success Criteria
+1. Toggle switches werken op create/edit pagina's
+2. Status indicators tonen correcte validatie state
+3. Index tabel toont rode counts en warning badges
+4. Home page filtert incorrect geconfigureerde locaties
+5. Bestaande functionaliteit blijft werken
+6. Nieuwe locaties starten met alle modes uit

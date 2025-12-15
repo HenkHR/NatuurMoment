@@ -189,3 +189,128 @@ Generated: 2025-12-02 14:29:04
 - [ ] Run all tests: `./vendor/bin/pest tests/Feature/Admin/`
 - [ ] Build assets: `npm run build`
 - [ ] Clear caches: `php artisan config:clear && php artisan view:clear`
+
+---
+
+## Extend: search-filter Tests (2025-12-15)
+
+### Requirements Test Matrix
+
+| REQ-ID | Description | Test Type | Automated | Manual |
+|--------|-------------|-----------|-----------|--------|
+| REQ-001 | Search bar filtert op regio | automated_ui | ✓ | ✓ |
+| REQ-002 | Regio filter dropdown | automated_ui | ✓ | ✓ |
+| REQ-003 | Locaties pagination 15/page | automated_ui | ✓ | - |
+| REQ-004 | Bingo items pagination 15/page | automated_ui | ✓ | - |
+| REQ-005 | Vragen pagination 15/page | automated_ui | ✓ | - |
+| REQ-006 | Filters behouden state | automated_ui | ✓ | ✓ |
+| REQ-007 | Lege resultaten melding | edge_case | ✓ | ✓ |
+| REQ-008 | Pagination totaal pages | automated_unit | ✓ | - |
+
+### Manual Tests
+
+#### REQ-001: Search Bar Filtert op Regio
+**Category:** core
+**Test Type:** manual
+
+**Test Steps:**
+1. Navigeer naar /admin/locations
+2. Typ "Noord" in de search bar
+3. Klik op "Zoek" knop
+
+**Expected Result:**
+- Alleen locaties met "Noord" in de province worden getoond
+- Locaties met andere provincies zijn verborgen
+
+---
+
+#### REQ-002: Regio Filter Dropdown
+**Category:** core
+**Test Type:** manual
+
+**Test Steps:**
+1. Navigeer naar /admin/locations
+2. Selecteer "Gelderland" in de regio dropdown
+3. Klik op "Zoek" knop
+
+**Expected Result:**
+- Alleen locaties in Gelderland worden getoond
+- Dropdown bevat alle 12 provincies uit config/provinces.php
+
+---
+
+#### REQ-006: Filters Behouden State
+**Category:** ui
+**Test Type:** manual
+
+**Test Steps:**
+1. Navigeer naar /admin/locations?search=Noord&regio=Utrecht
+2. Klik op pagina 2 in pagination
+3. Bekijk URL
+
+**Expected Result:**
+- URL bevat `search=Noord&regio=Utrecht&page=2`
+- Filters blijven ingevuld in de form
+
+---
+
+#### REQ-007: Lege Resultaten Melding
+**Category:** edge_case
+**Test Type:** manual
+
+**Test Steps:**
+1. Navigeer naar /admin/locations
+2. Zoek op een niet-bestaande provincie: "NonExistent"
+3. Klik op "Zoek"
+
+**Expected Result:**
+- Melding: "Geen locaties gevonden voor deze filters"
+- "Probeer andere zoektermen of filters" hint wordt getoond
+- "Wis filters" knop is zichtbaar
+
+---
+
+### Automated Tests
+
+#### Location Controller Tests (8 nieuwe tests)
+```bash
+./vendor/bin/pest tests/Feature/Admin/LocationControllerTest.php --filter="REQ-00"
+```
+
+| Test | REQ-ID | Description |
+|------|--------|-------------|
+| REQ-001: locations can be filtered by search on province | REQ-001 | Zoek filtert op province |
+| REQ-002: locations index passes provinces config to view | REQ-002 | Provinces uit config in view |
+| REQ-003: locations index paginates with 15 items per page | REQ-003 | 15 items per pagina |
+| REQ-006: filters and pagination preserve query string | REQ-006 | Query params behouden |
+| REQ-007: shows empty state when no locations match filter | REQ-007 | Lege resultaten melding |
+| REQ-008: pagination shows correct total pages | REQ-008 | Correcte lastPage |
+| locations can be filtered by regio dropdown | - | Regio filter werkt |
+| hasFilters is true when search or regio provided | - | hasFilters boolean check |
+
+#### Bingo Item Controller Tests (2 nieuwe tests)
+```bash
+./vendor/bin/pest tests/Feature/Admin/BingoItemControllerTest.php --filter="REQ-004"
+```
+
+| Test | REQ-ID | Description |
+|------|--------|-------------|
+| REQ-004: bingo items index paginates with 15 items per page | REQ-004 | 15 items per pagina |
+| bingo items pagination preserves query string | - | withQueryString werkt |
+
+#### Route Stop Controller Tests (2 nieuwe tests)
+```bash
+./vendor/bin/pest tests/Feature/Admin/RouteStopControllerTest.php --filter="REQ-005"
+```
+
+| Test | REQ-ID | Description |
+|------|--------|-------------|
+| REQ-005: route stops index paginates with 15 items per page | REQ-005 | 15 items per pagina |
+| route stops pagination preserves query string | - | withQueryString werkt |
+
+### Run All Search-Filter Tests
+```bash
+./vendor/bin/pest tests/Feature/Admin/ --filter="REQ-00"
+```
+
+**Expected result:** 12 new tests passed (in addition to existing 38)

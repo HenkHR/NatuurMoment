@@ -548,3 +548,216 @@ test('AJAX request returns partial view', function () {
 - Inline when() clauses in controllers (geen query scopes - YAGNI)
 - Progressive enhancement (werkt zonder JS)
 - Alpine.js voor state management + vanilla fetch() voor AJAX
+
+---
+
+## Extend: game-modes (2025-12-15)
+
+### Context7 Research Summary
+Coverage: 87% | Confidence: 86%
+
+### Framework Best Practices
+
+#### JSON Column Casting
+```php
+// In Location model - cast game_modes to array
+protected function casts(): array
+{
+    return ['game_modes' => 'array'];
+}
+
+// Access: $location->game_modes returns ['bingo', 'vragen'] or []
+// Mutation: $location->game_modes = ['bingo']; $location->save();
+```
+
+#### Conditional Validation (Form Requests)
+```php
+// Use after() hook for complex cross-field validation
+public function after(): array
+{
+    return [
+        function (Validator $validator) {
+            $gameModes = $this->input('game_modes', []);
+            $location = $this->route('location');
+
+            if (in_array('bingo', $gameModes) && $location->bingo_items_count < 9) {
+                $validator->errors()->add('game_modes',
+                    'Bingo modus vereist minimaal 9 bingo items.');
+            }
+        }
+    ];
+}
+```
+
+#### Alpine.js Toggle Pattern
+```javascript
+// Two-way binding with checkbox for form submission
+x-data="{ enabled: {{ $enabled ? 'true' : 'false' }} }"
+x-model on checkbox syncs state
+Hidden input captures value for form submission
+```
+
+### Architecture Patterns
+
+#### JSON Column Migration
+```php
+Schema::table('locations', function (Blueprint $table) {
+    $table->json('game_modes')->nullable()->default('[]');
+});
+```
+
+#### Model Accessors for Validation State
+```php
+// Check if mode is enabled
+public function getHasBingoModeAttribute(): bool
+{
+    return in_array('bingo', $this->game_modes ?? []);
+}
+
+// Check if mode is valid (enabled + meets requirements)
+public function getIsBingoModeValidAttribute(): bool
+{
+    return $this->has_bingo_mode && $this->bingo_items_count >= 9;
+}
+
+// Check if location has at least one valid mode
+public function getHasValidGameModeAttribute(): bool
+{
+    return $this->is_bingo_mode_valid || $this->is_vragen_mode_valid;
+}
+```
+
+#### Query Scope for Filtering
+```php
+public function scopeWithValidGameModes(Builder $query): Builder
+{
+    return $query->where(function ($q) {
+        // Bingo valid: enabled AND >= 9 items
+        $q->where(function ($bingo) {
+            $bingo->whereJsonContains('game_modes', 'bingo')
+                  ->where('bingo_items_count', '>=', 9);
+        })
+        // OR Vragen valid: enabled AND >= 1 question
+        ->orWhere(function ($vragen) {
+            $vragen->whereJsonContains('game_modes', 'vragen')
+                   ->where('route_stops_count', '>=', 1);
+        });
+    });
+}
+```
+
+### Testing Strategy
+
+#### JSON Column Tests
+```php
+test('location stores game modes as JSON array', function () {
+    $location = Location::factory()->create([
+        'game_modes' => ['bingo', 'vragen']
+    ]);
+
+    expect($location->game_modes)->toBe(['bingo', 'vragen']);
+    $this->assertDatabaseHas('locations', [
+        'id' => $location->id,
+        // SQLite stores as JSON string
+    ]);
+});
+```
+
+#### Accessor Tests
+```php
+test('is_bingo_mode_valid returns true when enabled with 9+ items', function () {
+    $location = Location::factory()
+        ->has(LocationBingoItem::factory()->count(9))
+        ->create(['game_modes' => ['bingo']]);
+
+    // Load count
+    $location->loadCount('bingoItems');
+
+    expect($location->is_bingo_mode_valid)->toBeTrue();
+});
+
+test('has_valid_game_mode returns false when no modes enabled', function () {
+    $location = Location::factory()->create(['game_modes' => []]);
+    $location->loadCount(['bingoItems', 'routeStops']);
+
+    expect($location->has_valid_game_mode)->toBeFalse();
+});
+```
+
+#### Scope Tests
+```php
+test('withValidGameModes filters to valid locations', function () {
+    // Valid: bingo enabled with 10 items
+    $valid = Location::factory()
+        ->has(LocationBingoItem::factory()->count(10))
+        ->create(['game_modes' => ['bingo']]);
+
+    // Invalid: bingo enabled with only 5 items
+    $invalid = Location::factory()
+        ->has(LocationBingoItem::factory()->count(5))
+        ->create(['game_modes' => ['bingo']]);
+
+    $results = Location::withCount(['bingoItems', 'routeStops'])
+        ->withValidGameModes()
+        ->get();
+
+    expect($results)->toHaveCount(1);
+    expect($results->first()->id)->toBe($valid->id);
+});
+```
+
+### Common Pitfalls
+
+1. **SQLite JSON Support**: JSON functions work differently - `whereJsonContains` may need raw queries on older SQLite versions
+2. **Array Mutation**: Direct array modification doesn't trigger dirty state - always reassign: `$location->game_modes = [...$modes, 'new']`
+3. **Count Eager Loading**: Accessors need counts loaded - always use `withCount(['bingoItems', 'routeStops'])` before checking validation
+4. **Checkbox Form Behavior**: Unchecked checkboxes don't submit - handle missing key as empty array
+5. **Null vs Empty Array**: Default to `[]` not `null` to avoid null checks everywhere
+
+### Files to Create
+
+| File | Purpose |
+|------|---------|
+| `database/migrations/YYYY_MM_DD_add_game_modes_to_locations.php` | Add game_modes JSON column |
+
+### Files to Modify
+
+| File | Change |
+|------|--------|
+| `app/Models/Location.php` | Add fillable, casts, 5 accessors, 1 scope |
+| `app/Http/Requests/StoreLocationRequest.php` | Add game_modes validation |
+| `app/Http/Requests/UpdateLocationRequest.php` | Add game_modes validation |
+| `app/Http/Controllers/Admin/LocationController.php` | Handle game_modes in store/update |
+| `app/Http/Controllers/HomeController.php` | Add withValidGameModes() scope |
+| `resources/views/admin/locations/index.blade.php` | Add red counts, warning badges |
+| `resources/views/admin/locations/create.blade.php` | Add toggle section |
+| `resources/views/admin/locations/edit.blade.php` | Add toggle section |
+
+### Implementation Sequence
+
+1. **Phase 1: Foundation**
+   - Create migration for game_modes column
+   - Run migration
+   - Update Location model ($fillable, $casts)
+
+2. **Phase 2: Validation Logic**
+   - Add 5 accessors to Location model
+   - Add scopeWithValidGameModes() to Location model
+   - Update Form Requests with game_modes validation
+
+3. **Phase 3: Controllers**
+   - Update LocationController store() and update()
+   - Update HomeController with scope filter
+
+4. **Phase 4: Views**
+   - Add toggle section to create.blade.php
+   - Add toggle section to edit.blade.php
+   - Add red counts and warning badges to index.blade.php
+
+### Architecture Decision
+**Selected: Pragmatic Balance**
+- JSON column with array cast (simple, proven pattern)
+- Model accessors centralize validation logic (testable)
+- Query scope for home filtering (clean separation)
+- Alpine.js inline toggles (no extra components needed)
+- Reuses existing withCount() queries (no extra DB calls)

@@ -26,6 +26,7 @@ class PlayerRouteQuestion extends Component
     public ?string $feedbackMessage = null;
     public ?string $feedbackType = null; // 'success' or 'error'
     public ?string $answeredOption = null; // Track which option was answered for inline feedback
+    public ?int $answeredQuestionId = null; // Track which question the feedback is for
 
     // Cached player ID to avoid repeated lookups
     private ?int $cachedPlayerId = null;
@@ -104,6 +105,7 @@ class PlayerRouteQuestion extends Component
             // Set feedback
             $this->feedbackType = $isCorrect ? 'success' : 'error';
             $this->answeredOption = $this->selectedOption; // Remember which option for inline styling
+            $this->answeredQuestionId = $routeStopId; // Remember which question this feedback is for
 
             // Reset selection for next question
             $this->selectedOption = null;
@@ -132,6 +134,7 @@ class PlayerRouteQuestion extends Component
         $this->feedbackMessage = null;
         $this->feedbackType = null;
         $this->answeredOption = null;
+        $this->answeredQuestionId = null;
         // Component will re-render, and render() will handle redirect if all questions done
     }
 

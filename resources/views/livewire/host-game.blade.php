@@ -30,7 +30,15 @@
                     Spel afronden
                 </button>
 
-                <a href="{{ url('/speluitleg') }}" class="text-center bg-forest-700 hover:bg-forest-600 text-white rounded-lg font-semibold transition px-4 py-2">Speluitleg</a>
+                <button
+                    type="button"
+                    x-data
+                    x-on:click="$dispatch('open-modal', 'rules-modal-bingo')"
+                    class="text-center bg-forest-700 hover:bg-forest-600 text-white rounded-lg font-semibold transition px-4 py-2"
+                    aria-haspopup="dialog"
+                >
+                    Speluitleg
+                </button>
             </div>
 
             @if (session('photo-message'))
@@ -219,4 +227,11 @@
 
         <!-- End Game Confirmation Modal -->
         <x-end-game-modal :show="$showEndGameModal" />
+
+        <x-game.rules-modal
+        name="rules-modal-bingo"
+        :rules="config('game.rules')"
+        title="Speluitleg"
+        maxWidth="2xl"
+        />
 </div>

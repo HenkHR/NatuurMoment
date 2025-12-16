@@ -5,9 +5,14 @@
   'maxWidth' => '2xl',
 ])
 
-<x-modal :name="$name" :maxWidth="$maxWidth" focusable>
+<x-modal
+    :name="$name"
+    :maxWidth="$maxWidth"
+    focusable
+    aria-labelledby="rules-modal-title-{{ $name }}"
+>
     <div class="pb-3">
-        <h2 class="text-lg sm:text-xl font-bold text-deep-black">
+        <h2 id="rules-modal-title-{{ $name }}" class="text-lg sm:text-xl font-bold text-deep-black">
             {{ $title }}
         </h2>
     </div>

@@ -42,7 +42,6 @@
                         maxlength="6"
                         autocomplete="off"
                         placeholder="6-cijferige code"
-                        autofocus
                         inputmode="numeric"
                         class="
                             mt-3
@@ -147,7 +146,6 @@
                             placeholder="Gebruikersnaam"
                             inputmode="text"
                             autocomplete="name"
-                            autofocus
                             class="
                     mt-3
                     w-full

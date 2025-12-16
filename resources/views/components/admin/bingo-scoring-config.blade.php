@@ -16,7 +16,7 @@
                     id="bingo_three_in_row_points"
                     name="bingo_three_in_row_points"
                     min="1"
-                    value="{{ old('bingo_three_in_row_points', $location->bingo_three_in_row_points ?? 20) }}"
+                    value="{{ old('bingo_three_in_row_points', $location->bingo_three_in_row_points) }}"
                     required
                     class="w-16 py-1 text-sm text-center bg-white border border-sky-200 rounded-md focus:border-sky-400 focus:ring-1 focus:ring-sky-400 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />
@@ -31,7 +31,7 @@
                     id="bingo_full_card_points"
                     name="bingo_full_card_points"
                     min="1"
-                    value="{{ old('bingo_full_card_points', $location->bingo_full_card_points ?? 100) }}"
+                    value="{{ old('bingo_full_card_points', $location->bingo_full_card_points) }}"
                     required
                     class="w-16 py-1 text-sm text-center bg-white border border-sky-200 rounded-md focus:border-sky-400 focus:ring-1 focus:ring-sky-400 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                 />

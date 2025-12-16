@@ -21,7 +21,7 @@ class LocationFactory extends Factory
             'province' => fake()->randomElement(['Noord-Holland', 'Zuid-Holland', 'Utrecht', 'Gelderland', 'Noord-Brabant', 'Limburg', 'Overijssel', 'Flevoland', 'Drenthe', 'Friesland', 'Groningen', 'Zeeland']),
             'distance' => fake()->numberBetween(30, 180),
             'game_modes' => [], // REQ-006: Default all modes OFF
-            'bingo_three_in_row_points' => 50, // Default scoring
+            'bingo_three_in_row_points' => 20, // Default scoring
             'bingo_full_card_points' => 100, // Default scoring
         ];
     }

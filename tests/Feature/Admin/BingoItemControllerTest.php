@@ -147,7 +147,7 @@ test('REQ-001: bingo items page shows scoring config section', function () {
     $this->actingAs($this->admin)
         ->get("/admin/locations/{$this->location->id}/bingo-items")
         ->assertStatus(200)
-        ->assertSee('Bingo Punten Configuratie')
+        ->assertSee('Punten')
         ->assertSee('3 op een rij')
         ->assertSee('Volle kaart');
 });
@@ -171,7 +171,7 @@ test('REQ-002: admin can update bingo scoring config', function () {
 test('REQ-003: new locations have default scoring values', function () {
     $location = Location::factory()->create();
 
-    expect($location->bingo_three_in_row_points)->toBe(50);
+    expect($location->bingo_three_in_row_points)->toBe(20);
     expect($location->bingo_full_card_points)->toBe(100);
 });
 

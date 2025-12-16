@@ -10,6 +10,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\HomeController;
+use App\Livewire\PlayerCta;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -93,4 +94,13 @@ Route::get('/games/natuur-avontuur/{locationId?}', [GameInfoController::class, '
     ->name('games.info');
 
 require __DIR__.'/auth.php';
+
+Route::get('/player/{gameId}/{playerToken}/cta', function ($gameId, $playerToken) {
+    return view('player.cta', [
+        'gameId' => (int) $gameId,
+        'playerToken' => (string) $playerToken,
+    ]);
+})->name('player.cta');
+
+
 

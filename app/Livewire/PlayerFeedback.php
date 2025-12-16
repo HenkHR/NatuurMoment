@@ -100,7 +100,11 @@ class PlayerFeedback extends Component
         }
 
         // Redirect to home
-        return redirect()->route('home');
+        return redirect()->route('player.cta', [
+        'gameId' => $this->gameId,
+        'playerToken' => $this->playerToken,
+        ]);
+
     }
 
     public function render()

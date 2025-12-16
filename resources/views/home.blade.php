@@ -28,10 +28,16 @@
 
                     {{-- Dropdown uitleg --}}
                     <div x-data="{ open: false }" class="mt-3">
-                        <button @click="open = !open"
-                                class="flex items-center gap-2 text-xs sm:text-sm underline text-sky-100 focus:outline-none">
-                            <span x-show="!open">Meer uitleg ▼</span>
-                            <span x-show="open">Minder uitleg ▲</span>
+                        <button @click="open = !open; $el.blur()"
+                                class="inline-flex items-center gap-1.5 text-xs sm:text-sm text-white bg-white/20 px-3 py-1.5 rounded-full transition hover:bg-white/30 focus:outline-none">
+                            <span x-show="!open">Meer uitleg</span>
+                            <span x-show="open">Minder uitleg</span>
+                            <svg x-show="!open" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                            <svg x-show="open" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                            </svg>
                         </button>
 
                         <div x-show="open" x-transition class="mt-2 text-xs sm:text-sm text-sky-100 bg-sky-700 rounded-lg p-3 space-y-2">

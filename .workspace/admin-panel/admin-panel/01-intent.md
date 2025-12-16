@@ -457,3 +457,99 @@ selectRaw("strftime('%Y-%W', created_at) as period, AVG(feedback_rating) as avg"
 5. Trends dropdown filter werkt via AJAX zonder page reload
 6. Dashboard is responsive (stat cards stacken op mobile)
 7. Admin navigatie bevat link naar "Statistieken"
+
+---
+
+## Extend: bingo-scoring-config (2025-12-16)
+
+### Overview
+Bingo punten configuratie per locatie toevoegen aan bingo items admin pagina. Admin kan instellen hoeveel punten "3 op een rij" en "volle kaart" opleveren.
+
+### Task Type
+EXTEND
+
+### Scope
+- Config sectie onderaan bingo items pagina (na pagination)
+- Twee number inputs: 3-op-een-rij punten, volle kaart punten
+- Default waardes: 50 en 100 punten
+- Opslag in locations tabel als integer kolommen
+
+### Functional Requirements
+
+#### Database
+- `bingo_three_in_row_points` INTEGER kolom op locations tabel (default: 50)
+- `bingo_full_card_points` INTEGER kolom op locations tabel (default: 100)
+
+#### Bingo Items Admin Page
+- Config sectie onderaan pagina, na pagination
+- Twee number inputs naast elkaar
+- "Opslaan" button
+- Validatie errors inline getoond
+
+#### UI Layout
+```
+[Bingo items tabel]
+[Pagination]
+
+┌─ Bingo Punten Configuratie ─────────────────────────────┐
+│                                                          │
+│   3 op een rij:  [  50  ] punten    Volle kaart:  [ 100 ] punten   │
+│                                                  [ Opslaan ] │
+└──────────────────────────────────────────────────────────┘
+```
+
+### Testable Requirements
+
+| ID | Description | Category | Test Type | Passes |
+|----|-------------|----------|-----------|--------|
+| REQ-001 | Bingo items pagina toont config sectie met 3-op-een-rij en volle kaart punten inputs | core | automated_ui | false |
+| REQ-002 | Config waardes worden opgeslagen per locatie in database | core | automated_unit | false |
+| REQ-003 | Nieuwe locaties krijgen standaard waardes (50 / 100 punten) | core | automated_unit | false |
+| REQ-004 | Config sectie staat onderaan pagina, onder de pagination | ui | manual | false |
+| REQ-005 | Validatie: punten moeten positieve integers zijn (min 1) | edge_case | automated_unit | false |
+
+### Data Models
+
+#### Location Model Extensions
+```php
+// Fillable
+protected $fillable = [..., 'bingo_three_in_row_points', 'bingo_full_card_points'];
+
+// Casts
+protected function casts(): array {
+    return [
+        ...,
+        'bingo_three_in_row_points' => 'integer',
+        'bingo_full_card_points' => 'integer',
+    ];
+}
+```
+
+### Validation Rules
+- `bingo_three_in_row_points`: required, integer, min:1
+- `bingo_full_card_points`: required, integer, min:1
+
+### Files to Create
+| File | Purpose |
+|------|---------|
+| `database/migrations/YYYY_MM_DD_add_bingo_scoring_to_locations_table.php` | Add scoring columns with defaults |
+| `app/Http/Requests/UpdateBingoScoreRequest.php` | Validate scoring inputs |
+
+### Files to Modify
+| File | Change |
+|------|--------|
+| `app/Models/Location.php` | Add columns to $fillable and casts() |
+| `app/Http/Controllers/Admin/BingoItemController.php` | Add updateScoring() method |
+| `routes/web.php` | Add POST route for bingo-scoring |
+| `resources/views/admin/bingo-items/index.blade.php` | Add config form section |
+
+### Edge Cases
+1. Validatie: punten < 1 → error message
+2. Default waardes toegepast op nieuwe locaties via migration
+3. Bestaande locaties krijgen default waardes via migration
+
+### Success Criteria
+1. Config sectie zichtbaar onderaan bingo items pagina
+2. Waardes correct opgeslagen en geladen per locatie
+3. Validatie errors correct getoond bij ongeldige input
+4. Default waardes (50/100) toegepast op nieuwe en bestaande locaties

@@ -43,6 +43,15 @@
                 <x-input-error :messages="$errors->get('distance')" class="mt-2" />
             </div>
 
+            <div class="mb-4">
+                <x-input-label for="url" value="Website URL" />
+                <x-text-input id="url" name="url" type="url" class="mt-1 block w-full" :value="old('url')" required placeholder="https://www.natuurmonumenten.nl/natuurgebieden/..." />
+                <p class="mt-1.5 text-sm text-gray-500">
+                    Link naar de locatiepagina op natuurmonumenten.nl
+                </p>
+                <x-input-error :messages="$errors->get('url')" class="mt-2" />
+            </div>
+
             <div class="mb-6">
                 <x-input-label for="image" value="Locatie afbeelding" />
                 <input id="image" name="image" type="file" accept="image/*" class="mt-2 block w-full text-sm text-deep-black

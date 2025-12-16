@@ -549,3 +549,84 @@ Bingo punten configuratie per locatie toegevoegd aan bingo items admin pagina. A
 | REQ-003 | Default waardes 50/100 voor nieuwe locaties | Implemented |
 | REQ-004 | Config sectie onder pagination | Implemented |
 | REQ-005 | Validatie positieve integers (min 1) | Implemented |
+
+---
+
+## Extend: location-url (2025-12-16)
+
+### Overview
+URL veld toevoegen aan locaties voor Natuurmonumenten website link. De blauwe header button op de game info pagina linkt nu dynamisch naar de locatie-specifieke Natuurmonumenten pagina.
+
+### Files Created
+
+#### Migration
+- `database/migrations/2025_12_16_110000_add_url_to_locations_table.php` - Adds nullable url column to locations table
+
+### Files Modified
+
+#### Model
+- `app/Models/Location.php`
+  - Added `url` to $fillable array
+
+#### Form Requests
+- `app/Http/Requests/StoreLocationRequest.php`
+  - Added `'url' => ['required', 'url:http,https']` validation rule
+  - Added Dutch error messages for url.required and url.url
+
+- `app/Http/Requests/UpdateLocationRequest.php`
+  - Added `'url' => ['required', 'url:http,https']` validation rule
+  - Added Dutch error messages for url.required and url.url
+
+#### Controller
+- `app/Http/Controllers/Admin/LocationController.php`
+  - Added `'url'` to `safe()->only()` in store() method
+  - Added `'url'` to `safe()->only()` in update() method
+
+#### Views
+- `resources/views/admin/locations/create.blade.php`
+  - Added URL input field after distance, before image
+  - Includes label, placeholder, help text, and error display
+
+- `resources/views/admin/locations/edit.blade.php`
+  - Added URL input field after distance, before image
+  - Includes label, placeholder, help text, error display, and old() repopulation
+
+- `resources/views/games/info.blade.php`
+  - Replaced hardcoded Natuurmonumenten URL with `{{ $location->url }}`
+  - Added `@if($location->url)` conditional for null URL handling (REQ-004)
+  - Updated aria-label to use `$location->name`
+
+#### Tests
+- `tests/Feature/Admin/LocationControllerTest.php`
+  - Added 7 new tests for URL-REQ-001 to URL-REQ-003
+
+### Architectural Decisions
+
+1. **Strict URL Validation**: Used `url:http,https` validation rule to prevent javascript: protocol attacks (security)
+
+2. **Nullable Database, Required Form**: Database column is nullable for backward compatibility with existing locations, but form validation requires URL for new/edited locations
+
+3. **Conditional Button Rendering**: Used `@if($location->url)` to hide button for legacy locations without URL (REQ-004)
+
+4. **No Model Casting**: String field doesn't require casting in Laravel
+
+5. **Help Text**: Added descriptive placeholder and help text to guide admin users
+
+### Synthesis Applied
+
+| Aspect | Source Agent | Rationale |
+|--------|--------------|-----------|
+| Validation | QUALITY | Strict url:http,https for security |
+| File structure | BALANCED | Standard Laravel pattern |
+| Controller | SPEED | Minimal inline changes |
+| Tests | BALANCED | Practical coverage (7 tests) |
+| Edge case | QUALITY | @if conditional for null URL |
+
+### Requirements Status
+
+| REQ-ID | Description | Status |
+|--------|-------------|--------|
+| REQ-001 | URL veld toevoegen aan locatie create/edit formulieren | Implemented |
+| REQ-002 | Header button op game info pagina linkt naar locatie URL | Implemented |
+| REQ-003 | URL veld validatie: required + geldige URL format | Implemented |
+| REQ-004 | Bestaande locaties zonder URL tonen geen button | Implemented |

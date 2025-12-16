@@ -58,7 +58,7 @@ class LocationController extends Controller
 
     public function store(StoreLocationRequest $request): RedirectResponse
     {
-        $data = $request->safe()->only(['name', 'description', 'province', 'distance']);
+        $data = $request->safe()->only(['name', 'description', 'province', 'distance', 'url']);
 
         // REQ-006: Default game modes to empty array (all OFF) for new locations
         $data['game_modes'] = $request->input('game_modes', []);
@@ -88,7 +88,7 @@ class LocationController extends Controller
 
     public function update(UpdateLocationRequest $request, Location $location): RedirectResponse
     {
-        $data = $request->safe()->only(['name', 'description', 'province', 'distance']);
+        $data = $request->safe()->only(['name', 'description', 'province', 'distance', 'url']);
 
         // Handle game_modes - if not provided, keep existing
         $data['game_modes'] = $request->input('game_modes', []);

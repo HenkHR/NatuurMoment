@@ -18,6 +18,7 @@ class Location extends Model
         'image_path',
         'province',
         'distance',
+        'url',
         'game_modes',
         'bingo_three_in_row_points',
         'bingo_full_card_points',

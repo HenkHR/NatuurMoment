@@ -37,17 +37,19 @@
                         </h1>
                     </div>
 
-                    <a
-                        href="https://www.natuurmonumenten.nl/natuurgebieden/buitenplaats-de-tempel"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="self-start md:self-auto md:ml-auto bg-sky-500 hover:bg-sky-600
-                               text-pure-white text-sm md:text-base font-semibold
-                               px-4 py-2 rounded-badge shadow-card whitespace-nowrap transition
-                               focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-700"
-                        aria-label="Bezoek {{ $game['location'] }} op Natuur Monumenten (opent in nieuw venster)">
-                        {{ $game['location'] }}
-                    </a>
+                    @if($location->url)
+                        <a
+                            href="{{ $location->url }}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="self-start md:self-auto md:ml-auto bg-sky-500 hover:bg-sky-600
+                                   text-pure-white text-sm md:text-base font-semibold
+                                   px-4 py-2 rounded-badge shadow-card whitespace-nowrap transition
+                                   focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-700"
+                            aria-label="Bezoek {{ $location->name }} op Natuurmonumenten (opent in nieuw venster)">
+                            {{ $location->name }}
+                        </a>
+                    @endif
                 </div>
             </div>
         </section>

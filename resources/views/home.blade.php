@@ -13,12 +13,12 @@
 
         <section class="w-full bg-white" aria-labelledby="page-title">
             {{-- Hero image --}}
-            <div class="h-48 sm:h-56 md:h-64 w-full overflow-hidden">
+            <div class="h-48 sm:h-56 md:h-80 w-full overflow-hidden">
                 <img src="{{ asset('images/heroImage.jpg') }}" alt="Natuurgebied" class="w-full h-full object-cover"/>
             </div>
 
             {{-- Content card die over image en content valt, rechts uitgelijnd met login button --}}
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 sm:-mt-20 mb-4 relative z-20 md:flex md:justify-end md:pr-36 lg:pr-64">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 sm:-mt-20 md:-mt-44 mb-4 relative z-20 md:flex md:justify-end md:pr-36 lg:pr-64">
                 <div class="bg-sky-600 text-white rounded-xl shadow-xl md:shadow-none px-6 py-5 md:px-8 md:py-6 md:max-w-sm relative">
                     <h1 id="page-title" class="text-2xl sm:text-3xl md:text-4xl font-bold">Tijd om te spelen!</h1>
                     <p class="mt-2 text-sm sm:text-base text-sky-100">
@@ -29,9 +29,16 @@
                     {{-- Dropdown uitleg --}}
                     <div x-data="{ open: false }" class="mt-3">
                         <button @click="open = !open"
-                                class="flex items-center gap-2 text-xs sm:text-sm underline text-sky-100 focus:outline-none">
-                            <span x-show="!open">Meer uitleg ▼</span>
-                            <span x-show="open">Minder uitleg ▲</span>
+                                @mouseup="$el.blur()"
+                                class="inline-flex items-center gap-1.5 text-xs sm:text-sm text-white bg-white/20 px-3 py-1.5 rounded-full transition hover:bg-white/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-sky-600">
+                            <span x-show="!open">Meer uitleg</span>
+                            <span x-show="open">Minder uitleg</span>
+                            <svg x-show="!open" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                            <svg x-show="open" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"/>
+                            </svg>
                         </button>
 
                         <div x-show="open" x-transition class="mt-2 text-xs sm:text-sm text-sky-100 bg-sky-700 rounded-lg p-3 space-y-2">

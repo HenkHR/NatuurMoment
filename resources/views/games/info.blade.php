@@ -61,7 +61,15 @@
 
         <div class="max-w-5xl mx-auto px-4 md:px-8">
             <div class="mt-4 mb-4 md:mt-6 md:mb-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <x-ui.breadcrumbs :items="$breadcrumbs" aria-label="Breadcrumb navigatie" />
+                <a
+                    href="{{ route('home') }}"
+                    class="inline-flex items-center gap-2 text-sm font-medium text-white bg-sky-500 hover:bg-sky-600 px-4 py-2 rounded-[10px] transition shadow-sm"
+                >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                    Alle locaties
+                </a>
 
                 <button
                     type="button"
@@ -76,6 +84,7 @@
                     aria-haspopup="dialog"
                     aria-label="Host informatie bekijken"
                 >
+                    <span>Organisator info</span>
                     <svg class="w-5 h-5"
                         fill="none"
                         stroke="currentColor"
@@ -84,8 +93,6 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-
-                    <span>Organisator info</span>
                 </button>
             </div>
 
@@ -100,7 +107,7 @@
 
         <x-game.host-info-modal
             name="host-info-modal"
-            title="Zo organiseer je het spel!"
+            title="Hoe werkt het?"
             :items="config('host.info')"
             maxWidth="2xl"
         />

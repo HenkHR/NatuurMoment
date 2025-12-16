@@ -50,7 +50,7 @@
                 href="{{ route('player.join') }}"
                 class="w-full max-w-xs bg-sky-500 hover:bg-sky-600 text-pure-white font-semibold text-small py-3 rounded-button text-center shadow-card transition"
             >
-                Meedoen met een spel!
+                Speel mee
             </a>
 
             @if($locationId)

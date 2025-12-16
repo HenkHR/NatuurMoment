@@ -96,7 +96,7 @@
                     file:mr-4 file:py-2 file:px-4
                     file:rounded-button file:border file:border-sky-100
                     file:text-sm file:font-semibold
-                    file:bg-sky-50 file:text-sky-700
+                    file:bg-sky-50 file:text-sky-700 file:shadow-none
                     hover:file:bg-sky-100" {{ $routeStop->image_path ? '' : 'required' }} />
                 <p class="mt-1.5 text-sm text-gray-500">
                     Formaat: JPEG, PNG, GIF of WebP. Max 2MB. Aanbevolen: vierkante afbeelding (bijv. 400x400 pixels).

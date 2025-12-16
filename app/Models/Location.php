@@ -19,12 +19,16 @@ class Location extends Model
         'province',
         'distance',
         'game_modes',
+        'bingo_three_in_row_points',
+        'bingo_full_card_points',
     ];
 
     protected function casts(): array
     {
         return [
             'game_modes' => 'array',
+            'bingo_three_in_row_points' => 'integer',
+            'bingo_full_card_points' => 'integer',
         ];
     }
 

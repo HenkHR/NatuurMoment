@@ -137,4 +137,7 @@
     <div class="mt-6">
         {{ $bingoItems->links('vendor.pagination.admin') }}
     </div>
+
+    {{-- Bingo Scoring Configuration --}}
+    <x-admin.bingo-scoring-config :location="$location" />
 </x-admin.layout>

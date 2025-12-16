@@ -728,3 +728,77 @@ Generated: 2025-12-02 14:29:04
 2. Data cleanup: Old 1-10 scale ratings removed
 3. Chart.js Y-axis: 0.5 step gridlines with integer labels (1,2,3,4,5)
 4. Dropdown styling: Fixed icon overlap in trend period selector
+
+---
+
+## Extend: bingo-scoring-config Tests (2025-12-16)
+
+### Requirements Test Matrix
+
+| REQ-ID | Description | Test Type | Automated | Manual |
+|--------|-------------|-----------|-----------|--------|
+| BSC-REQ-001 | Config sectie met inputs op bingo items pagina | automated_ui | ✓ | - |
+| BSC-REQ-002 | Config waardes opgeslagen per locatie | automated_unit | ✓ | - |
+| BSC-REQ-003 | Default waardes 50/100 voor nieuwe locaties | automated_unit | ✓ | - |
+| BSC-REQ-004 | Config sectie onder pagination | manual | - | ✓ |
+| BSC-REQ-005 | Validatie positieve integers (min 1) | automated_unit | ✓ | - |
+
+### Manual Tests
+
+#### BSC-REQ-004: Config Sectie Onder Pagination
+**Category:** ui
+**Test Type:** manual
+
+**Test Steps:**
+1. Log in als admin
+2. Navigeer naar /admin/locations/{id}/bingo-items
+3. Scroll naar beneden
+
+**Expected Result:**
+- Pagination verschijnt onder de bingo items tabel
+- "Bingo Punten Configuratie" sectie verschijnt ONDER de pagination
+- Twee inputs naast elkaar: "3 op een rij" en "Volle kaart"
+- "Opslaan" button rechts uitgelijnd
+
+---
+
+### Automated Tests
+
+#### BingoItemController Tests (6 nieuwe tests)
+```bash
+./vendor/bin/pest tests/Feature/Admin/BingoItemControllerTest.php --filter="REQ-00|scoring|guest"
+```
+
+| Test | REQ-ID | Description |
+|------|--------|-------------|
+| REQ-001: bingo items page shows scoring config section | BSC-REQ-001 | Config sectie zichtbaar |
+| REQ-002: admin can update bingo scoring config | BSC-REQ-002 | Update slaat op in DB |
+| REQ-003: new locations have default scoring values | BSC-REQ-003 | Factory default 50/100 |
+| REQ-005: validation rejects negative points for three in row | BSC-REQ-005 | Negatief → error |
+| REQ-005: validation rejects zero points for full card | BSC-REQ-005 | Zero → error |
+| guest cannot access bingo scoring config endpoint | - | Auth check |
+
+### Run All Bingo Scoring Config Tests
+```bash
+./vendor/bin/pest tests/Feature/Admin/BingoItemControllerTest.php --filter="REQ-00"
+```
+
+**Expected result:** 6 new tests passed
+
+### Pre-Deployment Checklist (bingo-scoring-config)
+
+- [x] Run migration: `php artisan migrate`
+- [x] Run tests: `./vendor/bin/pest tests/Feature/Admin/BingoItemControllerTest.php --filter="REQ-00"` ✓ 6 tests passed
+- [x] Verify: Config sectie zichtbaar onderaan bingo items pagina ✓
+- [x] Verify: Inputs tonen default waardes (50/100) ✓
+- [x] Verify: Opslaan werkt en toont success message ✓
+- [x] Verify: Validatie errors bij negatieve/zero waardes ✓
+
+### Verification Summary (2025-12-16)
+
+**All requirements PASSED:**
+- BSC-REQ-001: Config sectie met inputs ✓ (automated)
+- BSC-REQ-002: Config waardes opgeslagen per locatie ✓ (automated)
+- BSC-REQ-003: Default waardes 50/100 ✓ (automated)
+- BSC-REQ-004: Config sectie onder pagination ✓ (manual)
+- BSC-REQ-005: Validatie positieve integers ✓ (automated)

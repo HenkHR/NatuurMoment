@@ -78,6 +78,10 @@ Route::middleware(['auth', 'admin', 'throttle:120,1'])->prefix('admin')->name('a
     Route::resource('locations.route-stops', RouteStopController::class)->shallow()->except(['show']);
     Route::resource('games', AdminGameController::class)->only(['index', 'show', 'destroy']);
 
+    // Bingo scoring configuration
+    Route::patch('locations/{location}/bingo-scoring-config', [BingoItemController::class, 'updateScoringConfig'])
+        ->name('locations.bingo-scoring-config.update');
+
     // Statistics dashboard (REQ-002)
     Route::get('statistics', [StatisticsController::class, 'index'])->name('statistics.index');
     Route::get('statistics/trends', [StatisticsController::class, 'trends'])->name('statistics.trends');

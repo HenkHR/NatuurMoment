@@ -502,11 +502,11 @@ EXTEND
 
 | ID | Description | Category | Test Type | Passes |
 |----|-------------|----------|-----------|--------|
-| REQ-001 | Bingo items pagina toont config sectie met 3-op-een-rij en volle kaart punten inputs | core | automated_ui | false |
-| REQ-002 | Config waardes worden opgeslagen per locatie in database | core | automated_unit | false |
-| REQ-003 | Nieuwe locaties krijgen standaard waardes (50 / 100 punten) | core | automated_unit | false |
-| REQ-004 | Config sectie staat onderaan pagina, onder de pagination | ui | manual | false |
-| REQ-005 | Validatie: punten moeten positieve integers zijn (min 1) | edge_case | automated_unit | false |
+| REQ-001 | Bingo items pagina toont config sectie met 3-op-een-rij en volle kaart punten inputs | core | automated_ui | true |
+| REQ-002 | Config waardes worden opgeslagen per locatie in database | core | automated_unit | true |
+| REQ-003 | Nieuwe locaties krijgen standaard waardes (50 / 100 punten) | core | automated_unit | true |
+| REQ-004 | Config sectie staat onderaan pagina, onder de pagination | ui | manual | true |
+| REQ-005 | Validatie: punten moeten positieve integers zijn (min 1) | edge_case | automated_unit | true |
 
 ### Data Models
 

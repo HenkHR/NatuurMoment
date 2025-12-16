@@ -479,3 +479,73 @@ Survey feedback systeem aangepast naar 1-5 sterren-rating en statistieken dashbo
 | REQ-010 | Aggregatie queries correct | Implemented |
 | REQ-011 | Lege staat message | Implemented |
 | REQ-012 | Grafieken met 0 responses | Implemented |
+
+---
+
+## Extend: bingo-scoring-config (2025-12-16)
+
+### Overview
+Bingo punten configuratie per locatie toegevoegd aan bingo items admin pagina. Admin kan instellen hoeveel punten "3 op een rij" en "volle kaart" opleveren.
+
+### Files Created
+
+#### Migration
+- `database/migrations/2025_12_16_100000_add_bingo_scoring_to_locations_table.php` - Adds bingo_three_in_row_points (default 50) and bingo_full_card_points (default 100) columns
+
+#### Blade Component
+- `resources/views/components/admin/bingo-scoring-config.blade.php` - Config form component with two number inputs
+
+### Files Modified
+
+#### Model
+- `app/Models/Location.php`
+  - Added `bingo_three_in_row_points` and `bingo_full_card_points` to $fillable
+  - Added integer casting in casts() for both columns
+
+#### Controller
+- `app/Http/Controllers/Admin/BingoItemController.php`
+  - Added `updateScoringConfig(Request $request, Location $location)` method
+  - Inline validation with custom Dutch error messages
+
+#### Routes
+- `routes/web.php`
+  - Added `PATCH /admin/locations/{location}/bingo-scoring-config` route
+
+#### Views
+- `resources/views/admin/bingo-items/index.blade.php`
+  - Included `<x-admin.bingo-scoring-config :location="$location" />` after pagination
+
+#### Factory
+- `database/factories/LocationFactory.php`
+  - Added default scoring values (50/100) to factory definition
+
+### Architectural Decisions
+
+1. **Inline Validation**: Chose inline `$request->validate()` in controller instead of separate FormRequest (only 2 simple rules - YAGNI)
+
+2. **Blade Component Extraction**: Created separate component for config form (follows balanced agent recommendation - clean separation, reusable pattern)
+
+3. **Controller Extension**: Added method to existing BingoItemController (config is tightly coupled to bingo items context)
+
+4. **Unsigned Integer Columns**: Used `unsignedInteger` with defaults for database safety and backward compatibility
+
+5. **Dutch Error Messages**: Inline custom messages in validate() call (consistent with existing patterns)
+
+### Synthesis Applied
+
+| Aspect | Source Agent | Rationale |
+|--------|--------------|-----------|
+| File structure | BALANCED | Component extraction for clean separation |
+| Validation | SPEED | Inline validation sufficient for 2 rules |
+| Migration | QUALITY | Proper defaults, rollback support |
+| Testing | BALANCED | Feature tests for validation + defaults |
+
+### Requirements Status
+
+| REQ-ID | Description | Status |
+|--------|-------------|--------|
+| REQ-001 | Config sectie met inputs op bingo items pagina | Implemented |
+| REQ-002 | Config waardes opgeslagen per locatie | Implemented |
+| REQ-003 | Default waardes 50/100 voor nieuwe locaties | Implemented |
+| REQ-004 | Config sectie onder pagination | Implemented |
+| REQ-005 | Validatie positieve integers (min 1) | Implemented |

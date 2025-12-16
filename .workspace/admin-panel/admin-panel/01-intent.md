@@ -553,3 +553,86 @@ protected function casts(): array {
 2. Waardes correct opgeslagen en geladen per locatie
 3. Validatie errors correct getoond bij ongeldige input
 4. Default waardes (50/100) toegepast op nieuwe en bestaande locaties
+
+---
+
+## Extend: location-url (2025-12-16)
+
+### Overview
+URL veld toevoegen aan locaties voor Natuurmonumenten website link. De blauwe header button op de game info pagina moet dynamisch linken naar de locatie-specifieke Natuurmonumenten pagina.
+
+### Task Type
+EXTEND
+
+### Scope
+- URL veld toevoegen aan Location model
+- Admin create/edit formulieren uitbreiden met URL input
+- Game info header button dynamisch maken met locatie URL
+- Database: nullable kolom (voor bestaande records)
+- Formulier: required validatie (voor nieuwe/gewijzigde records)
+
+### Functional Requirements
+
+#### Database
+- `url` VARCHAR(255) kolom op locations tabel
+- Nullable voor backward compatibility met bestaande records
+- Geen default waarde
+
+#### Admin Create/Edit Forms
+- URL input veld na distance veld, voor image veld
+- Label: "Natuurmonumenten URL"
+- Type: url (HTML5 validation)
+- Required in formulier
+- Validatie: geldige URL format (http/https)
+
+#### Game Info Page
+- Header button href wijzigen van hardcoded URL naar `{{ $location->url }}`
+- Button text blijft locatie naam (huidige gedrag behouden)
+- target="_blank" en rel="noopener noreferrer" behouden
+
+### Testable Requirements
+
+| ID | Description | Category | Test Type | Passes |
+|----|-------------|----------|-----------|--------|
+| REQ-001 | URL veld toevoegen aan locatie create/edit formulieren in admin panel | core | manual | false |
+| REQ-002 | Header button op game info pagina linkt naar locatie URL | core | manual | false |
+| REQ-003 | URL veld validatie: required in formulier, geldige URL format | api | automated_api | false |
+| REQ-004 | Bestaande locaties zonder URL tonen geen/lege button tot URL ingevuld | edge_case | manual | false |
+
+### Data Models
+
+#### Location Model Extensions
+```php
+// Fillable
+protected $fillable = [..., 'url'];
+```
+
+### Validation Rules
+- `url`: required, url:http,https, max:255
+
+### Files to Create
+| File | Purpose |
+|------|---------|
+| `database/migrations/YYYY_MM_DD_add_url_to_locations_table.php` | Add nullable url column |
+
+### Files to Modify
+| File | Change |
+|------|--------|
+| `app/Models/Location.php` | Add 'url' to $fillable |
+| `app/Http/Requests/StoreLocationRequest.php` | Add url validation rule + Dutch message |
+| `app/Http/Requests/UpdateLocationRequest.php` | Add url validation rule + Dutch message |
+| `app/Http/Controllers/Admin/LocationController.php` | Add 'url' to safe()->only() in store/update |
+| `resources/views/admin/locations/create.blade.php` | Add URL input field |
+| `resources/views/admin/locations/edit.blade.php` | Add URL input field |
+| `resources/views/games/info.blade.php` | Replace hardcoded URL with {{ $location->url }} |
+
+### Edge Cases
+1. Bestaande locaties zonder URL → button toont geen link of fallback
+2. Ongeldige URL format → validatie error in formulier
+3. Lege URL bij submit → required validation error
+
+### Success Criteria
+1. URL veld zichtbaar in admin create/edit formulieren
+2. Validatie werkt (required + valid URL format)
+3. Game info header button gebruikt dynamische locatie URL
+4. Bestaande locaties blijven werken (nullable kolom)

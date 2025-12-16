@@ -304,3 +304,144 @@ Queries executed:
 - Laravel 12 migration add columns
 - Laravel 12 FormRequest patterns
 - Pest PHP feature testing
+
+---
+
+## Extend: location-url (2025-12-16)
+
+### Framework Best Practices
+
+#### URL Validation
+- Gebruik `'url'` validation rule voor URL velden
+- Specificeer protocollen met `'url:http,https'` voor stricter validation
+- Combineer met `'max:255'` voor length constraint
+
+#### Form Repopulation
+- Pattern: `old('url', $location->url ?? '')` voor input values
+- `@error('url')` directive voor conditional error display
+- `$message` variable automatisch beschikbaar binnen directive
+
+#### Mass Assignment
+- Voeg `'url'` toe aan `$fillable` array in Location model
+- Geen casting nodig (string is default)
+
+### Architecture Patterns
+
+#### Migration voor Nullable Kolom
+```php
+// Schema::table() voor column addition
+Schema::table('locations', function (Blueprint $table) {
+    $table->string('url')->nullable()->after('distance');
+});
+```
+
+#### FormRequest Validation Pattern
+```php
+// In StoreLocationRequest en UpdateLocationRequest
+public function rules(): array
+{
+    return [
+        // ... existing rules
+        'url' => ['required', 'url:http,https', 'max:255'],
+    ];
+}
+
+public function messages(): array
+{
+    return [
+        // ... existing messages
+        'url.required' => 'Natuurmonumenten URL is verplicht.',
+        'url.url' => 'URL moet een geldige URL zijn (http/https).',
+        'url.max' => 'URL mag maximaal 255 tekens zijn.',
+    ];
+}
+```
+
+#### Controller Data Extraction
+```php
+// In store() en update() methods
+$data = $request->safe()->only(['name', 'description', 'province', 'distance', 'url']);
+```
+
+#### Blade Form Field Pattern
+```blade
+<div class="mb-4">
+    <x-input-label for="url" value="Natuurmonumenten URL" />
+    <x-text-input id="url" name="url" type="url"
+        class="mt-1 block w-full"
+        :value="old('url', $location->url ?? '')"
+        required />
+    <x-input-error :messages="$errors->get('url')" class="mt-2" />
+</div>
+```
+
+#### Dynamic URL in View
+```blade
+{{-- Replace hardcoded URL --}}
+<a href="{{ $location->url }}"
+   target="_blank"
+   rel="noopener noreferrer">
+    {{ $location->name }}
+</a>
+```
+
+### Testing Strategy
+
+#### Feature Test Pattern
+```php
+test('admin can create location with url', function () {
+    $admin = User::factory()->create(['is_admin' => true]);
+
+    $this->actingAs($admin)
+        ->post(route('admin.locations.store'), [
+            'name' => 'Test Locatie',
+            'description' => 'Test',
+            'province' => 'Noord-Holland',
+            'distance' => 60,
+            'url' => 'https://www.natuurmonumenten.nl/test',
+            'image' => UploadedFile::fake()->image('test.jpg'),
+        ])
+        ->assertRedirect()
+        ->assertSessionHas('status');
+
+    $this->assertDatabaseHas('locations', [
+        'name' => 'Test Locatie',
+        'url' => 'https://www.natuurmonumenten.nl/test',
+    ]);
+});
+
+test('url validation rejects invalid urls', function () {
+    $admin = User::factory()->create(['is_admin' => true]);
+
+    $this->actingAs($admin)
+        ->post(route('admin.locations.store'), [
+            'name' => 'Test',
+            'url' => 'not-a-valid-url',
+            // ... other fields
+        ])
+        ->assertInvalid(['url']);
+});
+```
+
+### Common Pitfalls
+
+#### XSS Prevention
+- Blade `{{ }}` auto-escapes output (veilig)
+- NOOIT `{!! !!}` gebruiken voor URLs
+- `url:http,https` validation voorkomt javascript: protocol
+
+#### Nullable vs Required Mismatch
+- Database: nullable (voor bestaande records)
+- Form: required (voor nieuwe/gewijzigde records)
+- Dit is gewenst gedrag - bestaande records hoeven niet meteen URL te hebben
+
+### Context7 Sources
+
+Coverage: 88% (average across domains)
+Confidence: 87% (average across findings)
+
+Queries executed:
+- Laravel 12 URL validation rules
+- Laravel 12 Eloquent fillable mass assignment
+- Laravel 12 Blade form input validation errors
+- Laravel 12 migration nullable columns

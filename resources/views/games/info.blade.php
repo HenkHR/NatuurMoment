@@ -37,22 +37,24 @@
                         </h1>
                     </div>
 
-                    <a
-                        href="https://www.natuurmonumenten.nl/bezoekerscentrum-veluwezoom"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="self-start md:self-auto md:ml-auto bg-sky-500 hover:bg-sky-600
+                    @if($location->url)
+                        <a
+                            href="{{ $location->url }}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="self-start md:self-auto md:ml-auto bg-sky-500 hover:bg-sky-600
                                text-pure-white text-sm md:text-base font-semibold
                                px-4 py-2 rounded-badge shadow-card whitespace-nowrap transition
                                focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-700
                                inline-flex items-center gap-2"
-                        aria-label="Bezoek {{ $game['location'] }} op Natuur Monumenten (opent in nieuw venster)">
-                        {{ $game['location'] }}
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </a>
+                            aria-label="Bezoek {{ $location->name }} op Natuurmonumenten (opent in nieuw venster)">
+                            {{ $location->name }}
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </a>
+                    @endif
                 </div>
             </div>
         </section>

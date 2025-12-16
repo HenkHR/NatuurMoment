@@ -50,7 +50,6 @@ class HostGame extends Component
     // ============================================
 
     private const BINGO_ITEM_COUNT = 9;
-    private const FULL_CARD_BONUS = 5;
 
     // ============================================
     // PROPERTIES SECTION
@@ -102,11 +101,11 @@ class HostGame extends Component
     }
 
     /**
-     * Load game data including timer info
+     * Load game data including timer info and location for scoring config
      */
     private function loadGame()
     {
-        $this->game = Game::findOrFail($this->gameId);
+        $this->game = Game::with('location')->findOrFail($this->gameId);
 
         // If game is finished, redirect to finished leaderboard
         if ($this->game->status === 'finished') {
@@ -124,8 +123,8 @@ class HostGame extends Component
     #[On('refresh')]
     public function loadPlayers()
     {
-        // Refresh game data
-        $this->game = Game::with('players')->findOrFail($this->gameId);
+        // Refresh game data with location for scoring config
+        $this->game = Game::with(['players', 'location'])->findOrFail($this->gameId);
 
         // If already finished, redirect to finished leaderboard
         if ($this->game->status === 'finished') {
@@ -479,14 +478,19 @@ class HostGame extends Component
      * Calculate bonus points for completed lines in the 3x3 bingo grid
      *
      * Checks all possible winning lines (defined in BINGO_LINES constant)
-     * and awards 1 bonus point for each completed line.
-     * Also awards FULL_CARD_BONUS points when all 9 positions are filled.
+     * and awards points based on location configuration.
+     * Also awards full card bonus when all 9 positions are filled.
      *
      * @param array $approvedPositions Array of grid positions (0-8) with approved photos
      * @return int Total bonus points for completed lines and full card
      */
     private function calculateLineBonuses(array $approvedPositions): int
     {
+        // Get location-specific scoring from database
+        $location = $this->game->location;
+        $threeInRowPoints = $location->bingo_three_in_row_points ?? 20;
+        $fullCardPoints = $location->bingo_full_card_points ?? 100;
+
         $bonusPoints = 0;
 
         foreach (self::BINGO_LINES as $line) {
@@ -500,13 +504,13 @@ class HostGame extends Component
             }
 
             if ($lineCompleted) {
-                $bonusPoints += 1;
+                $bonusPoints += $threeInRowPoints;
             }
         }
 
         // Full card bonus: award extra points when all 9 positions are filled
         if (count(array_unique($approvedPositions)) >= self::BINGO_ITEM_COUNT) {
-            $bonusPoints += self::FULL_CARD_BONUS;
+            $bonusPoints += $fullCardPoints;
         }
 
         return $bonusPoints;

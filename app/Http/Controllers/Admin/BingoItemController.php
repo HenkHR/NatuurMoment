@@ -10,6 +10,7 @@ use App\Http\Requests\UpdateBingoItemRequest;
 use App\Models\Location;
 use App\Models\LocationBingoItem;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
@@ -98,5 +99,26 @@ class BingoItemController extends Controller
         return redirect()
             ->route('admin.locations.bingo-items.index', $location)
             ->with('status', 'Bingo item verwijderd.');
+    }
+
+    public function updateScoringConfig(Request $request, Location $location): RedirectResponse
+    {
+        $validated = $request->validate([
+            'bingo_three_in_row_points' => ['required', 'integer', 'min:1'],
+            'bingo_full_card_points' => ['required', 'integer', 'min:1'],
+        ], [
+            'bingo_three_in_row_points.required' => 'Punten voor 3-op-een-rij is verplicht.',
+            'bingo_three_in_row_points.integer' => 'Punten moet een geheel getal zijn.',
+            'bingo_three_in_row_points.min' => 'Punten moet minimaal 1 zijn.',
+            'bingo_full_card_points.required' => 'Punten voor volle kaart is verplicht.',
+            'bingo_full_card_points.integer' => 'Punten moet een geheel getal zijn.',
+            'bingo_full_card_points.min' => 'Punten moet minimaal 1 zijn.',
+        ]);
+
+        $location->update($validated);
+
+        return redirect()
+            ->route('admin.locations.bingo-items.index', $location)
+            ->with('status', 'Bingo punten configuratie opgeslagen.');
     }
 }

@@ -138,3 +138,65 @@ test('bingo items pagination preserves query string', function () {
     // withQueryString should be applied
     expect($bingoItems->hasPages())->toBeTrue();
 });
+
+// ============================================
+// Bingo Scoring Config Tests (bingo-scoring-config extend)
+// ============================================
+
+test('REQ-001: bingo items page shows scoring config section', function () {
+    $this->actingAs($this->admin)
+        ->get("/admin/locations/{$this->location->id}/bingo-items")
+        ->assertStatus(200)
+        ->assertSee('Punten')
+        ->assertSee('3 op een rij')
+        ->assertSee('Volle kaart');
+});
+
+test('REQ-002: admin can update bingo scoring config', function () {
+    $this->actingAs($this->admin)
+        ->patch("/admin/locations/{$this->location->id}/bingo-scoring-config", [
+            'bingo_three_in_row_points' => 75,
+            'bingo_full_card_points' => 150,
+        ])
+        ->assertRedirect("/admin/locations/{$this->location->id}/bingo-items")
+        ->assertSessionHas('status');
+
+    $this->assertDatabaseHas('locations', [
+        'id' => $this->location->id,
+        'bingo_three_in_row_points' => 75,
+        'bingo_full_card_points' => 150,
+    ]);
+});
+
+test('REQ-003: new locations have default scoring values', function () {
+    $location = Location::factory()->create();
+
+    expect($location->bingo_three_in_row_points)->toBe(20);
+    expect($location->bingo_full_card_points)->toBe(100);
+});
+
+test('REQ-005: validation rejects negative points for three in row', function () {
+    $this->actingAs($this->admin)
+        ->patch("/admin/locations/{$this->location->id}/bingo-scoring-config", [
+            'bingo_three_in_row_points' => -10,
+            'bingo_full_card_points' => 100,
+        ])
+        ->assertSessionHasErrors('bingo_three_in_row_points');
+});
+
+test('REQ-005: validation rejects zero points for full card', function () {
+    $this->actingAs($this->admin)
+        ->patch("/admin/locations/{$this->location->id}/bingo-scoring-config", [
+            'bingo_three_in_row_points' => 50,
+            'bingo_full_card_points' => 0,
+        ])
+        ->assertSessionHasErrors('bingo_full_card_points');
+});
+
+test('guest cannot access bingo scoring config endpoint', function () {
+    $this->patch("/admin/locations/{$this->location->id}/bingo-scoring-config", [
+        'bingo_three_in_row_points' => 50,
+        'bingo_full_card_points' => 100,
+    ])
+    ->assertRedirect('/login');
+});

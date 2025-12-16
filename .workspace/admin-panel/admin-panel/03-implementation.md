@@ -479,3 +479,154 @@ Survey feedback systeem aangepast naar 1-5 sterren-rating en statistieken dashbo
 | REQ-010 | Aggregatie queries correct | Implemented |
 | REQ-011 | Lege staat message | Implemented |
 | REQ-012 | Grafieken met 0 responses | Implemented |
+
+---
+
+## Extend: bingo-scoring-config (2025-12-16)
+
+### Overview
+Bingo punten configuratie per locatie toegevoegd aan bingo items admin pagina. Admin kan instellen hoeveel punten "3 op een rij" en "volle kaart" opleveren.
+
+### Files Created
+
+#### Migration
+- `database/migrations/2025_12_16_100000_add_bingo_scoring_to_locations_table.php` - Adds bingo_three_in_row_points (default 50) and bingo_full_card_points (default 100) columns
+
+#### Blade Component
+- `resources/views/components/admin/bingo-scoring-config.blade.php` - Config form component with two number inputs
+
+### Files Modified
+
+#### Model
+- `app/Models/Location.php`
+  - Added `bingo_three_in_row_points` and `bingo_full_card_points` to $fillable
+  - Added integer casting in casts() for both columns
+
+#### Controller
+- `app/Http/Controllers/Admin/BingoItemController.php`
+  - Added `updateScoringConfig(Request $request, Location $location)` method
+  - Inline validation with custom Dutch error messages
+
+#### Routes
+- `routes/web.php`
+  - Added `PATCH /admin/locations/{location}/bingo-scoring-config` route
+
+#### Views
+- `resources/views/admin/bingo-items/index.blade.php`
+  - Included `<x-admin.bingo-scoring-config :location="$location" />` after pagination
+
+#### Factory
+- `database/factories/LocationFactory.php`
+  - Added default scoring values (50/100) to factory definition
+
+### Architectural Decisions
+
+1. **Inline Validation**: Chose inline `$request->validate()` in controller instead of separate FormRequest (only 2 simple rules - YAGNI)
+
+2. **Blade Component Extraction**: Created separate component for config form (follows balanced agent recommendation - clean separation, reusable pattern)
+
+3. **Controller Extension**: Added method to existing BingoItemController (config is tightly coupled to bingo items context)
+
+4. **Unsigned Integer Columns**: Used `unsignedInteger` with defaults for database safety and backward compatibility
+
+5. **Dutch Error Messages**: Inline custom messages in validate() call (consistent with existing patterns)
+
+### Synthesis Applied
+
+| Aspect | Source Agent | Rationale |
+|--------|--------------|-----------|
+| File structure | BALANCED | Component extraction for clean separation |
+| Validation | SPEED | Inline validation sufficient for 2 rules |
+| Migration | QUALITY | Proper defaults, rollback support |
+| Testing | BALANCED | Feature tests for validation + defaults |
+
+### Requirements Status
+
+| REQ-ID | Description | Status |
+|--------|-------------|--------|
+| REQ-001 | Config sectie met inputs op bingo items pagina | Implemented |
+| REQ-002 | Config waardes opgeslagen per locatie | Implemented |
+| REQ-003 | Default waardes 50/100 voor nieuwe locaties | Implemented |
+| REQ-004 | Config sectie onder pagination | Implemented |
+| REQ-005 | Validatie positieve integers (min 1) | Implemented |
+
+---
+
+## Extend: location-url (2025-12-16)
+
+### Overview
+URL veld toevoegen aan locaties voor Natuurmonumenten website link. De blauwe header button op de game info pagina linkt nu dynamisch naar de locatie-specifieke Natuurmonumenten pagina.
+
+### Files Created
+
+#### Migration
+- `database/migrations/2025_12_16_110000_add_url_to_locations_table.php` - Adds nullable url column to locations table
+
+### Files Modified
+
+#### Model
+- `app/Models/Location.php`
+  - Added `url` to $fillable array
+
+#### Form Requests
+- `app/Http/Requests/StoreLocationRequest.php`
+  - Added `'url' => ['required', 'url:http,https']` validation rule
+  - Added Dutch error messages for url.required and url.url
+
+- `app/Http/Requests/UpdateLocationRequest.php`
+  - Added `'url' => ['required', 'url:http,https']` validation rule
+  - Added Dutch error messages for url.required and url.url
+
+#### Controller
+- `app/Http/Controllers/Admin/LocationController.php`
+  - Added `'url'` to `safe()->only()` in store() method
+  - Added `'url'` to `safe()->only()` in update() method
+
+#### Views
+- `resources/views/admin/locations/create.blade.php`
+  - Added URL input field after distance, before image
+  - Includes label, placeholder, help text, and error display
+
+- `resources/views/admin/locations/edit.blade.php`
+  - Added URL input field after distance, before image
+  - Includes label, placeholder, help text, error display, and old() repopulation
+
+- `resources/views/games/info.blade.php`
+  - Replaced hardcoded Natuurmonumenten URL with `{{ $location->url }}`
+  - Added `@if($location->url)` conditional for null URL handling (REQ-004)
+  - Updated aria-label to use `$location->name`
+
+#### Tests
+- `tests/Feature/Admin/LocationControllerTest.php`
+  - Added 7 new tests for URL-REQ-001 to URL-REQ-003
+
+### Architectural Decisions
+
+1. **Strict URL Validation**: Used `url:http,https` validation rule to prevent javascript: protocol attacks (security)
+
+2. **Nullable Database, Required Form**: Database column is nullable for backward compatibility with existing locations, but form validation requires URL for new/edited locations
+
+3. **Conditional Button Rendering**: Used `@if($location->url)` to hide button for legacy locations without URL (REQ-004)
+
+4. **No Model Casting**: String field doesn't require casting in Laravel
+
+5. **Help Text**: Added descriptive placeholder and help text to guide admin users
+
+### Synthesis Applied
+
+| Aspect | Source Agent | Rationale |
+|--------|--------------|-----------|
+| Validation | QUALITY | Strict url:http,https for security |
+| File structure | BALANCED | Standard Laravel pattern |
+| Controller | SPEED | Minimal inline changes |
+| Tests | BALANCED | Practical coverage (7 tests) |
+| Edge case | QUALITY | @if conditional for null URL |
+
+### Requirements Status
+
+| REQ-ID | Description | Status |
+|--------|-------------|--------|
+| REQ-001 | URL veld toevoegen aan locatie create/edit formulieren | Implemented |
+| REQ-002 | Header button op game info pagina linkt naar locatie URL | Implemented |
+| REQ-003 | URL veld validatie: required + geldige URL format | Implemented |
+| REQ-004 | Bestaande locaties zonder URL tonen geen button | Implemented |

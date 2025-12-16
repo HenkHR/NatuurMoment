@@ -728,3 +728,181 @@ Generated: 2025-12-02 14:29:04
 2. Data cleanup: Old 1-10 scale ratings removed
 3. Chart.js Y-axis: 0.5 step gridlines with integer labels (1,2,3,4,5)
 4. Dropdown styling: Fixed icon overlap in trend period selector
+
+---
+
+## Extend: bingo-scoring-config Tests (2025-12-16)
+
+### Requirements Test Matrix
+
+| REQ-ID | Description | Test Type | Automated | Manual |
+|--------|-------------|-----------|-----------|--------|
+| BSC-REQ-001 | Config sectie met inputs op bingo items pagina | automated_ui | ✓ | - |
+| BSC-REQ-002 | Config waardes opgeslagen per locatie | automated_unit | ✓ | - |
+| BSC-REQ-003 | Default waardes 50/100 voor nieuwe locaties | automated_unit | ✓ | - |
+| BSC-REQ-004 | Config sectie onder pagination | manual | - | ✓ |
+| BSC-REQ-005 | Validatie positieve integers (min 1) | automated_unit | ✓ | - |
+
+### Manual Tests
+
+#### BSC-REQ-004: Config Sectie Onder Pagination
+**Category:** ui
+**Test Type:** manual
+
+**Test Steps:**
+1. Log in als admin
+2. Navigeer naar /admin/locations/{id}/bingo-items
+3. Scroll naar beneden
+
+**Expected Result:**
+- Pagination verschijnt onder de bingo items tabel
+- "Bingo Punten Configuratie" sectie verschijnt ONDER de pagination
+- Twee inputs naast elkaar: "3 op een rij" en "Volle kaart"
+- "Opslaan" button rechts uitgelijnd
+
+---
+
+### Automated Tests
+
+#### BingoItemController Tests (6 nieuwe tests)
+```bash
+./vendor/bin/pest tests/Feature/Admin/BingoItemControllerTest.php --filter="REQ-00|scoring|guest"
+```
+
+| Test | REQ-ID | Description |
+|------|--------|-------------|
+| REQ-001: bingo items page shows scoring config section | BSC-REQ-001 | Config sectie zichtbaar |
+| REQ-002: admin can update bingo scoring config | BSC-REQ-002 | Update slaat op in DB |
+| REQ-003: new locations have default scoring values | BSC-REQ-003 | Factory default 50/100 |
+| REQ-005: validation rejects negative points for three in row | BSC-REQ-005 | Negatief → error |
+| REQ-005: validation rejects zero points for full card | BSC-REQ-005 | Zero → error |
+| guest cannot access bingo scoring config endpoint | - | Auth check |
+
+### Run All Bingo Scoring Config Tests
+```bash
+./vendor/bin/pest tests/Feature/Admin/BingoItemControllerTest.php --filter="REQ-00"
+```
+
+**Expected result:** 6 new tests passed
+
+### Pre-Deployment Checklist (bingo-scoring-config)
+
+- [x] Run migration: `php artisan migrate`
+- [x] Run tests: `./vendor/bin/pest tests/Feature/Admin/BingoItemControllerTest.php --filter="REQ-00"` ✓ 6 tests passed
+- [x] Verify: Config sectie zichtbaar onderaan bingo items pagina ✓
+- [x] Verify: Inputs tonen default waardes (50/100) ✓
+- [x] Verify: Opslaan werkt en toont success message ✓
+- [x] Verify: Validatie errors bij negatieve/zero waardes ✓
+
+### Verification Summary (2025-12-16)
+
+**All requirements PASSED:**
+- BSC-REQ-001: Config sectie met inputs ✓ (automated)
+- BSC-REQ-002: Config waardes opgeslagen per locatie ✓ (automated)
+- BSC-REQ-003: Default waardes 50/100 ✓ (automated)
+- BSC-REQ-004: Config sectie onder pagination ✓ (manual)
+- BSC-REQ-005: Validatie positieve integers ✓ (automated)
+
+---
+
+## Extend: location-url Tests (2025-12-16)
+
+### Requirements Test Matrix
+
+| REQ-ID | Description | Test Type | Automated | Manual |
+|--------|-------------|-----------|-----------|--------|
+| URL-REQ-001 | URL veld toevoegen aan locatie create/edit formulieren | automated_ui | ✓ | ✓ |
+| URL-REQ-002 | Header button op game info pagina linkt naar locatie URL | manual | - | ✓ |
+| URL-REQ-003 | URL veld validatie: required + geldige URL format | automated_api | ✓ | - |
+| URL-REQ-004 | Bestaande locaties zonder URL tonen geen button | manual | - | ✓ |
+
+### Manual Tests
+
+#### URL-REQ-001: URL Veld in Admin Forms
+**Category:** core
+**Test Type:** manual
+
+**Test Steps:**
+1. Log in als admin
+2. Navigeer naar /admin/locations/create
+3. Bekijk het formulier
+
+**Expected Result:**
+- "Website URL" veld is zichtbaar na "Afstand" en vóór "Locatie afbeelding"
+- Placeholder toont: "https://www.natuurmonumenten.nl/natuurgebieden/..."
+- Help text: "Link naar de locatiepagina op natuurmonumenten.nl"
+
+---
+
+#### URL-REQ-002: Header Button op Game Info Pagina
+**Category:** core
+**Test Type:** manual
+
+**Test Steps:**
+1. Maak een locatie met URL: https://www.natuurmonumenten.nl/natuurgebieden/test
+2. Navigeer naar /games/natuur-avontuur/{locationId}
+3. Bekijk de header sectie
+
+**Expected Result:**
+- Blauwe button toont locatienaam
+- Button linkt naar de ingevoerde URL
+- Button opent in nieuw tabblad (target="_blank")
+- Aria-label bevat locatienaam
+
+---
+
+#### URL-REQ-004: Geen Button bij Locatie Zonder URL
+**Category:** edge_case
+**Test Type:** manual
+
+**Test Steps:**
+1. Zorg dat er een locatie bestaat zonder URL (legacy data)
+2. Navigeer naar /games/natuur-avontuur/{locationId}
+
+**Expected Result:**
+- Geen blauwe button zichtbaar in header
+- Geen broken link of lege button
+
+---
+
+### Automated Tests
+
+#### LocationController Tests (7 nieuwe tests)
+```bash
+./vendor/bin/pest tests/Feature/Admin/LocationControllerTest.php --filter="URL-REQ"
+```
+
+| Test | REQ-ID | Description |
+|------|--------|-------------|
+| URL-REQ-001: create form shows url field | URL-REQ-001 | Create form bevat URL veld |
+| URL-REQ-001: edit form shows url field with value | URL-REQ-001 | Edit form toont bestaande URL |
+| URL-REQ-003: url field is required when creating location | URL-REQ-003 | Required validatie werkt |
+| URL-REQ-003: url must be valid http or https format | URL-REQ-003 | Format validatie werkt |
+| URL-REQ-003: url prevents javascript protocol attack | URL-REQ-003 | Security: javascript: blocked |
+| URL-REQ-003: admin can create location with valid url | URL-REQ-003 | Happy path: create + URL |
+| URL-REQ-003: admin can update location url | URL-REQ-003 | Happy path: update URL |
+
+### Run All Location URL Tests
+```bash
+./vendor/bin/pest tests/Feature/Admin/LocationControllerTest.php --filter="URL-REQ"
+```
+
+**Expected result:** 7 new tests passed
+
+### Pre-Deployment Checklist (location-url)
+
+- [x] Run migration: `php artisan migrate` ✓
+- [x] Run tests: `./vendor/bin/pest tests/Feature/Admin/LocationControllerTest.php --filter="URL-REQ"` ✓ 7 tests passed
+- [x] Verify: URL veld zichtbaar in create/edit forms ✓
+- [x] Verify: Placeholder en help text correct ✓
+- [x] Verify: Validatie errors bij ongeldige URL ✓ (automated)
+- [x] Verify: Game info pagina toont button met correcte URL ✓
+- [ ] Verify: Locaties zonder URL tonen geen button (skipped - edge case)
+
+### Verification Summary (2025-12-16)
+
+**Requirements: 3/4 passing (1 skipped)**
+- URL-REQ-001: URL veld in admin forms ✓
+- URL-REQ-002: Header button met dynamische URL ✓
+- URL-REQ-003: Validatie (required + URL format) ✓ (automated)
+- URL-REQ-004: Edge case legacy locaties ⊘ (skipped)

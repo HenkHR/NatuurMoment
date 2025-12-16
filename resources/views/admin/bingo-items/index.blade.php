@@ -13,8 +13,13 @@
         </a>
     </div>
 
-    {{-- Desktop: Table --}}
-    <div class="hidden md:block bg-pure-white overflow-hidden rounded-card shadow-card">
+    {{-- Desktop: Config + Table --}}
+    <div class="hidden md:block rounded-card shadow-card overflow-hidden">
+        {{-- Bingo Scoring Configuration --}}
+        <x-admin.bingo-scoring-config :location="$location" />
+
+        {{-- Table --}}
+        <div class="bg-pure-white">
         <table class="w-full">
             <thead class="bg-sky-50">
                 <tr>
@@ -72,10 +77,16 @@
                 @endforelse
             </tbody>
         </table>
+        </div>
     </div>
 
-    {{-- Mobile: Cards --}}
+    {{-- Mobile: Config + Cards --}}
     <div class="md:hidden space-y-4">
+        {{-- Mobile Scoring Config --}}
+        <div class="bg-pure-white rounded-card shadow-card overflow-hidden">
+            <x-admin.bingo-scoring-config :location="$location" />
+        </div>
+
         @forelse ($bingoItems as $bingoItem)
             <div class="bg-pure-white rounded-card shadow-card p-4 flex justify-between items-center cursor-pointer hover:bg-sky-50/50 transition-colors" onclick="window.location='{{ route('admin.bingo-items.edit', $bingoItem) }}'">
                 <div class="flex items-center gap-3">

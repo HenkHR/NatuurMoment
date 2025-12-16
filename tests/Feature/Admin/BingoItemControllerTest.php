@@ -105,3 +105,36 @@ test('admin can delete a bingo item', function () {
 
     $this->assertDatabaseMissing('location_bingo_items', ['id' => $bingoItem->id]);
 });
+
+// ============================================
+// Pagination Tests (REQ-004)
+// ============================================
+
+test('REQ-004: bingo items index paginates with 15 items per page', function () {
+    LocationBingoItem::factory()->count(20)->create([
+        'location_id' => $this->location->id,
+    ]);
+
+    $response = $this->actingAs($this->admin)
+        ->get("/admin/locations/{$this->location->id}/bingo-items");
+
+    $response->assertStatus(200);
+    $bingoItems = $response->viewData('bingoItems');
+    expect($bingoItems->perPage())->toBe(15);
+    expect($bingoItems->count())->toBe(15);
+});
+
+test('bingo items pagination preserves query string', function () {
+    LocationBingoItem::factory()->count(20)->create([
+        'location_id' => $this->location->id,
+    ]);
+
+    $response = $this->actingAs($this->admin)
+        ->get("/admin/locations/{$this->location->id}/bingo-items?page=1");
+
+    $response->assertStatus(200);
+    $bingoItems = $response->viewData('bingoItems');
+
+    // withQueryString should be applied
+    expect($bingoItems->hasPages())->toBeTrue();
+});

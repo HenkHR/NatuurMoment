@@ -34,7 +34,21 @@ class ProfileController extends Controller
 
         $request->user()->save();
 
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        return Redirect::route('settings.edit')->with('status', 'profile-updated');
+    }
+
+    /**
+     * Update the user's preferences.
+     */
+    public function updatePreferences(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'admin_per_page' => ['required', 'integer', 'in:10,15,25,50,100'],
+        ]);
+
+        $request->user()->update($validated);
+
+        return Redirect::route('settings.edit')->with('status', 'preferences-updated');
     }
 
     /**

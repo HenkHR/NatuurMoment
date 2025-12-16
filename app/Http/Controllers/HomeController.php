@@ -32,7 +32,8 @@ class HomeController extends Controller
             ->values()
             ->toArray();
 
-        $locationsQuery = Location::query();
+        // REQ-009: Only show locations with at least one valid game mode
+        $locationsQuery = Location::withValidGameModes();
 
         $selectedLocation = null;
         $selectedProvince = null;

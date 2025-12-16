@@ -10,6 +10,15 @@
                     </a>
                 </div>
 
+                <!-- Navigation Links -->
+                <div class="hidden sm:flex sm:items-center sm:ms-6 space-x-4">
+                    <a href="{{ route('admin.locations.index') }}" class="px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('admin.locations.*') ? 'text-white bg-forest-600' : 'text-forest-100 hover:text-white hover:bg-forest-600' }} transition">
+                        Locaties
+                    </a>
+                    <a href="{{ route('admin.statistics.index') }}" class="px-3 py-2 rounded-md text-sm font-medium {{ request()->routeIs('admin.statistics.*') ? 'text-white bg-forest-600' : 'text-forest-100 hover:text-white hover:bg-forest-600' }} transition">
+                        Statistieken
+                    </a>
+                </div>
             </div>
 
             <!-- Settings Dropdown -->
@@ -28,8 +37,8 @@
                     </x-slot>
 
                     <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
+                        <x-dropdown-link :href="route('settings.edit')">
+                            Instellingen
                         </x-dropdown-link>
 
                         <!-- Authentication -->
@@ -60,6 +69,16 @@
 
     <!-- Responsive Navigation Menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden bg-forest-700">
+        <!-- Responsive Navigation Links -->
+        <div class="pt-2 pb-3 space-y-1 border-b border-forest-600">
+            <x-responsive-nav-link :href="route('admin.locations.index')" :active="request()->routeIs('admin.locations.*')">
+                Locaties
+            </x-responsive-nav-link>
+            <x-responsive-nav-link :href="route('admin.statistics.index')" :active="request()->routeIs('admin.statistics.*')">
+                Statistieken
+            </x-responsive-nav-link>
+        </div>
+
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-forest-600">
             <div class="px-4">
@@ -68,8 +87,8 @@
             </div>
 
             <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile.edit')">
-                    {{ __('Profile') }}
+                <x-responsive-nav-link :href="route('settings.edit')">
+                    Instellingen
                 </x-responsive-nav-link>
 
                 <!-- Authentication -->

@@ -50,8 +50,8 @@ class PlayerFeedback extends Component
      */
     public function submitFeedback()
     {
-        // Validate rating (1-10)
-        if ($this->rating !== null && ($this->rating < 1 || $this->rating > 10)) {
+        // Validate rating (1-5 stars)
+        if ($this->rating !== null && ($this->rating < 1 || $this->rating > 5)) {
             return;
         }
 

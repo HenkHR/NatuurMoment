@@ -165,7 +165,7 @@ class GameController extends Controller
             ->where('game_id', $gameId)
             ->firstOrFail();
 
-        $game = Game::findOrFail($gameId);
+        $game = Game::with('location')->findOrFail($gameId);
 
         // Redirect if game is finished
         if ($game->status === 'finished') {
@@ -179,6 +179,11 @@ class GameController extends Controller
         // REQ-012: Redirect to leaderboard if both bingo and questions complete
         if ($player->hasCompletedAll()) {
             return redirect()->route('player.leaderboard', $gameId);
+        }
+
+        // Redirect to route questions if bingo mode is not enabled
+        if (!$game->location->has_bingo_mode) {
+            return redirect()->route('player.route', $gameId);
         }
 
         return view('player.bingo', [

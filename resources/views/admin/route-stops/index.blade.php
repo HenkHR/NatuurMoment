@@ -1,8 +1,8 @@
 <x-admin.layout>
     <h2 class="text-h2 text-deep-black mb-4">{{ $location->name }}</h2>
 
-    <div class="flex justify-between items-center mb-6">
-        <a href="{{ route('admin.locations.index') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100 rounded-md transition-colors text-sm font-medium">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <a href="{{ route('admin.locations.index') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sky-600 hover:text-sky-700 bg-sky-50 hover:bg-sky-100 border border-sky-100 rounded-md transition-colors text-sm font-medium shadow-sm">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
@@ -131,7 +131,7 @@
         </x-modal>
     @endforeach
 
-    <div class="mt-4">
-        {{ $routeStops->links() }}
+    <div class="mt-6">
+        {{ $routeStops->links('vendor.pagination.admin') }}
     </div>
 </x-admin.layout>

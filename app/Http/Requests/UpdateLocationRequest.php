@@ -25,6 +25,8 @@ class UpdateLocationRequest extends FormRequest
             'province' => ['required', 'string', 'max:255'],
             'distance' => ['required', 'numeric', 'min:0.1'],
             'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
+            'game_modes' => ['required', 'array', 'min:1'],
+            'game_modes.*' => ['string', 'in:bingo,vragen'],
         ];
     }
 
@@ -37,6 +39,8 @@ class UpdateLocationRequest extends FormRequest
             'image.image' => 'Het bestand moet een afbeelding zijn.',
             'image.mimes' => 'Toegestane formaten: jpeg, png, jpg, gif, webp.',
             'image.max' => 'Afbeelding mag maximaal 2MB zijn.',
+            'game_modes.required' => 'Selecteer minimaal één spelmodus.',
+            'game_modes.min' => 'Selecteer minimaal één spelmodus.',
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Constants\GameMode;
 use App\Models\Location;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -31,7 +32,7 @@ class LocationFactory extends Factory
     public function withBingoMode(): static
     {
         return $this->state(fn(array $attributes) => [
-            'game_modes' => array_merge($attributes['game_modes'] ?? [], ['bingo']),
+            'game_modes' => array_merge($attributes['game_modes'] ?? [], [GameMode::BINGO]),
         ]);
     }
 
@@ -41,7 +42,7 @@ class LocationFactory extends Factory
     public function withVragenMode(): static
     {
         return $this->state(fn(array $attributes) => [
-            'game_modes' => array_merge($attributes['game_modes'] ?? [], ['vragen']),
+            'game_modes' => array_merge($attributes['game_modes'] ?? [], [GameMode::VRAGEN]),
         ]);
     }
 
@@ -51,7 +52,7 @@ class LocationFactory extends Factory
     public function withAllModes(): static
     {
         return $this->state(fn(array $attributes) => [
-            'game_modes' => ['bingo', 'vragen'],
+            'game_modes' => GameMode::ALL_MODES,
         ]);
     }
 }

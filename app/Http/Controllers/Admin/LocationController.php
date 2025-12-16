@@ -58,10 +58,10 @@ class LocationController extends Controller
 
     public function store(StoreLocationRequest $request): RedirectResponse
     {
-        $data = $request->safe()->only(['name', 'description', 'province', 'distance', 'url']);
+        $data = $request->validated();
 
         // REQ-006: Default game modes to empty array (all OFF) for new locations
-        $data['game_modes'] = $request->input('game_modes', []);
+        $data['game_modes'] = $data['game_modes'] ?? [];
 
         $upload = $this->handleFileUpload($request, 'image', 'location-images');
         if ($upload['error']) {
@@ -88,10 +88,10 @@ class LocationController extends Controller
 
     public function update(UpdateLocationRequest $request, Location $location): RedirectResponse
     {
-        $data = $request->safe()->only(['name', 'description', 'province', 'distance', 'url']);
+        $data = $request->validated();
 
         // Handle game_modes - if not provided, keep existing
-        $data['game_modes'] = $request->input('game_modes', []);
+        $data['game_modes'] = $data['game_modes'] ?? [];
 
         if ($this->handleFileRemoval($request, 'remove_image', $location->image_path)) {
             $data['image_path'] = null;

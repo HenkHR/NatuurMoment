@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Constants\GameMode;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreLocationRequest extends FormRequest
 {
@@ -21,7 +23,7 @@ class StoreLocationRequest extends FormRequest
             'url' => ['required', 'url:http,https'],
             'image' => ['required', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
             'game_modes' => ['required', 'array', 'min:1'],
-            'game_modes.*' => ['string', 'in:bingo,vragen'],
+            'game_modes.*' => ['string', Rule::in(GameMode::ALL_MODES)],
         ];
     }
 

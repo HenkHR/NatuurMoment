@@ -22,7 +22,7 @@ $maxWidth = [
         focusables() {
             let selector = 'a, button, input:not([type=\'hidden\']), textarea, select, details, [tabindex]:not([tabindex=\'-1\'])';
             return [...this.$refs.dialog.querySelectorAll(selector)]
-                .filter(el => !el.hasAttribute('disabled') && !el.getAttribute('aria-hidden'));
+                .filter(el => !el.hasAttribute('disabled') && el.getAttribute('aria-hidden') !== 'true');
         },
         firstFocusable() { return this.focusables()[0] },
         lastFocusable() { return this.focusables().slice(-1)[0] },
@@ -55,10 +55,21 @@ $maxWidth = [
     x-on:close.stop="show = false"
     x-on:keydown.escape.window="show = false"
 
-    x-on:keydown.tab.prevent="
-        if (!show) return;
-        if ($event.shiftKey) focusLast();
-        else focusFirst();
+    x-on:keydown.tab="
+    if (!show) return;
+    const focusables = this.focusables();
+    if (!focusables.length) return;
+
+    const first = focusables[0];
+    const last  = focusables[focusables.length - 1];
+
+    if ($event.shiftKey && document.activeElement === first) {
+        $event.preventDefault();
+        last.focus();
+    } else if (!$event.shiftKey && document.activeElement === last) {
+        $event.preventDefault();
+        first.focus();
+    }
     "
 
     x-show="show"

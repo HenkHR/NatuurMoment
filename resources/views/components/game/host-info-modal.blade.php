@@ -17,7 +17,7 @@
         </h2>
     </div>
 
-    <div class="max-h-[60vh] overflow-y-auto" role="document">
+    <div class="max-h-[60vh] overflow-y-auto">
         <x-game.host-info-card :items="$items" class="shadow-none" />
     </div>
 

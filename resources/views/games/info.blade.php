@@ -84,7 +84,6 @@
                         focus-visible:ring-forest-500"
                     aria-haspopup="dialog"
                     aria-label="Host informatie bekijken"
-                    aria-controls="host-info-modal"
                 >
                     <span>Organisator info</span>
                     <svg class="w-5 h-5"

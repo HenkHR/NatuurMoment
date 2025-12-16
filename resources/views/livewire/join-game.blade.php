@@ -41,6 +41,7 @@
                         wire:model="pin"
                         maxlength="6"
                         autocomplete="off"
+                        autofocus
                         placeholder="6-cijferige code"
                         inputmode="numeric"
                         class="
@@ -145,6 +146,7 @@
                             maxlength="20"
                             placeholder="Gebruikersnaam"
                             inputmode="text"
+                            autofocus
                             autocomplete="name"
                             class="
                     mt-3

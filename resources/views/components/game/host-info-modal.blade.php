@@ -5,14 +5,19 @@
     'maxWidth' => '2xl',
 ])
 
-<x-modal :name="$name" :maxWidth="$maxWidth" focusable>
+<x-modal
+    :name="$name"
+    :maxWidth="$maxWidth"
+    focusable
+    aria-labelledby="modal-title-{{ $name }}"
+>
     <div class="pb-3">
         <h2 id="modal-title-{{ $name }}" class="text-lg sm:text-xl font-bold text-deep-black">
             {{ $title }}
         </h2>
     </div>
 
-    <div class="max-h-[60vh] overflow-y-auto" role="document" aria-labelledby="modal-title-{{ $name }}">
+    <div class="max-h-[60vh] overflow-y-auto" role="document">
         <x-game.host-info-card :items="$items" class="shadow-none" />
     </div>
 

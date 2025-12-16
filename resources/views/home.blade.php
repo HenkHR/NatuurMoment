@@ -27,10 +27,15 @@
                     </p>
 
                     {{-- Dropdown uitleg --}}
-                    <div x-data="{ open: false }" class="mt-3">
-                        <button @click="open = !open"
-                                @mouseup="$el.blur()"
-                                class="inline-flex items-center gap-1.5 text-xs sm:text-sm text-white bg-white/20 px-3 py-1.5 rounded-full transition hover:bg-white/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-sky-600">
+                    <div x-data="{ open: false }" class="mt-3" x-cloak>
+                        <button
+                            type="button"
+                            @click="open = !open"
+                            @mouseup="$el.blur()"
+                            :aria-expanded="open.toString()"
+                            aria-controls="expansion-details"
+                            class="inline-flex items-center gap-1.5 text-xs sm:text-sm text-white bg-white/20 px-3 py-1.5 rounded-full transition hover:bg-white/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-sky-600"
+                        >
                             <span x-show="!open">Meer uitleg</span>
                             <span x-show="open">Minder uitleg</span>
                             <svg x-show="!open" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -41,7 +46,12 @@
                             </svg>
                         </button>
 
-                        <div id="expansion-details" x-show="open" x-transition class="mt-2 text-xs sm:text-sm text-sky-100 bg-sky-700 rounded-lg p-3 space-y-2">
+                        <div
+                            id="expansion-details"
+                            x-show="open"
+                            x-transition
+                            class="mt-2 text-xs sm:text-sm text-sky-100 bg-sky-700 rounded-lg p-3 space-y-2"
+                        >
                             <p>
                                 Tijdens de route spelen zij twee spellen tegelijk:
                             </p>
@@ -115,7 +125,7 @@
 
                     {{-- Titel sectie --}}
                     <div class="mb-2 sm:mb-3 mt-1 sm:mt-2">
-                        <h3 class="text-lg sm:text-xl font-semibold text-gray-900">
+                        <h3 id="results-title" tabindex="-1" class="text-lg sm:text-xl font-semibold text-gray-900">
                             Locaties waar je spellen kunt spelen
                         </h3>
                         <p class="text-xs sm:text-sm text-gray-500 mt-1">
@@ -124,7 +134,7 @@
                     </div>
 
                     {{-- Results container --}}
-                    <div id="results">
+                    <div id="results" aria-live="polite" aria-busy="false">
                         @include('partials.location-cards', ['locations' => $locations])
                     </div>
 
@@ -151,10 +161,16 @@
                 if (locationSelect.value) params.set('location', locationSelect.value);
                 if (page) params.set('page', page);
 
+                // Let screenreaders know content is updating
+                resultsContainer.setAttribute('aria-busy', 'true');
+
                 fetch(`{{ route('home') }}?${params.toString()}`, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                     .then(res => res.text())
                     .then(html => {
                         resultsContainer.innerHTML = html;
+
+                        // Mark update complete
+                        resultsContainer.setAttribute('aria-busy', 'false');
 
                         // Update active filter chips
                         filtersContainer.innerHTML = '';
@@ -166,11 +182,11 @@
                             removeBtn.setAttribute('aria-label', `Verwijder filter ${locationSelect.value}`);
                             removeBtn.className = "text-gray-400 hover:text-gray-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-gray-400 rounded";
                             removeBtn.textContent = '×';
-                            
+
                             const label = document.createElement('span');
                             label.className = "font-medium";
                             label.textContent = locationSelect.value;
-                            
+
                             chip.appendChild(label);
                             chip.appendChild(removeBtn);
                             filtersContainer.appendChild(chip);
@@ -181,12 +197,16 @@
                             });
                         }
 
-                        // Smooth scroll naar resultaten
-                        // resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        // Focus a logical place after results update (esp. pagination)
+                        const title = document.getElementById('results-title');
+                        if (title) title.focus({ preventScroll: true });
 
                         // Update URL zonder reload
                         const newUrl = `${window.location.pathname}?${params.toString()}`;
                         window.history.replaceState(null, '', newUrl);
+                    })
+                    .catch(() => {
+                        resultsContainer.setAttribute('aria-busy', 'false');
                     });
             };
 

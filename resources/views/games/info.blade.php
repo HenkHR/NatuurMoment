@@ -49,7 +49,7 @@
                                inline-flex items-center gap-2"
                             aria-label="Bezoek {{ $location->name }} op Natuurmonumenten (opent in nieuw venster)">
                             {{ $location->name }}
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
@@ -63,9 +63,10 @@
             <div class="mt-4 mb-4 md:mt-6 md:mb-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <a
                     href="{{ route('home') }}"
-                    class="inline-flex items-center gap-2 text-sm font-medium text-white bg-sky-500 hover:bg-sky-600 px-4 py-2 rounded-[10px] transition shadow-sm"
+                    class="inline-flex items-center gap-2 text-sm font-medium text-white bg-sky-500 hover:bg-sky-600 px-4 py-2 rounded-[10px] transition shadow-sm
+                           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-700"
                 >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
                     </svg>
                     Alle locaties

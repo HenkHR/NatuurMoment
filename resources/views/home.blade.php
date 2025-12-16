@@ -29,12 +29,14 @@
                     {{-- Dropdown uitleg --}}
                     <div x-data="{ open: false }" class="mt-3">
                         <button @click="open = !open"
-                                class="flex items-center gap-2 text-xs sm:text-sm underline text-sky-100 focus:outline-none">
+                                :aria-expanded="open"
+                                aria-controls="expansion-details"
+                                class="flex items-center gap-2 text-xs sm:text-sm underline text-sky-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-300 focus-visible:rounded">
                             <span x-show="!open">Meer uitleg ▼</span>
                             <span x-show="open">Minder uitleg ▲</span>
                         </button>
 
-                        <div x-show="open" x-transition class="mt-2 text-xs sm:text-sm text-sky-100 bg-sky-700 rounded-lg p-3 space-y-2">
+                        <div id="expansion-details" x-show="open" x-transition class="mt-2 text-xs sm:text-sm text-sky-100 bg-sky-700 rounded-lg p-3 space-y-2">
                             <p>
                                 Tijdens de route spelen zij twee spellen tegelijk:
                             </p>
@@ -83,7 +85,7 @@
                                 <span id="search-help" class="sr-only">Typ trefwoorden om locaties te zoeken</span>
                                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden="true">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 sm:h-5 sm:w-5" fill="none"
-                                     viewBox="0 0 24 24" stroke="currentColor" focusable="false" aria-hidden="true">
+                                     viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                           d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 103.6 3.6a7.5 7.5 0 0013.05 13.05z" />
                                 </svg>
@@ -93,7 +95,7 @@
                             {{-- Dropdown --}}
                             <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:w-56">
                                 <label for="location" class="sr-only">Filter op locatie</label>
-                                <select id="location" name="location" class="w-full rounded-full border border-gray-300 py-2.5 px-4 text-sm sm:text-base bg-white focus:outline-none focus:ring-2 focus:ring-action-500 focus:border-transparent">
+                                <select id="location" name="location" class="w-full rounded-full border border-gray-300 py-2.5 px-4 text-sm sm:text-base bg-white focus:outline-none focus:ring-2 focus:ring-action-500 focus:border-transparent focus-visible:ring-2 focus-visible:ring-action-500">
                                     <option value="">Alle locaties</option>
                                     @foreach($locationOptions as $province)
                                         <option value="{{ $province }}" @selected(isset($selectedProvince) && $selectedProvince === $province)>{{ $province }}</option>
@@ -154,13 +156,21 @@
                         if (locationSelect.value) {
                             const chip = document.createElement('div');
                             chip.className = "inline-flex items-center gap-2 bg-gray-100 border border-gray-200 rounded-full px-3 py-1 text-xs text-gray-700";
-                            chip.innerHTML = `
-                        <span class="font-medium">${locationSelect.value}</span>
-                        <button type="button" class="text-gray-400 hover:text-gray-600">&times;</button>
-                    `;
+                            const removeBtn = document.createElement('button');
+                            removeBtn.type = 'button';
+                            removeBtn.setAttribute('aria-label', `Verwijder filter ${locationSelect.value}`);
+                            removeBtn.className = "text-gray-400 hover:text-gray-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-gray-400 rounded";
+                            removeBtn.textContent = '×';
+                            
+                            const label = document.createElement('span');
+                            label.className = "font-medium";
+                            label.textContent = locationSelect.value;
+                            
+                            chip.appendChild(label);
+                            chip.appendChild(removeBtn);
                             filtersContainer.appendChild(chip);
 
-                            chip.querySelector('button').addEventListener('click', () => {
+                            removeBtn.addEventListener('click', () => {
                                 locationSelect.value = '';
                                 updateResults(1);
                             });

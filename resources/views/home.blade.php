@@ -28,8 +28,9 @@
 
                     {{-- Dropdown uitleg --}}
                     <div x-data="{ open: false }" class="mt-3">
-                        <button @click="open = !open; $el.blur()"
-                                class="inline-flex items-center gap-1.5 text-xs sm:text-sm text-white bg-white/20 px-3 py-1.5 rounded-full transition hover:bg-white/30 focus:outline-none">
+                        <button @click="open = !open"
+                                @mouseup="$el.blur()"
+                                class="inline-flex items-center gap-1.5 text-xs sm:text-sm text-white bg-white/20 px-3 py-1.5 rounded-full transition hover:bg-white/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-sky-600">
                             <span x-show="!open">Meer uitleg</span>
                             <span x-show="open">Minder uitleg</span>
                             <svg x-show="!open" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -6,13 +6,13 @@
 ])
 
 <x-modal :name="$name" :maxWidth="$maxWidth" focusable>
-    <div class="border-b border-surface-medium pb-3">
+    <div class="pb-3">
         <h2 class="text-lg sm:text-xl font-bold text-deep-black">
             {{ $title }}
         </h2>
     </div>
 
-    <div class="mt-4 max-h-[60vh] overflow-y-auto">
+    <div class="max-h-[60vh] overflow-y-auto">
         <div class="rounded-card overflow-hidden">
             <x-game.rules-card
                 :rules="$rules"
@@ -22,7 +22,7 @@
         </div>
     </div>
 
-    <div class="mt-4 pt-3 border-t border-surface-medium">
+    <div class="mt-4">
         <button
             type="button"
             x-on:click="$dispatch('close-modal', '{{ $name }}')"

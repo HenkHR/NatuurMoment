@@ -61,7 +61,15 @@
 
         <div class="max-w-5xl mx-auto px-4 md:px-8">
             <div class="mt-4 mb-4 md:mt-6 md:mb-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <x-ui.breadcrumbs :items="$breadcrumbs" aria-label="Breadcrumb navigatie" />
+                <a
+                    href="{{ route('home') }}"
+                    class="inline-flex items-center gap-2 text-sm font-medium text-white bg-sky-500 hover:bg-sky-600 px-4 py-2 rounded-[10px] transition shadow-sm"
+                >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                    </svg>
+                    Alle locaties
+                </a>
 
                 <button
                     type="button"

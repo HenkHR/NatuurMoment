@@ -13,12 +13,12 @@
 
         <section class="w-full bg-white" aria-labelledby="page-title">
             {{-- Hero image --}}
-            <div class="h-48 sm:h-56 md:h-64 w-full overflow-hidden">
+            <div class="h-48 sm:h-56 md:h-80 w-full overflow-hidden">
                 <img src="{{ asset('images/heroImage.jpg') }}" alt="Natuurgebied" class="w-full h-full object-cover"/>
             </div>
 
             {{-- Content card die over image en content valt, rechts uitgelijnd met login button --}}
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 sm:-mt-20 mb-4 relative z-20 md:flex md:justify-end md:pr-36 lg:pr-64">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 sm:-mt-20 md:-mt-44 mb-4 relative z-20 md:flex md:justify-end md:pr-36 lg:pr-64">
                 <div class="bg-sky-600 text-white rounded-xl shadow-xl md:shadow-none px-6 py-5 md:px-8 md:py-6 md:max-w-sm relative">
                     <h1 id="page-title" class="text-2xl sm:text-3xl md:text-4xl font-bold">Tijd om te spelen!</h1>
                     <p class="mt-2 text-sm sm:text-base text-sky-100">

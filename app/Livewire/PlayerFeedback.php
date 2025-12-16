@@ -18,10 +18,10 @@ class PlayerFeedback extends Component
 
     public $game = null;
     
-    #[Validate('required|integer|min:1|max:5', message: 'Selecteer een beoordeling van 1 tot 5 sterren.')]
+    #[Validate('required|integer|min:1|max:5')]
     public ?int $rating = null;
     
-    #[Validate('required|integer|min:1|max:99', message: 'Voer een geldige leeftijd in tussen 1 en 99.')]
+    #[Validate('required|integer|min:1|max:99')]
     public ?int $age = null;
 
     public function mount($gameId, $playerToken)
@@ -63,11 +63,28 @@ class PlayerFeedback extends Component
     }
 
     /**
+     * Get custom validation messages
+     */
+    protected function messages(): array
+    {
+        return [
+            'rating.required' => 'Selecteer een beoordeling van 1 tot 5 sterren.',
+            'rating.integer' => 'Beoordeling moet een getal zijn.',
+            'rating.min' => 'Beoordeling moet minimaal 1 ster zijn.',
+            'rating.max' => 'Beoordeling mag maximaal 5 sterren zijn.',
+            'age.required' => 'Leeftijd is verplicht.',
+            'age.integer' => 'Leeftijd moet een getal zijn.',
+            'age.min' => 'Leeftijd moet minimaal 1 zijn.',
+            'age.max' => 'Leeftijd mag maximaal 99 zijn.',
+        ];
+    }
+
+    /**
      * Submit feedback and redirect to home
      */
     public function submitFeedback()
     {
-        // Validate the form
+        // Validate the form with custom messages
         $this->validate();
 
         // Get player to save feedback

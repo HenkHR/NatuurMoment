@@ -802,3 +802,107 @@ Generated: 2025-12-02 14:29:04
 - BSC-REQ-003: Default waardes 50/100 ✓ (automated)
 - BSC-REQ-004: Config sectie onder pagination ✓ (manual)
 - BSC-REQ-005: Validatie positieve integers ✓ (automated)
+
+---
+
+## Extend: location-url Tests (2025-12-16)
+
+### Requirements Test Matrix
+
+| REQ-ID | Description | Test Type | Automated | Manual |
+|--------|-------------|-----------|-----------|--------|
+| URL-REQ-001 | URL veld toevoegen aan locatie create/edit formulieren | automated_ui | ✓ | ✓ |
+| URL-REQ-002 | Header button op game info pagina linkt naar locatie URL | manual | - | ✓ |
+| URL-REQ-003 | URL veld validatie: required + geldige URL format | automated_api | ✓ | - |
+| URL-REQ-004 | Bestaande locaties zonder URL tonen geen button | manual | - | ✓ |
+
+### Manual Tests
+
+#### URL-REQ-001: URL Veld in Admin Forms
+**Category:** core
+**Test Type:** manual
+
+**Test Steps:**
+1. Log in als admin
+2. Navigeer naar /admin/locations/create
+3. Bekijk het formulier
+
+**Expected Result:**
+- "Website URL" veld is zichtbaar na "Afstand" en vóór "Locatie afbeelding"
+- Placeholder toont: "https://www.natuurmonumenten.nl/natuurgebieden/..."
+- Help text: "Link naar de locatiepagina op natuurmonumenten.nl"
+
+---
+
+#### URL-REQ-002: Header Button op Game Info Pagina
+**Category:** core
+**Test Type:** manual
+
+**Test Steps:**
+1. Maak een locatie met URL: https://www.natuurmonumenten.nl/natuurgebieden/test
+2. Navigeer naar /games/natuur-avontuur/{locationId}
+3. Bekijk de header sectie
+
+**Expected Result:**
+- Blauwe button toont locatienaam
+- Button linkt naar de ingevoerde URL
+- Button opent in nieuw tabblad (target="_blank")
+- Aria-label bevat locatienaam
+
+---
+
+#### URL-REQ-004: Geen Button bij Locatie Zonder URL
+**Category:** edge_case
+**Test Type:** manual
+
+**Test Steps:**
+1. Zorg dat er een locatie bestaat zonder URL (legacy data)
+2. Navigeer naar /games/natuur-avontuur/{locationId}
+
+**Expected Result:**
+- Geen blauwe button zichtbaar in header
+- Geen broken link of lege button
+
+---
+
+### Automated Tests
+
+#### LocationController Tests (7 nieuwe tests)
+```bash
+./vendor/bin/pest tests/Feature/Admin/LocationControllerTest.php --filter="URL-REQ"
+```
+
+| Test | REQ-ID | Description |
+|------|--------|-------------|
+| URL-REQ-001: create form shows url field | URL-REQ-001 | Create form bevat URL veld |
+| URL-REQ-001: edit form shows url field with value | URL-REQ-001 | Edit form toont bestaande URL |
+| URL-REQ-003: url field is required when creating location | URL-REQ-003 | Required validatie werkt |
+| URL-REQ-003: url must be valid http or https format | URL-REQ-003 | Format validatie werkt |
+| URL-REQ-003: url prevents javascript protocol attack | URL-REQ-003 | Security: javascript: blocked |
+| URL-REQ-003: admin can create location with valid url | URL-REQ-003 | Happy path: create + URL |
+| URL-REQ-003: admin can update location url | URL-REQ-003 | Happy path: update URL |
+
+### Run All Location URL Tests
+```bash
+./vendor/bin/pest tests/Feature/Admin/LocationControllerTest.php --filter="URL-REQ"
+```
+
+**Expected result:** 7 new tests passed
+
+### Pre-Deployment Checklist (location-url)
+
+- [x] Run migration: `php artisan migrate` ✓
+- [x] Run tests: `./vendor/bin/pest tests/Feature/Admin/LocationControllerTest.php --filter="URL-REQ"` ✓ 7 tests passed
+- [x] Verify: URL veld zichtbaar in create/edit forms ✓
+- [x] Verify: Placeholder en help text correct ✓
+- [x] Verify: Validatie errors bij ongeldige URL ✓ (automated)
+- [x] Verify: Game info pagina toont button met correcte URL ✓
+- [ ] Verify: Locaties zonder URL tonen geen button (skipped - edge case)
+
+### Verification Summary (2025-12-16)
+
+**Requirements: 3/4 passing (1 skipped)**
+- URL-REQ-001: URL veld in admin forms ✓
+- URL-REQ-002: Header button met dynamische URL ✓
+- URL-REQ-003: Validatie (required + URL format) ✓ (automated)
+- URL-REQ-004: Edge case legacy locaties ⊘ (skipped)

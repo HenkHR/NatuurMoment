@@ -408,3 +408,121 @@ test('location scopeWithValidGameModes filters correctly', function () {
     expect($results->pluck('id'))->not->toContain($invalidLocation->id);
     expect($results->pluck('id'))->not->toContain($noModesLocation->id);
 });
+
+// ============================================
+// URL Field Tests (location-url extend)
+// ============================================
+
+test('URL-REQ-001: create form shows url field', function () {
+    $this->actingAs($this->admin)
+        ->get('/admin/locations/create')
+        ->assertStatus(200)
+        ->assertSee('Website URL')
+        ->assertSee('natuurmonumenten.nl');
+});
+
+test('URL-REQ-001: edit form shows url field with value', function () {
+    $location = Location::factory()->create([
+        'url' => 'https://www.natuurmonumenten.nl/natuurgebieden/test',
+    ]);
+
+    $this->actingAs($this->admin)
+        ->get("/admin/locations/{$location->id}/edit")
+        ->assertStatus(200)
+        ->assertSee('Website URL')
+        ->assertSee('https://www.natuurmonumenten.nl/natuurgebieden/test');
+});
+
+test('URL-REQ-003: url field is required when creating location', function () {
+    $image = \Illuminate\Http\UploadedFile::fake()->image('location.jpg');
+
+    $this->actingAs($this->admin)
+        ->post('/admin/locations', [
+            'name' => 'Test Locatie',
+            'description' => 'Test beschrijving',
+            'province' => 'Noord-Holland',
+            'distance' => 5.0,
+            // url missing
+            'image' => $image,
+            'game_modes' => ['bingo'],
+        ])
+        ->assertSessionHasErrors('url');
+});
+
+test('URL-REQ-003: url must be valid http or https format', function () {
+    $image = \Illuminate\Http\UploadedFile::fake()->image('location.jpg');
+
+    $this->actingAs($this->admin)
+        ->post('/admin/locations', [
+            'name' => 'Test Locatie',
+            'description' => 'Test beschrijving',
+            'province' => 'Noord-Holland',
+            'distance' => 5.0,
+            'url' => 'not-a-valid-url',
+            'image' => $image,
+            'game_modes' => ['bingo'],
+        ])
+        ->assertSessionHasErrors('url');
+});
+
+test('URL-REQ-003: url prevents javascript protocol attack', function () {
+    $image = \Illuminate\Http\UploadedFile::fake()->image('location.jpg');
+
+    $this->actingAs($this->admin)
+        ->post('/admin/locations', [
+            'name' => 'Test Locatie',
+            'description' => 'Test beschrijving',
+            'province' => 'Noord-Holland',
+            'distance' => 5.0,
+            'url' => 'javascript:alert("XSS")',
+            'image' => $image,
+            'game_modes' => ['bingo'],
+        ])
+        ->assertSessionHasErrors('url');
+});
+
+test('URL-REQ-003: admin can create location with valid url', function () {
+    $image = \Illuminate\Http\UploadedFile::fake()->image('location.jpg');
+
+    $this->actingAs($this->admin)
+        ->post('/admin/locations', [
+            'name' => 'Test Locatie with URL',
+            'description' => 'Test beschrijving',
+            'province' => 'Noord-Holland',
+            'distance' => 5.0,
+            'url' => 'https://www.natuurmonumenten.nl/natuurgebieden/test-gebied',
+            'image' => $image,
+            'game_modes' => ['bingo'],
+        ])
+        ->assertRedirect('/admin/locations')
+        ->assertSessionHas('status');
+
+    $this->assertDatabaseHas('locations', [
+        'name' => 'Test Locatie with URL',
+        'url' => 'https://www.natuurmonumenten.nl/natuurgebieden/test-gebied',
+    ]);
+});
+
+test('URL-REQ-003: admin can update location url', function () {
+    $location = Location::factory()->create([
+        'url' => 'https://old-url.com',
+        'description' => 'Test description for update',
+    ]);
+
+    $this->actingAs($this->admin)
+        ->put("/admin/locations/{$location->id}", [
+            'name' => $location->name,
+            'description' => $location->description,
+            'province' => $location->province,
+            'distance' => $location->distance,
+            'url' => 'https://www.natuurmonumenten.nl/natuurgebieden/updated',
+            'game_modes' => ['bingo'],
+        ])
+        ->assertRedirect('/admin/locations')
+        ->assertSessionHas('status');
+
+    $this->assertDatabaseHas('locations', [
+        'id' => $location->id,
+        'url' => 'https://www.natuurmonumenten.nl/natuurgebieden/updated',
+    ]);
+});

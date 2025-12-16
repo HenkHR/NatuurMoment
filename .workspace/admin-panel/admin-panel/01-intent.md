@@ -594,10 +594,12 @@ EXTEND
 
 | ID | Description | Category | Test Type | Passes |
 |----|-------------|----------|-----------|--------|
-| REQ-001 | URL veld toevoegen aan locatie create/edit formulieren in admin panel | core | manual | false |
-| REQ-002 | Header button op game info pagina linkt naar locatie URL | core | manual | false |
-| REQ-003 | URL veld validatie: required in formulier, geldige URL format | api | automated_api | false |
-| REQ-004 | Bestaande locaties zonder URL tonen geen/lege button tot URL ingevuld | edge_case | manual | false |
+| REQ-001 | URL veld toevoegen aan locatie create/edit formulieren in admin panel | core | manual | true |
+| REQ-002 | Header button op game info pagina linkt naar locatie URL | core | manual | true |
+| REQ-003 | URL veld validatie: required in formulier, geldige URL format | api | automated_api | true |
+| REQ-004 | Bestaande locaties zonder URL tonen geen/lege button tot URL ingevuld | edge_case | manual | skipped |
+
+*Verified: 2025-12-16 11:17 CET*
 
 ### Data Models
 

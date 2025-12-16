@@ -44,6 +44,11 @@
                     @if($rating)
                         <p class="text-center text-white/80 text-sm mt-2">{{ $rating }}/5 sterren</p>
                     @endif
+
+                    {{-- Validation error --}}
+                    @error('rating')
+                        <p class="text-center text-red-200 text-sm mt-2">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 {{-- Vraag 2 --}}
@@ -53,12 +58,21 @@
                     </label>
 
                     <input
-                        type="text"
-                        wire:model="age"
+                        type="number"
+                        wire:model.number="age"
                         placeholder="Leeftijd..."
+                        min="1"
+                        max="99"
+                        inputmode="numeric"
                         class="w-full px-4 py-3 rounded-lg bg-[#0B84B9] border-0 text-center text-white
-                               placeholder-white focus:ring-2 focus:ring-white focus:outline-none"
+                               placeholder-white focus:ring-2 focus:ring-white focus:outline-none
+                               @error('age') border-2 border-red-300 @enderror"
                     >
+
+                    {{-- Validation error --}}
+                    @error('age')
+                        <p class="text-center text-red-200 text-sm mt-2">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 {{-- Bevestigen --}}

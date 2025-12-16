@@ -6,6 +6,7 @@ use App\Models\Game;
 use App\Models\GamePlayer;
 use Livewire\Component;
 use Livewire\Attributes\Locked;
+use Livewire\Attributes\Validate;
 
 class PlayerFeedback extends Component
 {
@@ -16,8 +17,12 @@ class PlayerFeedback extends Component
     public $playerToken;
 
     public $game = null;
+    
+    #[Validate('required|integer|min:1|max:5', message: 'Selecteer een beoordeling van 1 tot 5 sterren.')]
     public ?int $rating = null;
-    public ?string $age = null;
+    
+    #[Validate('required|integer|min:1|max:99', message: 'Voer een geldige leeftijd in tussen 1 en 99.')]
+    public ?int $age = null;
 
     public function mount($gameId, $playerToken)
     {
@@ -46,21 +51,24 @@ class PlayerFeedback extends Component
     }
 
     /**
+     * Updated age property - ensure it's an integer or null
+     */
+    public function updatedAge($value)
+    {
+        if ($value === '' || $value === null) {
+            $this->age = null;
+        } else {
+            $this->age = (int) $value;
+        }
+    }
+
+    /**
      * Submit feedback and redirect to home
      */
     public function submitFeedback()
     {
-        // Validate rating (1-5 stars)
-        if ($this->rating !== null && ($this->rating < 1 || $this->rating > 5)) {
-            return;
-        }
-
-        // Validate age (0-120, must be numeric)
-        if ($this->age !== null && $this->age !== '') {
-            if (!is_numeric($this->age) || (int)$this->age < 0 || (int)$this->age > 120) {
-                return;
-            }
-        }
+        // Validate the form
+        $this->validate();
 
         // Get player to save feedback
         $player = GamePlayer::where('token', $this->playerToken)
@@ -70,7 +78,7 @@ class PlayerFeedback extends Component
         if ($player) {
             $player->update([
                 'feedback_rating' => $this->rating,
-                'feedback_age' => $this->age !== null && $this->age !== '' ? (int)$this->age : null,
+                'feedback_age' => $this->age,
             ]);
         }
 

@@ -48,7 +48,7 @@
                             w-full
                             bg-sky-100 text-sky-900 font-semibold
                             rounded-full px-4 py-2
-                            text-sm sm:text-base
+                            text-base
                             border-0
                             placeholder:text-sky-500
                             focus:outline-none
@@ -151,7 +151,7 @@
                     w-full
                     bg-sky-100 text-sky-900 font-semibold
                     rounded-full px-4 py-2
-                    text-sm sm:text-base
+                    text-base
                     border-0
                     placeholder:text-sky-500
                     focus:outline-none

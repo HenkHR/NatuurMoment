@@ -4,8 +4,7 @@
 
 @section('content')
     <a href="#maincontent"
-       class="absolute top-2 left-2 z-[100] bg-white text-black px-4 py-2 rounded shadow
-              -translate-y-20 focus:translate-y-0 transition-transform
+       class="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:bg-white focus:text-black focus:px-4 focus:py-2 focus:rounded focus:shadow
               focus:outline-none focus:ring-2 focus:ring-green-700">
         Ga naar hoofdinhoud
     </a>
@@ -65,6 +64,7 @@
                     href="{{ route('home') }}"
                     class="inline-flex items-center gap-2 text-sm font-medium text-white bg-sky-500 hover:bg-sky-600 px-4 py-2 rounded-[10px] transition shadow-sm
                            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-700"
+                    aria-label="Terug naar alle locaties"
                 >
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
@@ -84,6 +84,7 @@
                         focus-visible:ring-forest-500"
                     aria-haspopup="dialog"
                     aria-label="Host informatie bekijken"
+                    aria-controls="host-info-modal"
                 >
                     <span>Organisator info</span>
                     <svg class="w-5 h-5"

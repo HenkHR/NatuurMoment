@@ -25,6 +25,7 @@
             @see docs/ALPINE_ARCHITECTURE.md
         --}}
         <!-- Scripts -->
+        <script src="//unpkg.com/alpinejs" defer></script> <!-- homepage dropdown meer uitleg -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased">

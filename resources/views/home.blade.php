@@ -19,11 +19,39 @@
 
             {{-- Content card die over image en content valt, rechts uitgelijnd met login button --}}
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 sm:-mt-20 mb-4 relative z-20 md:flex md:justify-end md:pr-36 lg:pr-64">
-                <div class="bg-sky-600 text-white rounded-xl shadow-xl md:shadow-none px-6 py-5 md:px-8 md:py-6 md:max-w-sm">
+                <div class="bg-sky-600 text-white rounded-xl shadow-xl md:shadow-none px-6 py-5 md:px-8 md:py-6 md:max-w-sm relative">
                     <h1 id="page-title" class="text-2xl sm:text-3xl md:text-4xl font-bold">Tijd om te spelen!</h1>
                     <p class="mt-2 text-sm sm:text-base text-sky-100">
-                        Selecteer een natuurgebied en start jouw ontdekkingstocht.
+                        NatuurMoment is een interactief groepsspel dat iedereen samen door een natuurgebied laat bewegen.
+                        Met hun telefoon als gids, en de natuur als speelveld.
                     </p>
+
+                    {{-- Dropdown uitleg --}}
+                    <div x-data="{ open: false }" class="mt-3">
+                        <button @click="open = !open"
+                                class="flex items-center gap-2 text-xs sm:text-sm underline text-sky-100 focus:outline-none">
+                            <span x-show="!open">Meer uitleg ▼</span>
+                            <span x-show="open">Minder uitleg ▲</span>
+                        </button>
+
+                        <div x-show="open" x-transition class="mt-2 text-xs sm:text-sm text-sky-100 bg-sky-700 rounded-lg p-3 space-y-2">
+                            <p>
+                                Tijdens de route spelen zij twee spellen tegelijk:
+                            </p>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li><strong>Foto Bingo</strong> – waarbij ze actief zoeken naar wat er écht is</li>
+                                <li><strong>Route Quiz</strong> – met korte vragen over hun directe omgeving</li>
+                            </ul>
+                            <p>
+                                De organisator bepaalt de vorm: competitief met tijdsdruk, of juist als gezamenlijke ontdekkingstocht.
+                            </p>
+                            <p>
+                                Aan de opdrachten zijn korte weetjes gekoppeld. Niet alleen om educatie te stimuleren,
+                                maar om nieuwsgierigheid te voeden. Zo eindigt het spel niet buiten,
+                                maar zet het iets in beweging dat blijft.
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -139,7 +167,7 @@
                         }
 
                         // Smooth scroll naar resultaten
-                        resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        // resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
                         // Update URL zonder reload
                         const newUrl = `${window.location.pathname}?${params.toString()}`;

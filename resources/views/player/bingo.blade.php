@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Bingokaart</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('images/website-icon.png') }}">
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,7 +20,7 @@
     <div class="w-full px-4 pt-6 pb-12 bg-forest-700"
          style="clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), 0 100%);">
         <div class="container max-w-md mx-auto px-4 flex flex-col justify-between relative">
-        <h1 class="text-4xl font-bold text-[#FFFFFF] mb-2 text-left">Foto Bingo</h1>
+        <h1 class="text-4xl font-bold text-[#FFFFFF] mb-2 text-center">Foto Bingo</h1>
         <!-- Timer Display (if enabled) -->
         @if($game && $game->timer_enabled && $game->timer_ends_at)
             <div class="absolute top-0 right-0">

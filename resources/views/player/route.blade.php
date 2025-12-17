@@ -21,7 +21,7 @@
     <div class="w-full px-4 pt-6 pb-8 bg-forest-700 flex-shrink-0"
          style="clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), 0 100%);">
         <div class="container max-w-md mx-auto px-4 flex flex-col justify-between relative">
-            <h1 class="text-4xl font-bold text-[#FFFFFF] mb-2 text-left">Route Vragen</h1>
+            <h1 class="text-4xl font-bold text-[#FFFFFF] mb-2 text-center">Route Vragen</h1>
             <!-- Timer Display (if enabled) -->
             @if($game && $game->timer_enabled && $game->timer_ends_at)
                 <div class="absolute top-0 right-0">

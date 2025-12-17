@@ -53,19 +53,19 @@
                             class="mt-2 text-xs sm:text-sm text-sky-100 bg-sky-700 rounded-lg p-3 space-y-2"
                         >
                             <p>
-                                Tijdens de route spelen zij twee spellen tegelijk:
+                                Tijdens de route speel je twee spellen tegelijk:
                             </p>
                             <ul class="list-disc list-inside space-y-1">
-                                <li><strong>Foto Bingo</strong> – waarbij ze actief zoeken naar wat er écht is</li>
-                                <li><strong>Route Quiz</strong> – met korte vragen over hun directe omgeving</li>
+                                <li><strong>Foto Bingo</strong> – waarbij je actief zoekt naar wat er aanwezig is</li>
+                                <li><strong>Route Quiz</strong> – met korte vragen over je directe omgeving</li>
                             </ul>
                             <p>
-                                De organisator bepaalt de vorm: competitief met tijdsdruk, of juist als gezamenlijke ontdekkingstocht.
+                                De organisator bepaalt de vorm: een competitie met tijdsdruk, of juist als gezamenlijke ontdekkingstocht.
                             </p>
                             <p>
                                 Aan de opdrachten zijn korte weetjes gekoppeld. Niet alleen om educatie te stimuleren,
-                                maar om nieuwsgierigheid te voeden. Zo eindigt het spel niet buiten,
-                                maar zet het iets in beweging dat blijft.
+                                maar om nieuwsgierigheid te voeden. 
+                                De telefoon wijst de weg, de natuur verteld het verhaal.
                             </p>
                         </div>
                     </div>

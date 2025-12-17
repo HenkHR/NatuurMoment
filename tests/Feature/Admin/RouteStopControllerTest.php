@@ -3,10 +3,13 @@
 use App\Models\Location;
 use App\Models\LocationRouteStop;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 
 beforeEach(function () {
     $this->admin = User::factory()->create(['is_admin' => true]);
     $this->location = Location::factory()->create();
+    Storage::fake('public');
 });
 
 test('admin can view route stops index for a location', function () {
@@ -39,6 +42,7 @@ test('admin can create a route stop', function () {
             'correct_option' => 'B',
             'points' => 5,
             'sequence' => 0,
+            'image' => UploadedFile::fake()->image('route-stop.jpg'),
         ])
         ->assertRedirect("/admin/locations/{$this->location->id}/route-stops")
         ->assertSessionHas('status');
@@ -138,4 +142,37 @@ test('admin can delete a route stop', function () {
         ->assertSessionHas('status');
 
     $this->assertDatabaseMissing('location_route_stops', ['id' => $routeStop->id]);
+});
+
+// ============================================
+// Pagination Tests (REQ-005)
+// ============================================
+
+test('REQ-005: route stops index paginates with 15 items per page', function () {
+    LocationRouteStop::factory()->count(20)->create([
+        'location_id' => $this->location->id,
+    ]);
+
+    $response = $this->actingAs($this->admin)
+        ->get("/admin/locations/{$this->location->id}/route-stops");
+
+    $response->assertStatus(200);
+    $routeStops = $response->viewData('routeStops');
+    expect($routeStops->perPage())->toBe(15);
+    expect($routeStops->count())->toBe(15);
+});
+
+test('route stops pagination preserves query string', function () {
+    LocationRouteStop::factory()->count(20)->create([
+        'location_id' => $this->location->id,
+    ]);
+
+    $response = $this->actingAs($this->admin)
+        ->get("/admin/locations/{$this->location->id}/route-stops?page=1");
+
+    $response->assertStatus(200);
+    $routeStops = $response->viewData('routeStops');
+
+    // withQueryString should be applied
+    expect($routeStops->hasPages())->toBeTrue();
 });

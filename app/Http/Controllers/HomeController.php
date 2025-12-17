@@ -32,7 +32,8 @@ class HomeController extends Controller
             ->values()
             ->toArray();
 
-        $locationsQuery = Location::query();
+        // REQ-009: Only show locations with at least one valid game mode
+        $locationsQuery = Location::withValidGameModes();
 
         $selectedLocation = null;
         $selectedProvince = null;
@@ -60,9 +61,12 @@ class HomeController extends Controller
             );
         }
 
-        $locations = $locationsQuery->orderBy('name')->get();
+        $locations = $locationsQuery
+            ->orderBy('name')
+            ->paginate(6)
+            ->withQueryString();
 
-        // AJAX request: alleen de partial terugsturen
+// AJAX request: return the partial including cards + pagination
         if ($request->ajax()) {
             return view('partials.location-cards', ['locations' => $locations])->render();
         }

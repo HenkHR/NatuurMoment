@@ -11,7 +11,21 @@
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
 
+        {{--
+            CRITICAL: Dit is een NON-LIVEWIRE layout
+
+            Alpine.js wordt geladen vanuit resources/js/app.js (via @vite).
+            VOEG HIER GEEN @livewireScripts toe - dit veroorzaakt dubbele Alpine initialisatie!
+
+            Als je Livewire nodig hebt in deze layout:
+            1. Voeg @livewireStyles toe in <head>
+            2. Voeg @livewireScripts toe voor </body>
+            3. Update docs/ALPINE_ARCHITECTURE.md
+
+            @see docs/ALPINE_ARCHITECTURE.md
+        --}}
         <!-- Scripts -->
+        <script src="//unpkg.com/alpinejs" defer></script> <!-- homepage dropdown meer uitleg -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased">

@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\Game;
 use App\Models\BingoItem;
 use App\Models\GamePlayer;
+use App\Models\RouteStop;
 use Livewire\Component;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Locked;
@@ -26,6 +27,7 @@ class HostLobby extends Component
     public $timerEnabled = false;
     public $timerDurationMinutes = null;
     public $locationName = null;
+    public array $rules = [];
 
     // ============================================
     // LIFECYCLE SECTION
@@ -54,6 +56,8 @@ class HostLobby extends Component
         $this->locationName = optional($game->location)->name ?? 'Locatie';
 
         $this->loadPlayers();
+        $this->rules = config('game.rules');
+
     }
 
     // ============================================
@@ -148,6 +152,9 @@ class HostLobby extends Component
             return;
         }
 
+        // Generate route stops (multiple choice questions)
+        $this->generateRouteStops($game);
+
         // Calculate timer_ends_at only if timer is enabled
         $updateData = [
             'status' => 'started',
@@ -172,6 +179,11 @@ class HostLobby extends Component
      */
     private function generateBingoItems(Game $game): bool
     {
+        // Skip bingo generation if bingo mode is not enabled for this location
+        if (!$game->location->has_bingo_mode) {
+            return true;
+        }
+
         // Check if bingo items already exist (prevent duplicates)
         if (BingoItem::where('game_id', $game->id)->exists()) {
             return true; // Already exists, not an error
@@ -204,6 +216,52 @@ class HostLobby extends Component
         }
 
         return true;
+    }
+
+    /**
+     * Generate route stops for the game (multiple choice questions)
+     *
+     * @param Game $game The game to generate route stops for
+     * @return void
+     */
+    private function generateRouteStops(Game $game): void
+    {
+        // Skip route stops generation if vragen mode is not enabled for this location
+        if (!$game->location->has_vragen_mode) {
+            return;
+        }
+
+        // Check if route stops already exist (prevent duplicates)
+        if ($game->routeStops()->exists()) {
+            return;
+        }
+
+        // Get location for this game
+        $location = $game->location;
+
+        if (!$location) {
+            return;
+        }
+
+        // Get all location route stops for this game's location
+        $locationRouteStops = $location->routeStops()->orderBy('sequence')->get();
+
+        // Copy each template to a game instance
+        foreach ($locationRouteStops as $template) {
+            RouteStop::create([
+                'game_id' => $game->id,
+                'name' => $template->name,
+                'question_text' => $template->question_text,
+                'option_a' => $template->option_a,
+                'option_b' => $template->option_b,
+                'option_c' => $template->option_c,
+                'option_d' => $template->option_d,
+                'correct_option' => $template->correct_option,
+                'points' => $template->points,
+                'sequence' => $template->sequence,
+                'image_path' => $template->image_path,
+            ]);
+        }
     }
 
     public function render()

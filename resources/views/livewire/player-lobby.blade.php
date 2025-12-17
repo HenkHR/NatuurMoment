@@ -21,16 +21,23 @@
                     Code: {{ $pin }}
                 </div>
 
-                <a
-                    href="{{ url('/speluitleg') }}"
+                <button
+                    type="button"
+                    x-on:click="$dispatch('open-modal', 'rules-modal-player')"
                     class="
                         w-[45%] sm:w-[180px] md:w-[190px]
-                        text-center bg-forest-700 hover:bg-forest-600 text-white rounded-lg font-semibold transition px-4 py-2
+                        bg-forest-500 text-pure-white text-sm font-semibold
+                        rounded-button px-4 py-2 shadow-card
                         flex items-center justify-center
+                        transition
+                        hover:bg-forest-600 hover:shadow-lg hover:-translate-y-0.5
+                        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
+                        focus-visible:ring-forest-500 focus-visible:ring-offset-surface-light
                     "
+                    aria-haspopup="dialog"
                 >
                     Speluitleg
-                </a>
+                </button>
             </div>
 
             <section class="bg-pure-white shadow-card rounded-card overflow-hidden flex-1 flex flex-col min-h-0">
@@ -91,4 +98,12 @@
             </div>
         </div>
     </footer>
+
+    <x-game.rules-modal
+    name="rules-modal-player"
+    :rules="$rules"
+    title="Speluitleg"
+    maxWidth="2xl"
+    />
+
 </div>

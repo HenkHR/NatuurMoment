@@ -51,7 +51,7 @@
             @if($isFinished)
                 <h3 class="text-lg font-semibold text-gray-700 mb-3 flex-shrink-0 border-b border-gray-300 pb-2">Volledige ranglijst</h3>
             @endif
-            <div class="space-y-3 overflow-y-auto flex-1 min-h-0 pr-1">
+            <div class="space-y-3 overflow-y-auto flex-1 min-h-0 pr-1 pb-10">
                 @foreach($players as $index => $player)
                     <div class="border border-gray-300 rounded-lg overflow-hidden {{ $index < 3 ? 'bg-gray-50' : 'bg-white' }}">
                         <div class="flex items-center justify-between py-3 px-3">

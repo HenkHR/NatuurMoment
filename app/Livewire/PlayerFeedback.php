@@ -6,6 +6,7 @@ use App\Models\Game;
 use App\Models\GamePlayer;
 use Livewire\Component;
 use Livewire\Attributes\Locked;
+use Livewire\Attributes\Validate;
 
 class PlayerFeedback extends Component
 {
@@ -16,8 +17,12 @@ class PlayerFeedback extends Component
     public $playerToken;
 
     public $game = null;
+    
+    #[Validate('required|integer|min:1|max:5')]
     public ?int $rating = null;
-    public ?string $age = null;
+    
+    #[Validate('required|integer|min:1|max:99')]
+    public ?int $age = null;
 
     public function mount($gameId, $playerToken)
     {
@@ -46,21 +51,41 @@ class PlayerFeedback extends Component
     }
 
     /**
+     * Updated age property - ensure it's an integer or null
+     */
+    public function updatedAge($value)
+    {
+        if ($value === '' || $value === null) {
+            $this->age = null;
+        } else {
+            $this->age = (int) $value;
+        }
+    }
+
+    /**
+     * Get custom validation messages
+     */
+    protected function messages(): array
+    {
+        return [
+            'rating.required' => 'Selecteer een beoordeling van 1 tot 5 sterren.',
+            'rating.integer' => 'Beoordeling moet een getal zijn.',
+            'rating.min' => 'Beoordeling moet minimaal 1 ster zijn.',
+            'rating.max' => 'Beoordeling mag maximaal 5 sterren zijn.',
+            'age.required' => 'Leeftijd is verplicht.',
+            'age.integer' => 'Leeftijd moet een getal zijn.',
+            'age.min' => 'Leeftijd moet minimaal 1 zijn.',
+            'age.max' => 'Leeftijd mag maximaal 99 zijn.',
+        ];
+    }
+
+    /**
      * Submit feedback and redirect to home
      */
     public function submitFeedback()
     {
-        // Validate rating (1-10)
-        if ($this->rating !== null && ($this->rating < 1 || $this->rating > 10)) {
-            return;
-        }
-
-        // Validate age (0-120, must be numeric)
-        if ($this->age !== null && $this->age !== '') {
-            if (!is_numeric($this->age) || (int)$this->age < 0 || (int)$this->age > 120) {
-                return;
-            }
-        }
+        // Validate the form with custom messages
+        $this->validate();
 
         // Get player to save feedback
         $player = GamePlayer::where('token', $this->playerToken)
@@ -70,12 +95,16 @@ class PlayerFeedback extends Component
         if ($player) {
             $player->update([
                 'feedback_rating' => $this->rating,
-                'feedback_age' => $this->age !== null && $this->age !== '' ? (int)$this->age : null,
+                'feedback_age' => $this->age,
             ]);
         }
 
         // Redirect to home
-        return redirect()->route('home');
+        return redirect()->route('player.cta', [
+        'gameId' => $this->gameId,
+        'playerToken' => $this->playerToken,
+        ]);
+
     }
 
     public function render()

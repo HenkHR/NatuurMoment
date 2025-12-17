@@ -61,7 +61,7 @@ class GameController extends Controller
         return view('host.lobby', ['gameId' => $gameId]);
     }
 
-    //Join lobby als player 
+    //Join lobby als player
     public function playerLobby(Request $request, $gameId)
     {
 
@@ -141,7 +141,7 @@ class GameController extends Controller
         $game = Game::where('id', $gameId)
             ->where('host_token', $hostToken)
             ->firstOrFail();
-        
+
         // If game is not finished, redirect to game
         if ($game->status !== 'finished') {
             return redirect()->route('host.game', $gameId);
@@ -165,15 +165,25 @@ class GameController extends Controller
             ->where('game_id', $gameId)
             ->firstOrFail();
 
-        $game = Game::findOrFail($gameId);
-        
+        $game = Game::with('location')->findOrFail($gameId);
+
         // Redirect if game is finished
         if ($game->status === 'finished') {
             return redirect()->route('player.finished-leaderboard', $gameId)->with('error', 'Het spel is al beëindigd');
         }
-        
+
         if ($game->status !== 'started') {
             return redirect()->route('player.lobby', $gameId)->with('error', 'Het spel is nog niet gestart');
+        }
+
+        // REQ-012: Redirect to leaderboard if both bingo and questions complete
+        if ($player->hasCompletedAll()) {
+            return redirect()->route('player.leaderboard', $gameId);
+        }
+
+        // Redirect to route questions if bingo mode is not enabled
+        if (!$game->location->has_bingo_mode) {
+            return redirect()->route('player.route', $gameId);
         }
 
         return view('player.bingo', [
@@ -196,12 +206,12 @@ class GameController extends Controller
             ->firstOrFail();
 
         $game = Game::with('location.routeStops')->findOrFail($gameId);
-        
+
         // Redirect if game is finished
         if ($game->status === 'finished') {
             return redirect()->route('player.finished-leaderboard', $gameId)->with('error', 'Het spel is al beëindigd');
         }
-        
+
         if ($game->status !== 'started') {
             return redirect()->route('player.lobby', $gameId)->with('error', 'Het spel is nog niet gestart');
         }
@@ -229,12 +239,12 @@ class GameController extends Controller
             ->firstOrFail();
 
         $game = Game::findOrFail($gameId);
-        
+
         // Redirect if game is finished
         if ($game->status === 'finished') {
             return redirect()->route('player.finished-leaderboard', $gameId)->with('error', 'Het spel is al beëindigd');
         }
-        
+
         if ($game->status !== 'started') {
             return redirect()->route('player.lobby', $gameId)->with('error', 'Het spel is nog niet gestart');
         }
@@ -258,7 +268,7 @@ class GameController extends Controller
             ->firstOrFail();
 
         $game = Game::findOrFail($gameId);
-        
+
         // If game is not finished, redirect to game
         if ($game->status !== 'finished') {
             return redirect()->route('player.game', $gameId);
@@ -283,7 +293,7 @@ class GameController extends Controller
             ->firstOrFail();
 
         $game = Game::findOrFail($gameId);
-        
+
         // If game is not finished, redirect to game
         if ($game->status !== 'finished') {
             return redirect()->route('player.game', $gameId);

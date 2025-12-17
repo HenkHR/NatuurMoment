@@ -15,6 +15,15 @@
         rel="stylesheet"
     >
 
+    {{--
+        CRITICAL: Dit is een LIVEWIRE layout
+
+        @livewireScripts (onderaan) laadt AUTOMATISCH Alpine.js.
+        VOEG GEEN handmatige Alpine.start() toe - dit breekt wire:click!
+
+        De app.js heeft defensive checks om dubbele initialisatie te voorkomen.
+        @see docs/ALPINE_ARCHITECTURE.md
+    --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
@@ -23,6 +32,7 @@
         @yield('content')
     </div>
 
+    {{-- Alpine.js wordt AUTOMATISCH geladen door @livewireScripts --}}
     @livewireScripts
 </body>
 </html>

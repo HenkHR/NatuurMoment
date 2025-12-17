@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Constants\GameMode;
 use App\Models\Location;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -18,7 +19,40 @@ class LocationFactory extends Factory
             'name' => fake()->unique()->city() . ' ' . fake()->randomElement(['Bos', 'Park', 'Natuurgebied', 'Heide']),
             'description' => fake()->optional()->paragraph(),
             'province' => fake()->randomElement(['Noord-Holland', 'Zuid-Holland', 'Utrecht', 'Gelderland', 'Noord-Brabant', 'Limburg', 'Overijssel', 'Flevoland', 'Drenthe', 'Friesland', 'Groningen', 'Zeeland']),
-            'duration' => fake()->numberBetween(30, 180),
+            'distance' => fake()->numberBetween(30, 180),
+            'game_modes' => [], // REQ-006: Default all modes OFF
+            'bingo_three_in_row_points' => 20, // Default scoring
+            'bingo_full_card_points' => 100, // Default scoring
         ];
+    }
+
+    /**
+     * State: Bingo mode enabled
+     */
+    public function withBingoMode(): static
+    {
+        return $this->state(fn(array $attributes) => [
+            'game_modes' => array_merge($attributes['game_modes'] ?? [], [GameMode::BINGO]),
+        ]);
+    }
+
+    /**
+     * State: Vragen mode enabled
+     */
+    public function withVragenMode(): static
+    {
+        return $this->state(fn(array $attributes) => [
+            'game_modes' => array_merge($attributes['game_modes'] ?? [], [GameMode::VRAGEN]),
+        ]);
+    }
+
+    /**
+     * State: Both modes enabled
+     */
+    public function withAllModes(): static
+    {
+        return $this->state(fn(array $attributes) => [
+            'game_modes' => GameMode::ALL_MODES,
+        ]);
     }
 }

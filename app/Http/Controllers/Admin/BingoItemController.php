@@ -3,24 +3,32 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Admin\Traits\AdminPaginationTrait;
+use App\Http\Controllers\Admin\Traits\HandlesFileUploads;
 use App\Http\Requests\StoreBingoItemRequest;
 use App\Http\Requests\UpdateBingoItemRequest;
 use App\Models\Location;
 use App\Models\LocationBingoItem;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class BingoItemController extends Controller
 {
+    use AdminPaginationTrait;
+    use HandlesFileUploads;
+
     public function index(Location $location): View
     {
+        $perPage = $this->getPerPage();
+
         $bingoItems = $location->bingoItems()
             ->orderBy('label')
-            ->paginate(15);
+            ->paginate($perPage)
+            ->withQueryString();
 
-        return view('admin.bingo-items.index', compact('location', 'bingoItems'));
+        return view('admin.bingo-items.index', compact('location', 'bingoItems', 'perPage'));
     }
 
     public function create(Location $location): View
@@ -32,12 +40,12 @@ class BingoItemController extends Controller
     {
         $data = $request->safe()->only(['label', 'points', 'fact']);
 
-        if ($request->hasFile('icon')) {
-            $path = $request->file('icon')->store('bingo-icons', 'public');
-            if ($path === false) {
-                return back()->withErrors(['icon' => 'Bestand kon niet worden opgeslagen.'])->withInput();
-            }
-            $data['icon'] = $path;
+        $upload = $this->handleFileUpload($request, 'icon', 'bingo-icons');
+        if ($upload['error']) {
+            return back()->withErrors(['icon' => $upload['error']])->withInput();
+        }
+        if ($upload['path']) {
+            $data['icon'] = $upload['path'];
         }
 
         $location->bingoItems()->create($data);
@@ -58,20 +66,16 @@ class BingoItemController extends Controller
     {
         $data = $request->safe()->only(['label', 'points', 'fact']);
 
-        if ($request->boolean('remove_icon')) {
-            if ($bingoItem->icon && Storage::disk('public')->exists($bingoItem->icon)) {
-                Storage::disk('public')->delete($bingoItem->icon);
-            }
+        if ($this->handleFileRemoval($request, 'remove_icon', $bingoItem->icon)) {
             $data['icon'] = null;
-        } elseif ($request->hasFile('icon')) {
-            if ($bingoItem->icon && Storage::disk('public')->exists($bingoItem->icon)) {
-                Storage::disk('public')->delete($bingoItem->icon);
+        } else {
+            $upload = $this->handleFileUpload($request, 'icon', 'bingo-icons', $bingoItem->icon);
+            if ($upload['error']) {
+                return back()->withErrors(['icon' => $upload['error']])->withInput();
             }
-            $path = $request->file('icon')->store('bingo-icons', 'public');
-            if ($path === false) {
-                return back()->withErrors(['icon' => 'Bestand kon niet worden opgeslagen.'])->withInput();
+            if ($upload['path']) {
+                $data['icon'] = $upload['path'];
             }
-            $data['icon'] = $path;
         }
 
         $bingoItem->update($data);
@@ -90,12 +94,31 @@ class BingoItemController extends Controller
             $bingoItem->delete();
         });
 
-        if ($icon && Storage::disk('public')->exists($icon)) {
-            Storage::disk('public')->delete($icon);
-        }
+        $this->deleteStoredFile($icon);
 
         return redirect()
             ->route('admin.locations.bingo-items.index', $location)
             ->with('status', 'Bingo item verwijderd.');
+    }
+
+    public function updateScoringConfig(Request $request, Location $location): RedirectResponse
+    {
+        $validated = $request->validate([
+            'bingo_three_in_row_points' => ['required', 'integer', 'min:1'],
+            'bingo_full_card_points' => ['required', 'integer', 'min:1'],
+        ], [
+            'bingo_three_in_row_points.required' => 'Punten voor 3-op-een-rij is verplicht.',
+            'bingo_three_in_row_points.integer' => 'Punten moet een geheel getal zijn.',
+            'bingo_three_in_row_points.min' => 'Punten moet minimaal 1 zijn.',
+            'bingo_full_card_points.required' => 'Punten voor volle kaart is verplicht.',
+            'bingo_full_card_points.integer' => 'Punten moet een geheel getal zijn.',
+            'bingo_full_card_points.min' => 'Punten moet minimaal 1 zijn.',
+        ]);
+
+        $location->update($validated);
+
+        return redirect()
+            ->route('admin.locations.bingo-items.index', $location)
+            ->with('status', 'Bingo punten configuratie opgeslagen.');
     }
 }

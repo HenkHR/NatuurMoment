@@ -29,13 +29,18 @@
     </div>
 
     {{--link naar speluitleg--}}
-    <div class="flex justify-end mb-4 mt-2 mx-auto max-w-md">
-        <a
-            href="{{ url('/speluitleg') }}"
-            class="text-center bg-forest-700 hover:bg-forest-600 text-white rounded-lg font-semibold transition px-4 py-2 mr-4">
+    <div class="flex justify-end mb-4 mt-2 mx-auto max-w-md px-4">
+        <button
+            type="button"
+            x-data
+            x-on:click="$dispatch('open-modal', 'rules-modal-bingo')"
+            class="text-center bg-forest-700 hover:bg-forest-600 text-white rounded-lg font-semibold transition px-4 py-2"
+            aria-haspopup="dialog"
+        >
             Speluitleg
-        </a>
+        </button>
     </div>
+
 
     <!-- Photo Capture Component (includes bingo card) -->
     @livewire('player-photo-capture', [
@@ -46,17 +51,28 @@
 
     <nav class="fixed bottom-0 left-0 right-0 bg-[#0076A8] pb-safe">
         <div class="mx-auto w-full max-w-lg flex justify-around py-3 sm:py-5">
+            @if($game->location->has_bingo_mode)
             <a href="{{ route('player.game', $gameId) }}" class="flex items-center justify-center p-2 rounded {{ request()->routeIs('player.game') ? 'bg-sky-500' : '' }}">
                 <x-bi-grid alt="Bingo" class="w-8 h-8 sm:w-10 sm:h-10 text-white" />
             </a>
+            @endif
             <a href="{{ route('player.leaderboard', $gameId) }}" class="flex items-center justify-center p-2 rounded {{ request()->routeIs('player.leaderboard') ? 'bg-sky-500' : '' }}">
                 <x-lucide-trophy alt="Ranglijst" class="w-8 h-8 sm:w-10 sm:h-10 text-white"/>
             </a>
+            @if($game->location->has_vragen_mode && $game->routeStops()->exists())
             <a href="{{ route('player.route', $gameId) }}" class="flex items-center justify-center p-2 rounded {{ request()->routeIs('player.route') ? 'bg-sky-500' : '' }}">
                 <x-lucide-route alt="Route" class="w-8 h-8 sm:w-10 sm:h-10 text-white"/>
             </a>
+            @endif
         </div>
     </nav>
+
+    <x-game.rules-modal
+    name="rules-modal-bingo"
+    :rules="config('game.rules')"
+    title="Speluitleg"
+    maxWidth="2xl"
+    />
 
 </main>
 @livewireScripts

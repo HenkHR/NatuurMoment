@@ -4,11 +4,13 @@ use App\Http\Controllers\Admin\BingoItemController;
 use App\Http\Controllers\Admin\AdminGameController;
 use App\Http\Controllers\Admin\LocationController;
 use App\Http\Controllers\Admin\RouteStopController;
+use App\Http\Controllers\Admin\StatisticsController;
 use App\Http\Controllers\GameInfoController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\HomeController;
+use App\Livewire\PlayerCta;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
@@ -65,16 +67,25 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/settings', [ProfileController::class, 'edit'])->name('settings.edit');
+    Route::patch('/settings', [ProfileController::class, 'update'])->name('settings.update');
+    Route::patch('/settings/preferences', [ProfileController::class, 'updatePreferences'])->name('settings.preferences');
+    Route::delete('/settings', [ProfileController::class, 'destroy'])->name('settings.destroy');
 });
 
-Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'admin', 'throttle:120,1'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('locations', LocationController::class)->except(['show']);
     Route::resource('locations.bingo-items', BingoItemController::class)->shallow()->except(['show']);
     Route::resource('locations.route-stops', RouteStopController::class)->shallow()->except(['show']);
     Route::resource('games', AdminGameController::class)->only(['index', 'show', 'destroy']);
+
+    // Bingo scoring configuration
+    Route::patch('locations/{location}/bingo-scoring-config', [BingoItemController::class, 'updateScoringConfig'])
+        ->name('locations.bingo-scoring-config.update');
+
+    // Statistics dashboard (REQ-002)
+    Route::get('statistics', [StatisticsController::class, 'index'])->name('statistics.index');
+    Route::get('statistics/trends', [StatisticsController::class, 'trends'])->name('statistics.trends');
 });
 
 //game info route
@@ -83,4 +94,13 @@ Route::get('/games/natuur-avontuur/{locationId?}', [GameInfoController::class, '
     ->name('games.info');
 
 require __DIR__.'/auth.php';
+
+Route::get('/player/{gameId}/{playerToken}/cta', function ($gameId, $playerToken) {
+    return view('player.cta', [
+        'gameId' => (int) $gameId,
+        'playerToken' => (string) $playerToken,
+    ]);
+})->name('player.cta');
+
+
 

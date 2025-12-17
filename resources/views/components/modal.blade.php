@@ -17,34 +17,61 @@ $maxWidth = [
 <div
     x-data="{
         show: @js($show),
+        previouslyFocused: null,
+
         focusables() {
-            // All focusable element types...
-            let selector = 'a, button, input:not([type=\'hidden\']), textarea, select, details, [tabindex]:not([tabindex=\'-1\'])'
-            return [...$el.querySelectorAll(selector)]
-                // All non-disabled elements...
-                .filter(el => ! el.hasAttribute('disabled'))
+            let selector = 'a, button, input:not([type=\'hidden\']), textarea, select, details, [tabindex]:not([tabindex=\'-1\'])';
+            return [...this.$refs.dialog.querySelectorAll(selector)]
+                .filter(el => !el.hasAttribute('disabled') && el.getAttribute('aria-hidden') !== 'true');
         },
         firstFocusable() { return this.focusables()[0] },
         lastFocusable() { return this.focusables().slice(-1)[0] },
-        nextFocusable() { return this.focusables()[this.nextFocusableIndex()] || this.firstFocusable() },
-        prevFocusable() { return this.focusables()[this.prevFocusableIndex()] || this.lastFocusable() },
-        nextFocusableIndex() { return (this.focusables().indexOf(document.activeElement) + 1) % (this.focusables().length + 1) },
-        prevFocusableIndex() { return Math.max(0, this.focusables().indexOf(document.activeElement)) -1 },
+
+        focusFirst() {
+            const first = this.firstFocusable();
+            if (first) first.focus();
+            else this.$refs.dialog.focus(); // fallback als er geen focusables zijn
+        },
+        focusLast() {
+            const last = this.lastFocusable();
+            if (last) last.focus();
+            else this.$refs.dialog.focus();
+        },
     }"
     x-init="$watch('show', value => {
         if (value) {
+            previouslyFocused = document.activeElement;
             document.body.classList.add('overflow-y-hidden');
-            {{ $attributes->has('focusable') ? 'setTimeout(() => firstFocusable().focus(), 100)' : '' }}
+            {{ $attributes->has('focusable') ? 'setTimeout(() => focusFirst(), 50)' : '' }}
         } else {
             document.body.classList.remove('overflow-y-hidden');
+            if (previouslyFocused && typeof previouslyFocused.focus === 'function') {
+                setTimeout(() => previouslyFocused.focus(), 0);
+            }
         }
     })"
     x-on:open-modal.window="$event.detail == '{{ $name }}' ? show = true : null"
     x-on:close-modal.window="$event.detail == '{{ $name }}' ? show = false : null"
     x-on:close.stop="show = false"
     x-on:keydown.escape.window="show = false"
-    x-on:keydown.tab.prevent="$event.shiftKey || nextFocusable().focus()"
-    x-on:keydown.shift.tab.prevent="prevFocusable().focus()"
+
+    x-on:keydown.tab="
+    if (!show) return;
+    const focusables = this.focusables();
+    if (!focusables.length) return;
+
+    const first = focusables[0];
+    const last  = focusables[focusables.length - 1];
+
+    if ($event.shiftKey && document.activeElement === first) {
+        $event.preventDefault();
+        last.focus();
+    } else if (!$event.shiftKey && document.activeElement === last) {
+        $event.preventDefault();
+        first.focus();
+    }
+    "
+
     x-show="show"
     class="fixed inset-0 overflow-y-auto px-4 py-6 sm:px-0 z-50 flex items-center justify-center"
     style="display: {{ $show ? 'flex' : 'none' }};"
@@ -59,12 +86,19 @@ $maxWidth = [
         x-transition:leave="ease-in duration-200"
         x-transition:leave-start="opacity-100"
         x-transition:leave-end="opacity-0"
+        aria-hidden="true"
     >
         <div class="absolute inset-0 bg-deep-black opacity-50"></div>
     </div>
 
     <div
+        x-ref="dialog"
         x-show="show"
+        role="dialog"
+        aria-modal="true"
+        tabindex="-1"
+        {{ $attributes->only(['aria-labelledby','aria-label','aria-describedby']) }}
+
         class="relative bg-pure-white rounded-card shadow-xl transform transition-all sm:w-full {{ $maxWidth }} mx-4 sm:mx-auto p-6"
         x-transition:enter="ease-out duration-300"
         x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"

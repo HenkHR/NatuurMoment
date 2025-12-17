@@ -10,7 +10,7 @@
         <div
             x-data="{ selectedOption: @entangle('selectedOption') }"
             x-on:answer-submitted.window="setTimeout(() => $wire.clearFeedback(), 2000)"
-            class="bg-white rounded-lg shadow-lg p-6"
+            class="bg-white rounded-lg p-6"
         >
             {{-- Question header --}}
             <div class="flex items-start justify-between mb-4">

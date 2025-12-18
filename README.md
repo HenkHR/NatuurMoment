@@ -507,6 +507,18 @@ php artisan test --coverage
 
 ---
 
+<details>
+<summary>📝 <b>TODO</b></summary>
+
+<br>
+
+- [ ] Add functionality for host to play the game with the players
+- [ ] Let hosts create accounts so they can create their own routes/locations
+
+</details>
+
+---
+
 ## 📄 License
 
 This project is licensed under the MIT License.
